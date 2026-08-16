@@ -24,6 +24,9 @@
 <!-- Skill and grammar accuracy tracking. Needs `state`/persist() from
      state.js and clamp()/pct() from utils.js. -->
 <script src="js/features/mastery.js"></script>
+<!-- Vocabulary review scheduling. Needs `state`/persist() from state.js
+     and the date helpers from utils.js; independent of the two above. -->
+<script src="js/features/srs.js"></script>
 <script>
 (function(){
 "use strict";
@@ -45,38 +48,9 @@
    weakGrammarTopics) now lives in js/features/mastery.js, loaded just above
    this script. */
 
-/* ===================== SPACED REPETITION (vocab) ===================== */
-var SRS_LEVELS = ["New","Learning","Familiar","Strong","Mastered"];
-var SRS_INTERVALS = [0,1,3,7,16,35];
-function getVocabState(vid){
-  if(!state.vocabSrs[vid]) state.vocabSrs[vid] = {status:"New", interval:0, due:todayStr(), correctStreak:0, seen:0, correct:0};
-  return state.vocabSrs[vid];
-}
-function reviewVocab(vid, correct){
-  var v = getVocabState(vid);
-  v.seen++;
-  var levelIdx = SRS_LEVELS.indexOf(v.status);
-  if(correct){
-    v.correct++; v.correctStreak++;
-    levelIdx = clamp(levelIdx+1, 0, SRS_LEVELS.length-1);
-  } else {
-    v.correctStreak=0;
-    levelIdx = clamp(levelIdx-1, 0, SRS_LEVELS.length-1);
-  }
-  v.status = SRS_LEVELS[levelIdx];
-  v.interval = SRS_INTERVALS[levelIdx];
-  v.due = addDays(todayStr(), Math.max(v.interval,correct?1:0));
-  persist();
-}
-function dueVocabIds(){
-  return Object.keys(state.vocabSrs).filter(function(id){ return daysUntil(state.vocabSrs[id].due) <= 0; });
-}
-function weakVocabIds(n){
-  var arr = Object.keys(state.vocabSrs).map(function(id){ return {id:id, s:state.vocabSrs[id]}; })
-    .filter(function(x){ return x.s.seen>0; })
-    .sort(function(a,b){ return pct(a.s.correct,a.s.seen)-pct(b.s.correct,b.s.seen); });
-  return arr.slice(0,n||15).map(function(x){return x.id;});
-}
+/* Vocabulary spaced repetition (SRS_LEVELS, SRS_INTERVALS, getVocabState,
+   reviewVocab, dueVocabIds, weakVocabIds) now lives in js/features/srs.js,
+   loaded just above this script. */
 
 /* ===================== MISTAKE NOTEBOOK ===================== */
 function saveMistake(m){
