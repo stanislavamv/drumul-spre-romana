@@ -28,7 +28,7 @@ bare tick.
 | Reading texts | 29 |
 | Grammar articles | 41 |
 | Media items | 6 embedded videos |
-| Audio clips | 6,179 (~102 MB) |
+| Audio clips | 6,177 (~92 MB, not in the repo) |
 
 ### Four tracks, one engine
 
