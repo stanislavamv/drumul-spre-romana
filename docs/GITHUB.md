@@ -37,13 +37,17 @@ runtime all stay.
 artifact.** The README already documents the two commands. If the project ever
 goes properly public, budget for Cloud TTS or a human.
 
-### 2. Teacher-mode credentials become public
+### 2. Teacher-mode credentials become public — RESOLVED
 
-`profesor` / `drumul2026` are in the source. Once the repo is public, so are
-they, and the "lock" stops being even a lid.
+~~`profesor` / `drumul2026` are in the source.~~
 
-This is not a code fix — a static single-file app cannot hide a secret from the
-browser running it. Options:
+**Done: the login was removed entirely.** The third option below was taken. What
+remains is a labelled checkbox in Settings that unlocks every unit, plus a card
+on the page explaining why there is no password: a static single-file app cannot
+hide a secret from the browser running it, so a login box would only tempt
+someone into putting something private behind a lock that cannot refuse anyone.
+
+The options that were considered:
 
 - **Accept it** and change the copy to say plainly that it is a convenience
   toggle, not access control. Honest, zero work.
@@ -51,6 +55,7 @@ browser running it. Options:
   that is gitignored, so each deployment sets its own. Still client-side, still
   readable by a determined student, but not published.
 - **Drop the login entirely**, leaving the unlock-all toggle in settings.
+  ← **taken**
 
 Anything stronger needs a server, which is a different project.
 
@@ -193,10 +198,12 @@ Those need human eyes.
 
 ## Sequence
 
-1. `git init`, add `.gitignore` **first**, confirm `git status` shows no `audio/`
-   and no PDFs.
-2. Delete the loose screenshots and the stale root `ro-strings.json`.
-3. Decide the teacher-mode question above; apply it.
+1. ~~`git init`, add `.gitignore` **first**, confirm `git status` shows no `audio/`
+   and no PDFs.~~ **Done** — 17 files, 1.5 MB, verified with `git check-ignore`
+   before the first commit.
+2. ~~Delete the loose screenshots and the stale root `ro-strings.json`.~~ **Done** —
+   both are gitignored rather than deleted, so they stay on disk but out of history.
+3. ~~Decide the teacher-mode question above; apply it.~~ **Done** — login removed.
 4. Audit exercises against the two source books for verbatim reuse.
 5. Add `LICENSE` and `LICENSE-CONTENT`.
 6. First commit. Verify size is a few MB, not 60 — if it is 60, `.gitignore`

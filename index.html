@@ -8004,49 +8004,41 @@ function ilrMockReport(papers, allItems){
     '</div>';
 }
 
-/* ---------- TEACHER / AUTHOR MODE ----------
+/* ---------- AUTHOR MODE ----------
    Opens every unit regardless of progress, for reviewing or authoring content
-   without grinding through the sequence first.
+   without working through the sequence first.
 
-   Be clear about what this is: the course is a single static file with no
-   server, so the check below runs in the learner's own browser against a value
-   sitting in the same file. Anyone who opens the developer console can flip the
-   flag directly, and viewing source reveals the credential. It is a switch with
-   a lid on it — enough to stop a learner unlocking the syllabus by accident or
-   idle curiosity, and nothing more. Do not put anything behind it that would
-   matter if a student saw it. Real access control needs a server. */
-var ADMIN_USER = "profesor";
-var ADMIN_PASS = "drumul2026";
+   There is deliberately no password. The course is a static file with no
+   server, so any check would run in the learner's own browser against a value
+   in the same file — defeated by viewing source. A login box that cannot
+   actually refuse anyone is worse than none, because it invites putting
+   something behind it. This is a preference, and it is labelled as one.
+   Real authorisation needs a server, and can arrive with accounts. */
 PAGES.admin = function(){
   var on = state.settings.unlockAll;
   var main = '<div class="main-inner" style="max-width:560px;padding-top:30px">'+
-    '<div class="section-eyebrow">Teacher / author mode</div>'+
+    '<div class="section-eyebrow">Author mode</div>'+
     '<h1 style="font-size:28px;margin-bottom:10px">Open every unit</h1>'+
     '<div class="card" style="padding:22px 24px;margin-bottom:16px">'+
-      (on
-        ? '<p style="font-size:14px;color:var(--pine);line-height:1.6;margin-bottom:14px">'+
-            '<b>Currently on.</b> Every unit in every track is open, and progress requirements are ignored. '+
-            'Your scores and review queue still work exactly as before — this only removes the locks.</p>'+
-          '<button class="btn secondary" data-action="adminLogout">Turn it off</button>'
-        : '<p style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:16px">'+
-            'Unlocks every unit so you can jump anywhere without completing what comes before. '+
-            'Useful for reviewing material or checking a lesson you have not reached yet.</p>'+
-          '<label class="field-label">Username</label>'+
-          '<input type="text" data-field="adminUser" data-action="typeAdminUser" autocomplete="off" '+
-            'style="width:100%;margin-bottom:12px" placeholder="username" />'+
-          '<label class="field-label">Password</label>'+
-          '<input type="password" data-field="adminPass" data-action="typeAdminPass" autocomplete="off" '+
-            'style="width:100%;margin-bottom:14px" placeholder="password" />'+
-          (session.adminError? '<div style="font-size:13px;color:var(--brick);margin-bottom:12px">'+escapeHtml(session.adminError)+'</div>':'')+
-          '<button class="btn" data-action="adminLogin">Unlock</button>')+
+      '<p style="font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:16px">'+
+        'Unlocks every unit in every track, so you can open anything without completing what comes '+
+        'before it. Intended for reviewing material or checking a lesson you have not reached yet. '+
+        'Your scores, review queue and mistake notebook are unaffected \u2014 this only removes the locks.</p>'+
+      '<label style="display:flex;align-items:flex-start;gap:10px;font-size:14px;cursor:pointer">'+
+        '<input type="checkbox" data-action="toggleUnlockAll" '+(on?"checked":"")+' style="width:auto;margin-top:3px" />'+
+        '<span><b>Unlock all course content</b><br>'+
+        '<span style="font-size:12.5px;color:var(--text-3)">'+
+          (on? 'Currently on. Every unit is open.' : 'Currently off. Units open as you complete the one before.')+
+        '</span></span></label>'+
     '</div>'+
     '<div class="card" style="padding:18px 20px">'+
-      '<b style="font-family:var(--font-display);font-size:15px">This is a convenience switch, not security</b>'+
+      '<b style="font-family:var(--font-display);font-size:15px">Why there is no password here</b>'+
       '<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-top:6px">'+
-        'The course runs entirely in your browser with no server behind it, so this check happens on the same '+
-        'machine as the thing it is checking. Anyone determined enough can read the credentials in the page source '+
-        'or set the flag from the console. It keeps the syllabus from being unlocked by accident — treat it as a '+
-        'lid, not a lock, and do not put anything sensitive behind it.</p>'+
+        'This course runs entirely in your browser with no server behind it. Any password check would happen '+
+        'on the same machine as the thing it is checking, and anyone could read it in the page source or set '+
+        'the flag from the developer console. A lock that cannot refuse anyone is worse than an honest switch, '+
+        'because it tempts you into putting something private behind it. Nothing here is private \u2014 it is a '+
+        'preference about how the course behaves.</p>'+
     '</div>'+
   '</div>';
   return shell(null, main, null);
@@ -9608,10 +9600,10 @@ PAGES.progress = function(){
       '<div style="border-top:1px solid var(--line);margin:14px 0;padding-top:14px">'+
         '<div style="font-size:13.5px;color:var(--text-2);margin-bottom:8px">'+
           (state.settings.unlockAll
-            ? '<b style="color:var(--pine)">Teacher mode is on</b> — every unit is open.'
-            : 'Teacher / author mode opens every unit regardless of progress.')+'</div>'+
+            ? '<b style="color:var(--pine)">Author mode is on</b> — every unit is open.'
+            : 'Author mode opens every unit regardless of progress.')+'</div>'+
         '<button class="btn secondary sm" data-action="go" data-page="admin">'+
-          (state.settings.unlockAll? 'Manage teacher mode' : 'Teacher mode')+'</button>'+
+          (state.settings.unlockAll? 'Manage author mode' : 'Author mode')+'</button>'+
       '</div>'+
       '<button class="btn secondary sm" data-action="resetProgress">Reset all progress</button>'+
       '<p style="font-size:12.5px;color:var(--text-3);margin-top:8px">This clears everything stored in this browser and cannot be undone.</p>'+
@@ -10164,22 +10156,8 @@ var Actions = {
     render();
   },
   restartIlrMock: function(){ session.ilrMock = null; Actions.startIlrMock(); },
-  typeAdminUser: function(el){ session.adminUser = el.value; },
-  typeAdminPass: function(el){ session.adminPass = el.value; },
-  adminLogin: function(){
-    var u = String(session.adminUser||"").trim().toLowerCase();
-    var p = String(session.adminPass||"");
-    if(u===ADMIN_USER && p===ADMIN_PASS){
-      state.settings.unlockAll = true;
-      session.adminError = ""; session.adminUser = ""; session.adminPass = "";
-      persist(); navigate("home");
-    } else {
-      session.adminError = "That username and password don't match.";
-      render();
-    }
-  },
-  adminLogout: function(){
-    state.settings.unlockAll = false; persist(); render();
+  toggleUnlockAll: function(){
+    state.settings.unlockAll = !state.settings.unlockAll; persist(); render();
   },
   enableProfanity: function(el){
     state.settings.showProfanity = true; persist();
@@ -10881,7 +10859,7 @@ function renderTopbar(){
       /* Visible while teacher mode is on, so an unlocked syllabus is never
          mistaken for earned progress. */
       (state.settings.unlockAll
-        ? '<button class="teacher-chip" data-action="go" data-page="admin" title="Teacher mode is on — every unit is unlocked. Click to manage.">TEACHER</button>'
+        ? '<button class="teacher-chip" data-action="go" data-page="admin" title="Author mode is on — every unit is unlocked. Click to manage.">AUTHOR</button>'
         : '')+
       '<span class="level-pill">'+lvl.code+'</span>'+
       '<span class="streak-chip">'+iconFlame()+' '+currentStreak()+'</span>'+
@@ -10997,7 +10975,7 @@ function render(){
    field keeps its own value while the learner types. */
 var INPUT_DRIVEN = {typeAnswer:1, typeGap:1, typePlacement:1, grammarSearch:1, vocabSearch:1,
                     verbSearch:1, pickMatch:1, toggleMotion:1, toggleProfanity:1, typeImport:1, importFile:1,
-                    typeAdminUser:1, typeAdminPass:1, typeTranscript:1};
+                    typeTranscript:1};
 
 document.addEventListener("click", function(e){
   /* A glossable word can sit inside a clickable control (an MCQ option, a
@@ -11024,8 +11002,7 @@ document.addEventListener("input", function(e){
   /* Model-only updates: no re-render, so the caret stays where the learner
      put it. Every typed field must be listed here or its value is silently
      dropped when the answer is checked. */
-  if(name==="typeAnswer" || name==="typeGap" || name==="typePlacement" || name==="typeImport"
-     || name==="typeAdminUser" || name==="typeAdminPass" || name==="typeTranscript"){
+  if(name==="typeAnswer" || name==="typeGap" || name==="typePlacement" || name==="typeImport" || name==="typeTranscript"){
     Actions[name](el, e);
     return;
   }

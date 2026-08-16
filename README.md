@@ -146,8 +146,11 @@ are Romanian.
 
 ## Known limits
 
-- **Teacher mode is a lid, not a lock.** Client-side only; credentials are
-  readable in source. It stops casual unlocking and nothing more.
+- **Author mode is a preference, not access control.** A checkbox in Settings
+  that unlocks every unit. It deliberately has no password: any check would run
+  in the learner's own browser against a value in the same file, so a login box
+  would only invite putting something private behind a lock that cannot refuse
+  anyone.
 - **Progress is per-browser.** `localStorage`, with JSON export and a paste-able
   transfer code. No accounts, no sync — there is no server to hold them.
 - **Audio is Google Translate TTS.** Good enough for study, not licensable for
