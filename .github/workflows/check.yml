@@ -1,0 +1,25 @@
+name: check
+
+on: [push, pull_request]
+
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The real gate. Catches dangling vocab/exercise/dialogue ids, non-ASCII
+      # ids, duplicate ids and exercises missing an explanation — all of which
+      # have shipped as real bugs and none of which throw at runtime.
+      - name: Content references
+        run: python tools/check_content.py
+
+      # Diagnostic only: its tokenizer does not understand regex literals, so
+      # the depths it reports are indicative, not zero-on-success. It always
+      # exits 0. Kept because it localises a genuine parse error to a line,
+      # which is worth a lot in a 10k-line single file.
+      - name: Syntax balance (informational)
+        run: python tools/check_syntax.py

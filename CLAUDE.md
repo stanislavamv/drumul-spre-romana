@@ -1,0 +1,85 @@
+# CLAUDE.md
+
+Guidance for Claude Code when working in this repository.
+
+## What this is
+
+A Romanian course for English speakers, A1–B1, plus citizenship and register
+tracks. Everything is in `index.html` — ~10,000 lines of vanilla JS, no build
+step, no dependencies, no framework.
+
+**Do not propose React, Vite, npm or a bundler.** This machine has no Node
+toolchain, and the single-file constraint is the point: the course runs offline
+from a file, and will still run in ten years. Work with it.
+
+## Commands
+
+```bash
+python -m http.server 8777          # serve, then open /index.html
+python tools/check_content.py       # dangling ids, missing explanations — RUN AFTER EVERY CONTENT EDIT
+python tools/check_syntax.py        # localises a parse error to a line
+python tools/extract_strings.py     # collect Romanian strings needing audio
+python tools/fetch_audio.py tools/ro-strings.json    # download clips, rebuild manifest (~2h cold)
+python tools/verify_verbs.py        # cross-check conjugations vs Wiktionary (~12 min, 190 requests)
+```
+
+## Documentation
+
+`docs/ARCHITECTURE.md` for the data model and engine. `docs/CONTENT.md` for
+curriculum status. `docs/AUDIO.md` for the pipeline. `docs/GITHUB.md` before any
+thought of publishing.
+
+## Traps that have already caused bugs
+
+These are not hypotheticals. Each one shipped.
+
+**`\b` is ASCII-only in JS.** `/\bîmi/` never matches. Tokenise manually for any
+word-boundary logic over Romanian.
+
+**Ids must be ASCII.** A vocab id written `b_atenție` and referenced
+`b_atentie` renders a blank stage with no error. `check_content.py` catches it.
+
+**New input actions need adding to `INPUT_DRIVEN`.** Otherwise the control
+renders, does nothing, and reports nothing. This has happened twice — typed
+answers silently discarded, then a checkbox.
+
+**Generated exercises need `findExercise`, not `exerciseById`.** The latter only
+sees static data, so anything generated at runtime becomes unsubmittable.
+
+**Never state in the DOM.** Full re-render on every change; anything typed or
+selected must live in `session`.
+
+**Order of data arrays is not what you expect** — `COURSES` precedes `LEVELS`.
+Anything parsing regions of the file must look up the end marker *after* the
+start, or it slices backwards into nothing.
+
+**`tools/extract_strings.py` parses the data region textually.** Moving a data
+array below `function lessonsOfUnit` silently breaks audio extraction.
+
+**Python scripts must force UTF-8 stdout.** Windows consoles are cp1252 and
+cannot encode `ș`/`ț`; a script dies reporting the problem it found.
+
+## Content rules
+
+These come from user feedback and are not stylistic preferences.
+
+- **Every exercise needs `explain`.** A bare ✓/✗ teaches nothing. Wrong answers
+  explain what was wrong with *that* answer.
+- **Reading questions must not be answerable by keyword-matching.** The correct
+  option never reproduces the text's wording; at least one distractor does.
+- **Free writing is never graded "Correct"** — use `submitted`, and say what was
+  not checked.
+- **Never let the app read Romanian in an English voice.** Silence instead, with
+  a disabled play button that explains why.
+- **Options shuffle per attempt**, or repeat testing teaches answer positions.
+- **Label register.** Colloquial and regional usage is marked as such.
+
+## Verification
+
+Automated route sweeps catch total breakage. They do **not** catch a question
+answerable without reading the text, a grader passing a wrong answer, or a
+pedagogically empty exercise — every one of those bugs here was found by a human
+looking at the screen. After content work, open the lesson and click through it.
+
+Do not report content as complete without running `check_content.py` and loading
+the affected pages.

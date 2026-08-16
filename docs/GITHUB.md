@@ -1,0 +1,229 @@
+# Publication plan
+
+Read this before running `git init`. Three things in the current working
+directory must not be published as-is, and one of them is not fixable by
+deleting a file.
+
+---
+
+## Blockers, in order of severity
+
+### 1. The audio is not redistributable
+
+`audio/` holds 4,703 MP3s (~62 MB) generated from Google Translate's
+`translate_tts` endpoint. That endpoint is undocumented and not covered by
+Google's API terms for automated use. The output is **not licensed for
+redistribution**.
+
+Using it for personal study is one thing. Committing 62 MB of it to a public
+repository is republication, and it is the kind of thing that attracts a
+takedown rather than a lawsuit — but it also makes the repo unusable by anyone
+who cares about provenance.
+
+This cannot be fixed by adding a license file. The options are:
+
+| Option | Cost | Result |
+|---|---|---|
+| **Exclude `audio/`, ship the pipeline** | Users run one script, wait ~2 h | Repo is clean; audio is a local build artifact. **Recommended.** |
+| Re-record with a paid TTS licensed for redistribution | Google Cloud TTS or Azure, roughly $10–25 for this corpus at standard voices | Clips become publishable; quality similar or better |
+| Commission a native speaker | Real money, weeks | Best quality by a distance, and the honest answer to "native Romanian audio" |
+| Public-domain / CC-BY sources | Free, patchy coverage | Will not cover 4,703 strings |
+
+The pipeline already supports the second option — `fetch_audio.py` would need
+its endpoint swapped, nothing else. The manifest, the key normalisation and the
+runtime all stay.
+
+**Recommendation: exclude `audio/` from the repo and treat it as a build
+artifact.** The README already documents the two commands. If the project ever
+goes properly public, budget for Cloud TTS or a human.
+
+### 2. Teacher-mode credentials become public
+
+`profesor` / `drumul2026` are in the source. Once the repo is public, so are
+they, and the "lock" stops being even a lid.
+
+This is not a code fix — a static single-file app cannot hide a secret from the
+browser running it. Options:
+
+- **Accept it** and change the copy to say plainly that it is a convenience
+  toggle, not access control. Honest, zero work.
+- **Move the credential out of the repo** — read it from a `config.local.js`
+  that is gitignored, so each deployment sets its own. Still client-side, still
+  readable by a determined student, but not published.
+- **Drop the login entirely**, leaving the unlock-all toggle in settings.
+
+Anything stronger needs a server, which is a different project.
+
+### 3. Source PDFs must never be committed
+
+Two copyrighted books informed the curriculum:
+
+- *Learn Romanian Manual* — Dr. Mona Moldoveanu Pologea, ROLANG
+- *Limba Română* — Grigore Brâncuș
+
+Both live in the user's Downloads/Documents, outside this directory, and must
+stay there. Add belt-and-braces `*.pdf` to `.gitignore` regardless.
+
+Structure and pedagogical approach are not copyrightable and were the useful
+part. **Before publishing, audit that no exercise reproduces source text
+verbatim** — paraphrase or replace anything that does. Grep the exercise data
+against the extracted manual text if it is still around.
+
+### Also clean up
+
+- `english words underlined glitch.png`, `hover over voicover glitch.png`,
+  `vocabulary sourcing bug.png` — debugging screenshots in the repo root.
+- `ro-strings.json` in the root is a stale duplicate of `tools/ro-strings.json`.
+- `.claude/settings.local.json` — machine-local, gitignore it.
+
+---
+
+## Repository layout
+
+```
+drumul-spre-romana/
+├── index.html
+├── audio-manifest.js          ← generated, but commit it (small, needed to run)
+├── README.md
+├── LICENSE                    ← code
+├── LICENSE-CONTENT            ← course content, likely different terms
+├── CLAUDE.md
+├── .gitignore
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── CONTENT.md
+│   ├── AUDIO.md
+│   └── GITHUB.md
+├── tools/
+│   ├── extract_strings.py
+│   ├── fetch_audio.py
+│   ├── check_content.py
+│   ├── check_syntax.py
+│   ├── verify_verbs.py
+│   └── ro-strings.json        ← commit: it is the audio build input
+└── .github/workflows/
+    └── check.yml
+```
+
+`audio/` is absent by design. `audio-manifest.js` is committed even though it is
+generated, because without it a fresh clone has no idea what audio should exist.
+
+### Licensing
+
+Two licenses, because the code and the course are different things:
+
+- **Code** — MIT. It is a single HTML file; permissive costs nothing.
+- **Content** — CC BY-SA 4.0 is the natural fit for a curriculum, and matches
+  Wiktionary, which was used as a verification cross-check (and should be
+  credited for that).
+
+State clearly that `audio/` is **not** covered by either and is not distributed.
+
+---
+
+## `.gitignore`
+
+```gitignore
+# Not redistributable — Google TTS output. Rebuild with tools/fetch_audio.py
+audio/
+
+# Copyrighted source material, never commit
+*.pdf
+
+# Local machine config
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Build scratch
+tools/failed.json
+tools/verb-report.json
+tools/manual_text.txt
+tools/*.png
+
+# Stale duplicate of tools/ro-strings.json
+/ro-strings.json
+
+# Debug screenshots
+*glitch.png
+*bug.png
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+```
+
+---
+
+## CI
+
+There is no test suite, but three checks are cheap and catch the failure modes
+this project actually has. All three already exist as scripts.
+
+```yaml
+name: check
+on: [push, pull_request]
+
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+
+      # Localises a parse error to a line — the single file makes a stray
+      # brace expensive to find by hand.
+      - run: python tools/check_syntax.py
+
+      # Dangling vocab/exercise/dialogue ids and exercises missing an
+      # explanation. Both have shipped as real bugs.
+      - run: python tools/check_content.py
+```
+
+Deliberately **not** in CI: `verify_verbs.py` hits Wiktionary 190 times and
+takes about twelve minutes. Run it manually after adding verbs.
+
+Worth adding later: a headless browser sweep of every route asserting no console
+errors. That catches total breakage — but as the architecture doc says, it does
+not catch a mis-graded answer or a question answerable without reading the text.
+Those need human eyes.
+
+---
+
+## Sequence
+
+1. `git init`, add `.gitignore` **first**, confirm `git status` shows no `audio/`
+   and no PDFs.
+2. Delete the loose screenshots and the stale root `ro-strings.json`.
+3. Decide the teacher-mode question above; apply it.
+4. Audit exercises against the two source books for verbatim reuse.
+5. Add `LICENSE` and `LICENSE-CONTENT`.
+6. First commit. Verify size is a few MB, not 60 — if it is 60, `.gitignore`
+   did not take and history will carry the audio forever.
+7. Push private. Live with it a while.
+8. Add the CI workflow.
+9. Only then consider making it public — and only after the audio question has a
+   real answer, not a hope.
+
+**On step 6:** if audio does get committed by accident, `git rm --cached` does
+not remove it from history. That needs `git filter-repo` or a fresh repo. Check
+before the first push, not after.
+
+---
+
+## If it becomes a real project
+
+- **Accounts and sync.** The most-requested thing. Progress is `localStorage`
+  today, with JSON export/import as the escape hatch. Real sync needs a backend,
+  which changes the project's nature — a static file becomes a service with
+  uptime, data protection duties and a bill. Worth it only if other people
+  actually use it.
+- **Audio, properly.** A native speaker recording 4,700 strings is the single
+  largest quality jump available, and it also removes the licensing blocker.
+- **Splitting the file.** At ~10,000 lines the single file is near its limit.
+  Content could move to JSON fetched at load — at the cost of the `file://`
+  guarantee, which is worth more than it sounds.
+- **Community content.** The data model is clean enough that a contributor could
+  add a unit without touching the engine. `check_content.py` becomes the
+  contribution gate.
