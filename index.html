@@ -27,6 +27,9 @@
 <!-- Vocabulary review scheduling. Needs `state`/persist() from state.js
      and the date helpers from utils.js; independent of the two above. -->
 <script src="js/features/srs.js"></script>
+<!-- Mistake notebook. Needs uid()/todayStr() from utils.js and
+     `state`/persist() from state.js. -->
+<script src="js/features/mistakes.js"></script>
 <script>
 (function(){
 "use strict";
@@ -52,13 +55,8 @@
    reviewVocab, dueVocabIds, weakVocabIds) now lives in js/features/srs.js,
    loaded just above this script. */
 
-/* ===================== MISTAKE NOTEBOOK ===================== */
-function saveMistake(m){
-  m.id = uid("mk"); m.date = todayStr();
-  state.mistakes.unshift(m);
-  if(state.mistakes.length>300) state.mistakes.length=300;
-  persist();
-}
+/* saveMistake now lives in js/features/mistakes.js, loaded just above this
+   script. rehydrateMistakes stays below, with the progress-import code. */
 
 /* ===================== SPEECH / AUDIO ABSTRACTION ===================== */
 /* ---------------------------------------------------------------------------
