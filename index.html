@@ -18,6 +18,9 @@
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
 <script src="js/core/state.js"></script>
+<!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
+     from state.js, so it loads after both. -->
+<script src="js/features/activity.js"></script>
 <script>
 (function(){
 "use strict";
@@ -32,18 +35,8 @@
    global from there; applyImportedState and resetProgress below still reassign
    it directly, which resolves out to that binding exactly as before. */
 
-function markActivityToday(){
-  var t = todayStr();
-  if(state.activityDates.indexOf(t)===-1){ state.activityDates.push(t); }
-}
-function currentStreak(){
-  var set = {}; state.activityDates.forEach(function(d){ set[d]=true; });
-  var n=0, cursor = new Date();
-  // if today not studied yet, streak counts back from yesterday (missing a day doesn't erase history, just doesn't extend)
-  if(!set[todayStr(cursor)]){ cursor.setDate(cursor.getDate()-1); }
-  while(set[todayStr(cursor)]){ n++; cursor.setDate(cursor.getDate()-1); }
-  return n;
-}
+/* markActivityToday and currentStreak now live in js/features/activity.js,
+   loaded just above this script. */
 
 /* ===================== SKILL STATS / MASTERY ===================== */
 function recordSkill(skill, correct){
