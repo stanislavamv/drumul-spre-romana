@@ -21,6 +21,9 @@
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
      from state.js, so it loads after both. -->
 <script src="js/features/activity.js"></script>
+<!-- Skill and grammar accuracy tracking. Needs `state`/persist() from
+     state.js and clamp()/pct() from utils.js. -->
+<script src="js/features/mastery.js"></script>
 <script>
 (function(){
 "use strict";
@@ -38,38 +41,9 @@
 /* markActivityToday and currentStreak now live in js/features/activity.js,
    loaded just above this script. */
 
-/* ===================== SKILL STATS / MASTERY ===================== */
-function recordSkill(skill, correct){
-  if(!state.skillStats[skill]) state.skillStats[skill]={c:0,t:0};
-  state.skillStats[skill].t++;
-  if(correct) state.skillStats[skill].c++;
-  persist();
-}
-function skillMastery(skill){
-  var s = state.skillStats[skill]||{c:0,t:0};
-  if(s.t===0) return 0;
-  return clamp(pct(s.c,s.t),0,100);
-}
-function overallMastery(){
-  var skills=["vocabulary","grammar","listening","reading","writing","pronunciation"];
-  var sum=0,n=0;
-  skills.forEach(function(sk){ var s=state.skillStats[sk]||{c:0,t:0}; if(s.t>0){ sum+=pct(s.c,s.t); n++; } });
-  return n? Math.round(sum/n) : 0;
-}
-function recordGrammar(topicId, correct){
-  if(!topicId) return;
-  if(!state.grammarStats[topicId]) state.grammarStats[topicId]={correct:0,total:0};
-  state.grammarStats[topicId].total++;
-  if(correct) state.grammarStats[topicId].correct++;
-  persist();
-}
-function weakGrammarTopics(n){
-  var arr = Object.keys(state.grammarStats).map(function(id){
-    var s=state.grammarStats[id];
-    return {id:id, acc: pct(s.correct,s.total), total:s.total};
-  }).filter(function(x){ return x.total>=2; }).sort(function(a,b){ return a.acc-b.acc; });
-  return arr.slice(0,n||5);
-}
+/* Skill mastery (recordSkill, skillMastery, overallMastery, recordGrammar,
+   weakGrammarTopics) now lives in js/features/mastery.js, loaded just above
+   this script. */
 
 /* ===================== SPACED REPETITION (vocab) ===================== */
 var SRS_LEVELS = ["New","Learning","Familiar","Strong","Mastered"];
