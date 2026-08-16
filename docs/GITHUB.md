@@ -213,9 +213,52 @@ Those need human eyes.
 9. Only then consider making it public — and only after the audio question has a
    real answer, not a hope.
 
-**On step 6:** if audio does get committed by accident, `git rm --cached` does
-not remove it from history. That needs `git filter-repo` or a fresh repo. Check
-before the first push, not after.
+**Only step 9 is left,** and it is the one that should not be rushed.
+
+### The verbatim-reuse audit
+
+`tools/check_reuse.py` extracts text from each source PDF, strips diacritics and
+punctuation, and slides a six-word window over both sides. It exits non-zero on
+any hit, so it can gate a release.
+
+It found **five genuine liftings**, all in the I.L.R. track, all now rewritten:
+
+| id | What was lifted |
+|---|---|
+| `i621` | *Mașina va fi adusă mâine.* |
+| `i622` | *Dacă-mi cerea bani, îi dădeam.* |
+| `i623` | *O să te aștept la gară.* |
+| `i624` | *De ce nu m-ai așteptat unde ne-am înțeles?* |
+| `i625` | *După ce-l întâlnisem, mi-am dat seama cine era.* |
+
+Each was a transformation drill whose *source sentence* came straight from the
+published sample paper. The grammatical operation is a fact about Romanian and
+was kept; the sentences were replaced. `i622`'s explanation had even admitted it
+in prose — "this is item 9 on the official sample paper almost verbatim" — which
+went too. Two vocabulary examples and one model answer echoing the paper's own
+rubric wording were reworded at the same time. All five re-verified as grading
+`Correct` in the browser afterwards.
+
+Two categories are waived, and the distinction is deliberate:
+
+- **`ALLOWLIST`** — a *legal* claim: nobody owns this text. The Constitution's
+  Article 1, the statutory oath, the 1848 anthem. Romanian Law 8/1996 art. 9
+  puts official texts outside copyright.
+- **`COMMON_PHRASES`** — a *factual* claim: any two Romanian courses produce
+  these independently. *Bună ziua! Cu ce vă pot ajuta?* is what a shop assistant
+  says; *Dacă aș avea mai mult timp…* is the stock conditional example.
+
+Keeping them apart matters, because the second list is the easy place to hide a
+real lifting behind a plausible-sounding excuse.
+
+**One honest gap:** the Brâncuș volume is a scanned PDF with no text layer, so
+the tool could not read it and reports so rather than passing silently. It
+informed the contrast tables conceptually; no text was taken from it, but that
+is my assertion rather than something the check can evidence.
+
+**If audio ever does get committed by accident,** `git rm --cached` does not
+remove it from history — that needs `git filter-repo` or a fresh repo. Check
+before pushing, not after.
 
 ---
 
