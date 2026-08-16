@@ -15,6 +15,9 @@
 <!-- Free-standing helpers, no dependencies of their own. Must load before
      the application script below, which calls them throughout. -->
 <script src="js/core/utils.js"></script>
+<!-- localStorage-backed progress. Reads storage as soon as it runs, so it
+     must load before the application script that consumes `state`. -->
+<script src="js/core/state.js"></script>
 <script>
 (function(){
 "use strict";
@@ -23,66 +26,12 @@
    normLoose, todayStr, addDays, daysUntil, pct, pick, shuffle, sample) now
    live in js/core/utils.js, loaded just above this script. */
 
-/* ===================== PERSISTED STATE ===================== */
-var STORAGE_KEY = "ro_course_state_v2";
-function defaultState(){
-  return {
-    onboarded:false,
-    displayName:"",
-    progress:{ lessons:{} }, // lessonId -> {status, bestScore, attempts, sectionsDone:{}}
-    vocabSrs:{}, // vocabId -> {status,interval,due,correctStreak,seen,correct}
-    grammarStats:{}, // topicId -> {correct,total}
-    skillStats:{ vocabulary:{c:0,t:0}, grammar:{c:0,t:0}, listening:{c:0,t:0}, reading:{c:0,t:0}, writing:{c:0,t:0}, pronunciation:{c:0,t:0} },
-    mistakes:[], // {id,date,skill,topic,exerciseId,yourAnswer,correctAnswer,explanation,promptText}
-    mediaTranscripts:{}, // youtube videoId -> learner-supplied shadowing script
-    activityDates:[],
-    exercisesCompleted:0,
-    examResults:[],
-    verbsMarked:[],
-    unlockedUnits:{}, // unitId -> true (beyond default first unit per level)
-    settings:{ audioSpeed:1, reduceMotion:false, openLevels:{}, showProfanity:false, unlockAll:false },
-    placement:null
-  };
-}
-var state = loadState();
-/* Merge saved state over the defaults one level deep, so adding a key to a
-   nested object (settings, skillStats) does not leave returning learners with
-   undefined where a default is expected. */
-function loadState(){
-  var d = defaultState();
-  var parsed;
-  try{
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return d;
-    parsed = JSON.parse(raw);
-  }catch(e){ return d; }
-  if(!parsed || typeof parsed!=="object") return d;
+/* Persisted state (STORAGE_KEY, defaultState, state, loadState, saveTimer,
+   writeState, persist and the visibilitychange/pagehide flush listeners) now
+   lives in js/core/state.js, loaded just above this script. `state` is a
+   global from there; applyImportedState and resetProgress below still reassign
+   it directly, which resolves out to that binding exactly as before. */
 
-  Object.keys(d).forEach(function(k){
-    var def = d[k], saved = parsed[k];
-    if(saved===undefined || saved===null) return;
-    var nestedObject = def && typeof def==="object" && !Array.isArray(def)
-                    && saved && typeof saved==="object" && !Array.isArray(saved);
-    d[k] = nestedObject ? Object.assign({}, def, saved) : saved;
-  });
-  return d;
-}
-
-var saveTimer=null;
-function writeState(){
-  clearTimeout(saveTimer); saveTimer=null;
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
-}
-function persist(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(writeState, 80);
-}
-/* Flush the debounce before the page goes away. visibilitychange + pagehide
-   are the pair that actually fire on mobile; beforeunload does not. */
-document.addEventListener("visibilitychange", function(){
-  if(document.visibilityState==="hidden" && saveTimer) writeState();
-});
-window.addEventListener("pagehide", function(){ if(saveTimer) writeState(); });
 function markActivityToday(){
   var t = todayStr();
   if(state.activityDates.indexOf(t)===-1){ state.activityDates.push(t); }
