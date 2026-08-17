@@ -2,7 +2,7 @@
 
 A self-contained Romanian course for English speakers, A1 through B1, plus
 citizenship preparation, I.L.R. exam preparation, and a register/slang track.
-One HTML file, no build step, no server, no network access at runtime.
+No build step, no server, no framework, no dependencies.
 
 Open `index.html` in a browser. That is the whole install procedure.
 
@@ -19,13 +19,13 @@ bare tick.
 |---|---|
 | Courses | 4 |
 | Levels | 9 |
-| Units | 69 (every content unit built) |
+| Units | 69 — every content unit built; the 8 remaining are checkpoints and exams, which generate their questions |
 | Lessons | 89 |
 | Exercises | 360 across 13 types |
 | Vocabulary | 600 entries |
 | Verbs | 190, fully conjugated, verified against Wiktionary |
 | Dialogues | 37 |
-| Reading texts | 29 |
+| Reading texts | 39, from 40-word notes to 658-word essays |
 | Grammar articles | 41 |
 | Media items | 6 embedded videos |
 | Audio clips | 6,177 (~92 MB, not in the repo) |
@@ -54,12 +54,12 @@ python -m http.server 8777
 
 Then open `http://localhost:8777/index.html`.
 
-Opening `index.html` directly off disk should also work — there is no `fetch`,
-no `XMLHttpRequest`, no ES module and no service worker, which are the four
-things that usually break a page on `file://`. It has not been verified on
-every browser, and note that `file://` pages share one `localStorage` origin,
-so progress would not be isolated from other local pages. The server is the
-safer route.
+Opening `index.html` directly off disk should also work. The CSS and JS are
+pulled in with plain `<link>` and `<script src>` tags, which browsers allow on
+`file://` — unlike `fetch`, `XMLHttpRequest`, ES modules and service workers,
+none of which are used. It has not been verified on every browser, and note that
+`file://` pages share one `localStorage` origin, so progress would not be
+isolated from other local pages. The server is the safer route.
 
 ### Regenerating audio
 
@@ -96,6 +96,7 @@ This has already caught real errors — see *Design commitments* below.
 | [`docs/CONTENT.md`](docs/CONTENT.md) | Curriculum inventory, what's built, what isn't |
 | [`docs/AUDIO.md`](docs/AUDIO.md) | The audio pipeline and why it works the way it does |
 | [`docs/GITHUB.md`](docs/GITHUB.md) | Publication plan — **read before making this public** |
+| [`docs/TECH_DEBT.md`](docs/TECH_DEBT.md) | Known defects parked for later, with what fixing each involves |
 | [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants on this codebase |
 
 ---

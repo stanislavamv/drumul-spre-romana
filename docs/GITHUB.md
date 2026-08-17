@@ -199,12 +199,15 @@ Those need human eyes.
 2. ~~Delete the loose screenshots and the stale root `ro-strings.json`.~~ **Done** —
    both are gitignored rather than deleted, so they stay on disk but out of history.
 3. ~~Decide the teacher-mode question above; apply it.~~ **Done** — login removed.
-4. Audit exercises against the two source books for verbatim reuse.
-5. Add `LICENSE` and `LICENSE-CONTENT`.
-6. First commit. Verify size is a few MB, not 60 — if it is 60, `.gitignore`
-   did not take and history will carry the audio forever.
-7. Push private. Live with it a while.
-8. Add the CI workflow.
+4. ~~Audit exercises against the source material for verbatim reuse.~~ **Done** —
+   see below. `tools/check_reuse.py` now automates it.
+5. ~~Add `LICENSE` and `LICENSE-CONTENT`.~~ **Done** — MIT and CC BY-NC-SA 4.0.
+6. ~~First commit.~~ **Done.** Verified `audio/` and `audio-manifest.js` are
+   untracked.
+7. ~~Push private.~~ **Done** — `origin` is
+   `github.com/stanislavamv/drumul-spre-romana`, and an unauthenticated API
+   request returns 404, confirming it is private. Live with it a while.
+8. ~~Add the CI workflow.~~ **Done** — `.github/workflows/check.yml`.
 9. Only then consider making it public — and only after the audio question has a
    real answer, not a hope.
 
@@ -266,9 +269,11 @@ before pushing, not after.
   actually use it.
 - **Audio, properly.** A native speaker recording 6,177 strings is the single
   largest quality jump available, and it also removes the licensing blocker.
-- **Splitting the file.** At ~10,000 lines the single file is near its limit.
-  Content could move to JSON fetched at load — at the cost of the `file://`
-  guarantee, which is worth more than it sounds.
+- **Finishing the split.** Underway: `css/app.css` and four `js/` modules are
+  out, but `index.html` is still 989 KB with every content array and page
+  renderer inline. Moving content to JSON fetched at load would cost the
+  `file://` guarantee, which is worth more than it sounds — plain `<script src>`
+  files, as used now, keep it.
 - **Community content.** The data model is clean enough that a contributor could
   add a unit without touching the engine. `check_content.py` becomes the
   contribution gate.

@@ -4,13 +4,20 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-A Romanian course for English speakers, A1–B1, plus citizenship and register
-tracks. Everything is in `index.html` — ~10,000 lines of vanilla JS, no build
-step, no dependencies, no framework.
+A Romanian course for English speakers, A1–B1, plus citizenship, I.L.R. exam
+and register tracks. Vanilla JS, no build step, no dependencies, no framework.
 
 **Do not propose React, Vite, npm or a bundler.** This machine has no Node
-toolchain, and the single-file constraint is the point: the course runs offline
-from a file, and will still run in ten years. Work with it.
+toolchain, and running without a build step is the point: the course works
+offline from a file and will still run in ten years. Work with it.
+
+Layout is **part-extracted**. `css/app.css` and four `js/` modules are out;
+`index.html` is still 989 KB with every content array, every page renderer, the
+`Actions` map, answer checking, the gloss index, speech and the conjugation
+engine inline. Files load as plain `<script src>` in dependency order sharing
+one global scope — `utils.js` → `state.js` → `activity.js` → `mastery.js` →
+inline. A new file means a new tag in the right position; nothing warns you if
+the order is wrong.
 
 ## Commands
 
@@ -51,13 +58,24 @@ selected must live in `session`.
 
 **Order of data arrays is not what you expect** — `COURSES` precedes `LEVELS`.
 Anything parsing regions of the file must look up the end marker *after* the
-start, or it slices backwards into nothing.
+start, or it slices backwards into nothing. This bit `check_content.py` itself:
+it reported *every* lesson as having a dangling level until the region lookup
+was fixed.
 
 **`tools/extract_strings.py` parses the data region textually.** Moving a data
 array below `function lessonsOfUnit` silently breaks audio extraction.
 
 **Python scripts must force UTF-8 stdout.** Windows consoles are cp1252 and
 cannot encode `ș`/`ț`; a script dies reporting the problem it found.
+
+**Imperatives are declared, not generated,** for classes II–IV — the form is
+lexical (`scrie!` but `mergi!`; `zi!`, `du!`, `adu!` shorten). The engine once
+invented `zici!`, `pui!` and `deschizi!`. If you add a verb, check its
+imperative rather than trusting the output.
+
+**`audio/` and `audio-manifest.js` are gitignored build artefacts.** A clone has
+no audio until the pipeline runs. Do not "fix" the missing manifest by
+committing it.
 
 ## Content rules
 

@@ -1,38 +1,68 @@
 # Architecture
 
-One file, ~10,000 lines, vanilla ES5-flavoured JavaScript. No framework, no
-build step, no dependencies.
+Vanilla ES5-flavoured JavaScript. No framework, no build step, no dependencies,
+no package manager.
 
 That is a deliberate constraint, not an accident: the machine this was built on
-has no Node toolchain, and the result is a course that runs from a USB stick in
-2035 without a package manager existing. The cost is that everything lives in
-one file and there is no type checking.
+has no Node toolchain, and the result is a course that still runs in 2035
+without a bundler existing. The cost is that there is no type checking and no
+module system — every file shares one global scope, in load order.
 
----
+## Where things are
 
-## File layout
+The project began as a single 10,000-line `index.html`. That became unpleasant
+to edit, so extraction into `js/` and `css/` has started. It is **partial**, and
+the docs are honest about which half you are in.
 
 ```
-index.html          the entire application
-audio-manifest.js   generated: normalised Romanian text -> clip path
-audio/              4,703 pre-rendered MP3s
-tools/              Python build scripts (not shipped to the browser)
+index.html          page shell + everything not yet extracted (989 KB, ~11,000 lines)
+css/app.css         design tokens, both themes, all component CSS (414 lines)
+js/core/utils.js    escapeHtml, the four Romanian normalisers, date maths, array helpers
+js/core/state.js    localStorage store, defaults, debounced writer, flush-on-unload
+js/features/activity.js   markActivityToday, currentStreak
+js/features/mastery.js    per-skill and per-grammar-topic mastery tracking
+audio-manifest.js   generated: normalised Romanian text -> clip path (gitignored)
+audio/              6,177 pre-rendered MP3s (gitignored)
+tools/              Python build scripts, not shipped to the browser
 docs/               this documentation
 ```
+
+**Still inline in `index.html`, and it is the bulk:** every content array, the
+render loop, all page functions, the `Actions` map, answer checking, the gloss
+index, the speech module and the conjugation engine.
+
+### Load order matters
+
+Scripts are plain `<script src>`, loaded in dependency order and sharing one
+global scope:
+
+```
+audio-manifest.js  →  utils.js  →  state.js  →  activity.js  →  mastery.js  →  inline
+```
+
+`state.js` calls helpers from `utils.js` at load time, so utils must come first.
+The manifest is loaded with `onerror="window.AUDIO_MANIFEST=null"` so a clone
+without audio degrades to silence rather than a hard failure.
+
+There is no bundler and no module system, so a new file means a new
+`<script src>` tag in the right position. Nothing will warn you if you get the
+order wrong — you get an undefined-function error at load.
 
 ### Inside `index.html`, in order
 
 | Region | Contents |
 |---|---|
-| `<style>` | Design tokens, both themes, all component CSS |
+| `<head>` | One `<link>` to `css/app.css`, five `<script src>` tags |
 | Data | `LEVELS`, `COURSES`, `UNITS`, `LESSONS`, `EXERCISES`, `VOCAB`, `VERBS`, `DIALOGUES`, `READING_TEXTS`, `GRAMMAR_TOPICS`, `CORE_GLOSS`, `PLACEMENT_BANDS` |
 | Engine | State, persistence, SRS, answer checking, gloss index, speech |
 | Pages | One function per route in the `PAGES` map |
 | Actions | One function per `data-action`, dispatched by delegation |
 
 The boundary between data and engine matters: `tools/extract_strings.py` parses
-the data region textually. Moving a data array below `function lessonsOfUnit`
-silently breaks audio extraction.
+the data region of `index.html` **textually**, not by executing it. Moving a data
+array below `function lessonsOfUnit`, or extracting one into its own file,
+silently breaks audio extraction. If a content array is ever moved out, the
+extractor has to be taught where it went.
 
 ---
 
