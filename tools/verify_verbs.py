@@ -2,7 +2,7 @@
 Check the course's verb tables against English Wiktionary.
 
 WHY THIS EXISTS
-    Most conjugations in index.html are produced by a small engine from the
+    Most conjugations are produced by a small engine from the
     infinitive plus a conjugation class. That is fine for the regular core of
     the system and wrong in exactly the places a learner most needs to be right,
     so the generated forms have to be checked against something rather than
@@ -40,7 +40,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-SRC = os.path.join(ROOT, "index.html")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _sources
 REPORT = os.path.join(HERE, "verb-report.json")
 
 API = "https://en.wiktionary.org/w/api.php"
@@ -131,7 +132,7 @@ def course_verbs():
     A regex over the data literal rather than a JS parse: the file is one big
     script and there is no JS runtime on this machine.
     """
-    src = io.open(SRC, encoding="utf-8").read()
+    src = _sources.data_source()
     start = src.index("var VERBS")
     end = src.index("var GRAMMAR_TOPICS", start)
     block = src[start:end]

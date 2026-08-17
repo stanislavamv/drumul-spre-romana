@@ -160,9 +160,9 @@ are Romanian.
   for the embedded videos, because writing out words nobody here has checked
   against the audio would hand the learner a script to memorise that might be
   wrong.
-- **`index.html` is 989 KB / ~11,000 lines.** Extraction into `js/` and `css/`
+- **`index.html` is 282 KB.** Extraction into `js/` and `css/`
   has started — utilities, persistent state, activity tracking and mastery are
-  out — but the content arrays and the page renderers are still inline, and they
+  out, and the content arrays now live in `js/data/*.js` — but the page renderers are still inline, and they
   are the bulk of it. See `docs/ARCHITECTURE.md` for what has moved and what
   has not.
 - **A fresh clone has no audio.** `audio/` and `audio-manifest.js` are both

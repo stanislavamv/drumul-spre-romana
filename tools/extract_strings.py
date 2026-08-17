@@ -1,4 +1,4 @@
-"""Extract every Romanian string needing audio, straight from index.html.
+"""Extract every Romanian string needing audio from the course data.
 
 Avoids the browser round-trip: reads the JS data literals and pulls the fields
 that get a play button. Mirrors window.__roAudioStrings() in index.html.
@@ -6,14 +6,15 @@ that get a play button. Mirrors window.__roAudioStrings() in index.html.
 import io, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "index.html")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _sources
 
-src = io.open(SRC, encoding="utf-8").read()
-
-# Only scan the data region, not the UI code below it.
-start = src.index("var LEVELS")
-end = src.index("function lessonsOfUnit")
-data = src[start:end]
+# The datasets moved out of index.html into js/data/*.js, concatenated here in
+# their original document order. The old "stop at function lessonsOfUnit" guard
+# existed to avoid scanning UI code that followed the data inside index.html;
+# the data files contain no UI code, so the whole blob is the data region.
+src = _sources.data_source()
+data = src
 
 out, seen = [], set()
 

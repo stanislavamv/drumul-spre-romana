@@ -15,7 +15,8 @@ to edit, so extraction into `js/` and `css/` has started. It is **partial**, and
 the docs are honest about which half you are in.
 
 ```
-index.html          page shell + everything not yet extracted (989 KB, ~11,000 lines)
+index.html          page shell + everything not yet extracted (282 KB)
+js/data/*.js        the content datasets (8 files, ~732 KB)
 css/app.css         design tokens, both themes, all component CSS (414 lines)
 js/core/utils.js    escapeHtml, the four Romanian normalisers, date maths, array helpers
 js/core/state.js    localStorage store, defaults, debounced writer, flush-on-unload
@@ -27,9 +28,9 @@ tools/              Python build scripts, not shipped to the browser
 docs/               this documentation
 ```
 
-**Still inline in `index.html`, and it is the bulk:** every content array, the
-render loop, all page functions, the `Actions` map, answer checking, the gloss
-index, the speech module and the conjugation engine.
+**Still inline in `index.html`:** the render loop, all page functions, the
+`Actions` map, answer checking, the gloss index, the speech module and the
+conjugation engine. The content arrays have moved to `js/data/*.js`.
 
 ### Load order matters
 
@@ -58,11 +59,14 @@ order wrong — you get an undefined-function error at load.
 | Pages | One function per route in the `PAGES` map |
 | Actions | One function per `data-action`, dispatched by delegation |
 
-The boundary between data and engine matters: `tools/extract_strings.py` parses
-the data region of `index.html` **textually**, not by executing it. Moving a data
-array below `function lessonsOfUnit`, or extracting one into its own file,
-silently breaks audio extraction. If a content array is ever moved out, the
-extractor has to be taught where it went.
+The boundary between data and engine matters: the Python tools parse the data
+**textually**, not by executing it. The content datasets now live in
+`js/data/*.js`, and `tools/_sources.py` concatenates them **in document order**
+to rebuild the text those tools slice with adjacency markers such as
+`region("var VOCAB", "var DIALOGUES")`. That order is load-bearing: moving a
+dataset between files, or reordering `DATA_FILES`, changes what the tools see
+without changing their exit code. Keep `DATA_FILES` in step with the `<script>`
+tags in `index.html`.
 
 ---
 

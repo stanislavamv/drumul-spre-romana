@@ -1,4 +1,4 @@
-"""Validate the content data in index.html.
+"""Validate the course content data.
 
 Cross-references are resolved at render time and a bad id produces an empty
 stage rather than an error, so nothing surfaces until a learner opens that
@@ -22,21 +22,14 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "index.html")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _sources
 
-src = io.open(SRC, encoding="utf-8").read()
-
-
-def region(start, end=None):
-    """Slice from one marker to the next.
-
-    `end` is looked up *after* `start` rather than globally — the data arrays
-    are not in the order you might assume (COURSES precedes LEVELS), and a
-    global lookup silently slices backwards into an empty region, which reads
-    as "every id is dangling".
-    """
-    i = src.index(start)
-    return src[i:src.index(end, i)] if end else src[i:]
+# The datasets moved out of index.html into js/data/*.js. _sources rebuilds
+# them in their original document order, so the region markers below still
+# slice exactly the spans they always did.
+src = _sources.data_source()
+region = _sources.region_reader(src)
 
 
 VOCAB_R = region("var VOCAB", "var DIALOGUES")

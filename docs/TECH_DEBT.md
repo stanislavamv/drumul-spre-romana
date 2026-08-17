@@ -106,10 +106,10 @@ the gap stays visible rather than being rediscovered during the next audit.
 
 ---
 
-## `index.html` is still 989 KB
+## `index.html` is still 282 KB
 
 Extraction into `js/` and `css/` is underway — `utils`, `state`, `activity`,
-`mastery`, `srs` and `mistakes` are out — but every content array, every page
+`mastery`, `srs` and `mistakes` are out, and so is the data layer — but every page
 renderer, the `Actions` map, answer checking, the gloss index, the speech module
 and the conjugation engine remain inline.
 

@@ -1,6 +1,6 @@
 # Content inventory
 
-Measured from `index.html`, not from memory. Regenerate the counts with
+Measured from `js/data/*.js`, not from memory. Regenerate the counts with
 `python tools/check_content.py`.
 
 ---

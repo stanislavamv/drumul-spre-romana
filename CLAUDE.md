@@ -11,13 +11,14 @@ and register tracks. Vanilla JS, no build step, no dependencies, no framework.
 toolchain, and running without a build step is the point: the course works
 offline from a file and will still run in ten years. Work with it.
 
-Layout is **part-extracted**. `css/app.css` and four `js/` modules are out;
-`index.html` is still 989 KB with every content array, every page renderer, the
-`Actions` map, answer checking, the gloss index, speech and the conjugation
-engine inline. Files load as plain `<script src>` in dependency order sharing
-one global scope — `utils.js` → `state.js` → `activity.js` → `mastery.js` →
-inline. A new file means a new tag in the right position; nothing warns you if
-the order is wrong.
+Layout is **part-extracted**. `css/app.css`, eight `js/data/*.js` content
+files and nine `js/core` + `js/features` modules are out; `index.html` is now
+282 KB and holds the page renderers, the `Actions` map, answer checking, the
+gloss index, speech and the conjugation engine. Files load as plain
+`<script src>` in dependency order sharing one global scope — data first, then
+`utils.js` → `state.js` → `session.js` → `router.js` → `fields.js` →
+`scroll.js` → features → inline. A new file means a new tag in the right
+position; nothing warns you if the order is wrong.
 
 ## Commands
 
@@ -62,8 +63,12 @@ start, or it slices backwards into nothing. This bit `check_content.py` itself:
 it reported *every* lesson as having a dangling level until the region lookup
 was fixed.
 
-**`tools/extract_strings.py` parses the data region textually.** Moving a data
-array below `function lessonsOfUnit` silently breaks audio extraction.
+**The Python tools parse the data textually, and depend on its ORDER.** The
+content datasets live in `js/data/*.js`; `tools/_sources.py` concatenates them
+in document order so the region markers in `check_content.py`, `check_reuse.py`,
+`extract_strings.py` and `verify_verbs.py` slice the spans they expect. Moving a
+dataset between files, or reordering `DATA_FILES`, silently changes what those
+tools scan — they will keep exiting 0 while looking at the wrong text.
 
 **Python scripts must force UTF-8 stdout.** Windows consoles are cp1252 and
 cannot encode `ș`/`ț`; a script dies reporting the problem it found.

@@ -38,6 +38,8 @@ if hasattr(sys.stdout, "reconfigure"):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import _sources
 
 # The sources that actually informed the curriculum. Missing files are skipped
 # with a warning rather than failing — they live outside the repo by design, so
@@ -165,12 +167,10 @@ def course_strings():
 
     English prompts and explanations are excluded — see looks_romanian().
     """
-    src = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    src = _sources.data_source()
     items = []
 
-    def region(a, b=None):
-        i = src.index(a)
-        return src[i:src.index(b, i)] if b else src[i:]
+    region = _sources.region_reader(src)
 
     STR = r'"((?:[^"\\]|\\.)*)"'
 

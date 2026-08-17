@@ -272,7 +272,7 @@ before pushing, not after.
 - **Audio, properly.** A native speaker recording 6,177 strings is the single
   largest quality jump available, and it also removes the licensing blocker.
 - **Finishing the split.** Underway: `css/app.css` and four `js/` modules are
-  out, but `index.html` is still 989 KB with every content array and page
+  out, but `index.html` is still 282 KB with the page renderers and
   renderer inline. Moving content to JSON fetched at load would cost the
   `file://` guarantee, which is worth more than it sounds — plain `<script src>`
   files, as used now, keep it.

@@ -37,7 +37,7 @@ python tools/extract_strings.py
 python tools/fetch_audio.py tools/ro-strings.json
 ```
 
-`extract_strings.py` scans the data region of `index.html` for everything that
+`extract_strings.py` scans the datasets in `js/data/*.js` for everything that
 gets a play button: `ro`, `inf`, `audio`, `answer`, `model` fields, every
 conjugation cell, match pairs, reading sentences, dialogue lines, **and every
 individual word**, since click-to-gloss speaks single words.
