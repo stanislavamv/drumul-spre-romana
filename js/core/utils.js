@@ -56,3 +56,16 @@ function pct(a,b){ if(!b) return 0; return Math.round(100*a/b); }
 function pick(arr,n){ var c=arr.slice(); var out=[]; while(c.length&&out.length<n){ out.push(c.splice(Math.floor(Math.random()*c.length),1)[0]); } return out; }
 function shuffle(arr){ var c=arr.slice(); for(var i=c.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=c[i];c[i]=c[j];c[j]=t;} return c; }
 function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* Split a passage into sentences for line-by-line playback and gloss.
+   Lives here rather than with the gloss engine: it is punctuation handling,
+   not lookup, and the reading and exercise renderers both use it. */
+function sentencesOf(text){
+  var parts = String(text||"").replace(/\n+/g," ").match(/[^.!?…]+[.!?…]*/g) || [];
+  return parts
+    /* Quoted speech inside a passage ("…!" strigă toți) leaves fragments that
+       begin with a closing quote. Strip stray quote marks and drop anything
+       with no actual words left. */
+    .map(function(s){ return s.replace(/^[\s”"„»«]+/, "").trim(); })
+    .filter(function(s){ return /[a-zăâîșțA-ZĂÂÎȘȚ]{2,}/.test(s); });
+}
