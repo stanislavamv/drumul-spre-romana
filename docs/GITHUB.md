@@ -172,13 +172,15 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
 
-      # Localises a parse error to a line — the single file makes a stray
-      # brace expensive to find by hand.
-      - run: python tools/check_syntax.py
-
-      # Dangling vocab/exercise/dialogue ids and exercises missing an
-      # explanation. Both have shipped as real bugs.
+      # The real gate: dangling ids, non-ASCII ids, duplicates, and exercises
+      # missing an explanation. All have shipped as real bugs; none throw at
+      # runtime.
       - run: python tools/check_content.py
+
+      # Informational only. Its tokenizer does not understand regex literals,
+      # so the depths it prints are indicative and it always exits 0. Kept
+      # because it localises a genuine parse error to a line.
+      - run: python tools/check_syntax.py
 ```
 
 Deliberately **not** in CI: `verify_verbs.py` hits Wiktionary 190 times and

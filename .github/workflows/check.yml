@@ -1,6 +1,6 @@
 name: check
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   content:
@@ -23,3 +23,19 @@ jobs:
       # which is worth a lot in a 10k-line single file.
       - name: Syntax balance (informational)
         run: python tools/check_syntax.py
+
+  # Verbatim reuse of source material. NOT run on push: it needs the source
+  # PDFs, which are gitignored by design, so on a runner it would find no
+  # sources and pass vacuously — worse than not running. Kept here as a manual
+  # gate to be triggered before any release or visibility change, on a machine
+  # that has the PDFs locally.
+  reuse:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pypdf
+      - run: python tools/check_reuse.py
