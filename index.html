@@ -57,6 +57,9 @@
 <script src="js/features/mistakes.js"></script>
 <!-- Progress and unlocking. Needs lookup.js, state.js, session.js, utils.js. -->
 <script src="js/features/progress.js"></script>
+<!-- Top bar and mobile nav. Needs the icons, navIsActive, progress and
+     activity helpers above, so it loads last of the extracted files. -->
+<script src="js/core/topbar.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1480,20 +1483,6 @@ function wordsMastered(){ return Object.keys(state.vocabSrs).filter(function(id)
 /* ===================== PAGES ===================== */
 var PAGES = {};
 
-/* On mobile the top bar's nav is hidden, so the slide-out sidebar has to carry
-   it — otherwise Review, Practice, Grammar and the rest are simply unreachable
-   on a phone. Hidden on desktop, where the top bar already shows it. */
-function mobileNav(){
-  var route = parseHash();
-  return '<nav class="mobile-nav">'+
-    '<div style="font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3);padding:0 8px 8px">Go to</div>'+
-    NAV_TABS.map(function(t){
-      return '<button class="mobile-nav-item'+(navIsActive(t[0], route.page)?" active":"")+'" '+
-        'data-action="go" data-page="'+t[0]+'">'+t[1]+'</button>';
-    }).join("")+
-    '<hr class="rule" style="margin:14px 0">'+
-  '</nav>';
-}
 function shell(sidebarHtml, mainHtml, railHtml, wide){
   /* Every page gets a sidebar on mobile, even those that have none on desktop,
      so the navigation is always reachable from the menu button. */
@@ -4721,32 +4710,12 @@ function nextLessonCard(l, passed){
 /* ===================== APP SHELL / RENDER ===================== */
 
 
-/* The six icon helpers now live in js/core/icons.js and navIsActive in
-   js/core/navigation.js, both loaded above this script. renderTopbar and
-   mobileNav below still call them. */
+/* The application chrome — renderTopbar and mobileNav — now lives in
+   js/core/topbar.js, loaded above this script, along with the icon helpers
+   (js/core/icons.js) and navIsActive (js/core/navigation.js) it calls.
+   renderApp below still calls renderTopbar(); shell() still calls
+   mobileNav(). */
 
-function renderTopbar(){
-  var lvl = LEVELS.find(function(l){ return l.id===overallCourseLevelId(); }) || LEVELS[0];
-  var route = parseHash();
-  var tabs = NAV_TABS;
-  return '' +
-  '<div class="topbar">'+
-    '<button class="menu-btn" data-action="toggleSidebar" aria-label="Menu">'+iconMenu()+'</button>'+
-    '<div class="brand" data-action="go" data-page="home">Drumul<span class="dot">·</span>Română</div>'+
-    '<nav class="topnav">'+ tabs.map(function(t){
-      return '<button class="'+(navIsActive(t[0], route.page)?"active":"")+'" data-action="go" data-page="'+t[0]+'">'+t[1]+'</button>';
-    }).join("") +'</nav>'+
-    '<div class="topbar-right">'+
-      /* Visible while teacher mode is on, so an unlocked syllabus is never
-         mistaken for earned progress. */
-      (state.settings.unlockAll
-        ? '<button class="teacher-chip" data-action="go" data-page="admin" title="Author mode is on — every unit is unlocked. Click to manage.">AUTHOR</button>'
-        : '')+
-      '<span class="level-pill">'+lvl.code+'</span>'+
-      '<span class="streak-chip">'+iconFlame()+' '+currentStreak()+'</span>'+
-    '</div>'+
-  '</div>';
-}
 
 /* text may be a string, or an array of lines to play back to back. */
 function audioButton(text, opts){
