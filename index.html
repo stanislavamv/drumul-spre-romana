@@ -18,6 +18,8 @@
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
 <script src="js/core/state.js"></script>
+<!-- Hash parsing. No dependencies beyond browser globals. -->
+<script src="js/core/router.js"></script>
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
      from state.js, so it loads after both. -->
 <script src="js/features/activity.js"></script>
@@ -253,11 +255,9 @@ var Speech = (function(){
 })();
 
 /* ===================== ROUTER ===================== */
-function parseHash(){
-  var h = location.hash.replace(/^#\/?/,"");
-  var parts = h.split("/").filter(Boolean).map(decodeURIComponent);
-  return {page: parts[0]||"home", params: parts.slice(1)};
-}
+/* parseHash now lives in js/core/router.js, loaded just above this script.
+   navigate() and the hashchange listener stay here: both reach render(),
+   which is IIFE-scoped and not a global. */
 function navigate(page, params){
   var p = "#/"+page+(params&&params.length? "/"+params.map(encodeURIComponent).join("/") : "");
   if(location.hash===p){ render(); } else { location.hash=p; }
