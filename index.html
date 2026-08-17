@@ -59,6 +59,8 @@
 <script src="js/features/progress.js"></script>
 <!-- Top bar and mobile nav. Needs the icons, navIsActive, progress and
      activity helpers above, so it loads last of the extracted files. -->
+<!-- Small interactive controls. Need escapeHtml, iconPlay and state. -->
+<script src="js/core/controls.js"></script>
 <script src="js/core/topbar.js"></script>
 <script>
 (function(){
@@ -1123,13 +1125,6 @@ function optionOrder(ex){
     session.optOrder[ex.id] = shuffle(ex.options.map(function(_,i){ return i; }));
   }
   return session.optOrder[ex.id];
-}
-var DIACRITICS = ["ă","â","î","ș","ț"];
-function diacriticBar(fieldKey){
-  return '<div class="diacritic-bar" role="group" aria-label="Insert Romanian characters">'+
-    DIACRITICS.map(function(c){
-      return '<button type="button" data-action="insertChar" data-char="'+c+'" data-target="'+escapeHtml(fieldKey)+'" aria-label="Insert '+c+'">'+c+'</button>';
-    }).join("")+'</div>';
 }
 function textField(ex, placeholder){
   var key = "ans_"+ex.id;
@@ -2201,13 +2196,6 @@ function codeToState(code){
   var wrapper = JSON.parse(json);
   if(!wrapper || !wrapper.state) throw new Error("not a progress code");
   return rehydrateMistakes(wrapper.state);
-}
-function progressSummaryLine(st){
-  var lessons = Object.keys(st.progress&&st.progress.lessons||{}).filter(function(k){
-    return st.progress.lessons[k].status==="complete"; }).length;
-  return lessons+" lesson"+(lessons===1?"":"s")+" complete · "+
-    Object.keys(st.vocabSrs||{}).length+" words tracked · "+
-    (st.mistakes||[]).length+" saved mistakes";
 }
 /* Merge an imported save over the default shape, so a file written by an older
    build still loads: any key the export predates keeps its default rather than
@@ -4710,26 +4698,16 @@ function nextLessonCard(l, passed){
 /* ===================== APP SHELL / RENDER ===================== */
 
 
+/* audioButton and the diacritic bar now live in js/core/controls.js;
+   progressSummaryLine moved to js/features/progress.js. Both load above
+   this script. The data-action handlers they emit stay here. */
+
 /* The application chrome — renderTopbar and mobileNav — now lives in
    js/core/topbar.js, loaded above this script, along with the icon helpers
    (js/core/icons.js) and navIsActive (js/core/navigation.js) it calls.
    renderApp below still calls renderTopbar(); shell() still calls
    mobileNav(). */
 
-
-/* text may be a string, or an array of lines to play back to back. */
-function audioButton(text, opts){
-  opts=opts||{};
-  var size = opts.small? " small":"";
-  var label = opts.label!==false ? (opts.label||"Listen") : "";
-  var isSeq = Object.prototype.toString.call(text)==="[object Array]";
-  var payload = isSeq ? JSON.stringify(text) : String(text);
-  var aria = isSeq ? "Play all "+text.length+" lines" : "Play Romanian audio: "+text;
-  return '<button type="button" class="audio-btn'+size+'" data-action="playAudio" '+
-    (isSeq? 'data-seq="'+escapeHtml(payload)+'"' : 'data-text="'+escapeHtml(payload)+'"')+
-    ' aria-label="'+escapeHtml(aria)+'">'+iconPlay()+(label? '<span>'+escapeHtml(label)+'</span>':'')+'</button>'+
-    (opts.speedControl? '<span class="speed-row">'+[0.65,0.8,1,1.2].map(function(s){ return '<button data-action="setSpeed" data-speed="'+s+'" class="'+(state.settings.audioSpeed===s?"active":"")+'">'+s+'×</button>'; }).join("")+'</span>' : '');
-}
 
 /* captureField and restoreField now live in js/core/fields.js, loaded just
    above this script. renderApp below still calls both. */

@@ -106,3 +106,14 @@ function overallCourseLevelId(){
   for(var i=0;i<ls.length;i++){ if(levelProgressPct(ls[i].id) < 100) return ls[i].id; }
   return ls[ls.length-1].id;
 }
+
+/* A one-line description of a progress payload. Takes the state object as an
+   argument rather than reading the global, because the transfer/import flow
+   uses it to describe an INCOMING save before it is applied. */
+function progressSummaryLine(st){
+  var lessons = Object.keys(st.progress&&st.progress.lessons||{}).filter(function(k){
+    return st.progress.lessons[k].status==="complete"; }).length;
+  return lessons+" lesson"+(lessons===1?"":"s")+" complete · "+
+    Object.keys(st.vocabSrs||{}).length+" words tracked · "+
+    (st.mistakes||[]).length+" saved mistakes";
+}
