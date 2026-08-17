@@ -22,6 +22,8 @@
 <script src="js/core/session.js"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
 <script src="js/core/router.js"></script>
+<!-- Focused-field snapshot/restore across a redraw. DOM-only, no deps. -->
+<script src="js/core/fields.js"></script>
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
      from state.js, so it loads after both. -->
 <script src="js/features/activity.js"></script>
@@ -10806,32 +10808,9 @@ function audioButton(text, opts){
     (opts.speedControl? '<span class="speed-row">'+[0.65,0.8,1,1.2].map(function(s){ return '<button data-action="setSpeed" data-speed="'+s+'" class="'+(state.settings.audioSpeed===s?"active":"")+'">'+s+'×</button>'; }).join("")+'</span>' : '');
 }
 
-/* The app redraws by replacing root.innerHTML wholesale. That is simple enough
-   to be worth keeping at this size, but it would otherwise discard whatever the
-   learner had half-typed. Capture the focused field by its stable data-field id
-   and restore value + caret across the swap. Every exercise input must carry a
-   data-field attribute for this to work. */
-function captureField(){
-  var el = document.activeElement;
-  if(!el || !el.matches || !el.matches("input,textarea")) return null;
-  return {
-    key: el.getAttribute("data-field"),
-    value: el.value,
-    start: el.selectionStart,
-    end: el.selectionEnd
-  };
-}
-function restoreField(snapshot){
-  var el = snapshot && snapshot.key
-    ? document.querySelector('[data-field="'+snapshot.key+'"]')
-    : document.querySelector("[data-autofocus]");
-  if(!el) return;
-  if(snapshot && snapshot.key && el.matches("input,textarea")){
-    el.value = snapshot.value;
-    try{ el.setSelectionRange(snapshot.start, snapshot.end); }catch(e){}
-  }
-  el.focus();
-}
+/* captureField and restoreField now live in js/core/fields.js, loaded just
+   above this script. renderApp below still calls both. */
+
 function renderApp(){
   document.body.className = state.settings.reduceMotion? "reduce-motion":"";
   var snapshot = captureField();
