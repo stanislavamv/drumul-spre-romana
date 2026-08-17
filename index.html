@@ -18,6 +18,8 @@
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
 <script src="js/core/state.js"></script>
+<!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
+<script src="js/core/session.js"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
 <script src="js/core/router.js"></script>
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
@@ -6413,9 +6415,11 @@ function levelById(id){ return LEVELS.find(function(l){ return l.id===id; }); }
 
 
 /* ===================== EXERCISE ENGINE (loaded below) ===================== */
-/* Transient per-view state. Never persisted — it dies with the page. */
-var session = { answers:{}, feedback:{}, built:{}, matched:{}, revealed:{}, gaps:{}, optOrder:{},
-                queue:null, qIndex:0, gloss:null, shadow:null };
+/* The transient `session` object now lives in js/core/session.js, loaded just
+   above this script. It stays separate from `state` on purpose: session is
+   never persisted. Every reader, the 87 property writes and the one full
+   reassignment in resetProgress all remain here and resolve out to it. */
+
 
 function levenshtein(a,b){
   if(a===b) return 0;
