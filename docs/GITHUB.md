@@ -27,7 +27,7 @@ This cannot be fixed by adding a license file. The options are:
 | **Exclude `audio/`, ship the pipeline** | Users run one script, wait ~2 h | Repo is clean; audio is a local build artifact. **Recommended.** |
 | Re-record with a paid TTS licensed for redistribution | Google Cloud TTS or Azure, roughly $10–25 for this corpus at standard voices | Clips become publishable; quality similar or better |
 | Commission a native speaker | Real money, weeks | Best quality by a distance, and the honest answer to "native Romanian audio" |
-| Public-domain / CC-BY sources | Free, patchy coverage | Will not cover 4,703 strings |
+| Public-domain / CC-BY sources | Free, patchy coverage | Will not cover 6,177 strings |
 
 The pipeline already supports the second option — `fetch_audio.py` would need
 its endpoint swapped, nothing else. The manifest, the key normalisation and the
@@ -110,53 +110,46 @@ drumul-spre-romana/
     └── check.yml
 ```
 
-`audio/` is absent by design. `audio-manifest.js` is committed even though it is
-generated, because without it a fresh clone has no idea what audio should exist.
+`audio/` and `audio-manifest.js` are both absent by design — they are build
+artefacts of the same pipeline, and a manifest listing 6,177 clips that are not
+there would be worse than none. `index.html` handles the missing manifest with
+`onerror`, so a clone runs silently rather than failing.
 
-### Licensing
+An earlier draft of this document said to commit the manifest because "a fresh
+clone has no idea what audio should exist". That reasoning was wrong: the clone
+does not need to know, because `extract_strings.py` derives the full list from
+`index.html` on demand.
+
+### Licensing — WRITTEN
 
 Two licenses, because the code and the course are different things:
 
-- **Code** — MIT. It is a single HTML file; permissive costs nothing.
-- **Content** — CC BY-SA 4.0 is the natural fit for a curriculum, and matches
-  Wiktionary, which was used as a verification cross-check (and should be
-  credited for that).
+- **`LICENSE`** — MIT, covering `index.html`'s markup/styles/JS, `css/`, `js/`,
+  `tools/` and `.github/`.
+- **`LICENSE-CONTENT`** — **CC BY-NC-SA 4.0**, covering the curriculum itself:
+  lessons, exercises, vocabulary, readings, dialogues, grammar articles and
+  cultural notes, wherever they appear — including inside `index.html`, where
+  most of it lives as JavaScript data.
 
-State clearly that `audio/` is **not** covered by either and is not distributed.
+Both files state that `audio/` is covered by neither and is not distributed.
+
+**On the NonCommercial term.** It is not compatible with Wiktionary's
+CC BY-SA, which forbids adding restrictions. That creates no conflict here
+because **no Wiktionary text is in the course** — `verify_verbs.py` compares
+generated conjugations against Wiktionary and reports disagreements; it copies
+nothing. `LICENSE-CONTENT` says this explicitly, because a reader who sees
+Wiktionary credited would otherwise reasonably wonder.
 
 ---
 
 ## `.gitignore`
 
-```gitignore
-# Not redistributable — Google TTS output. Rebuild with tools/fetch_audio.py
-audio/
+Written and in force — see the file itself rather than a copy here, which would
+drift. It covers `audio/` and `audio-manifest.js`, the pipeline's intermediate
+JSON, `*.pdf`, screenshots, machine-local `.claude` config, and Python bytecode.
 
-# Copyrighted source material, never commit
-*.pdf
-
-# Local machine config
-.claude/settings.local.json
-.claude/scheduled_tasks.lock
-
-# Build scratch
-tools/failed.json
-tools/verb-report.json
-tools/manual_text.txt
-tools/*.png
-
-# Stale duplicate of tools/ro-strings.json
-/ro-strings.json
-
-# Debug screenshots
-*glitch.png
-*bug.png
-
-# OS
-Thumbs.db
-desktop.ini
-.DS_Store
-```
+`.claude/launch.json` is deliberately **kept**: it is how anyone runs the
+project.
 
 ---
 

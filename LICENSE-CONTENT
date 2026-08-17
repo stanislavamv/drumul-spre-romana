@@ -1,0 +1,85 @@
+COURSE CONTENT LICENSE
+
+Copyright (c) 2026 Anastasiia M.
+
+The course content in this repository is licensed under the
+
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    (CC BY-NC-SA 4.0)
+
+Full text: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+Summary:   https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+
+WHAT THIS COVERS
+
+The curriculum itself, wherever it appears — including inside index.html,
+where most of it lives as JavaScript data:
+
+  * lesson structure, objectives and stage sequencing
+  * exercises, their answers, and their explanations
+  * vocabulary entries and example sentences
+  * reading texts and dialogues
+  * grammar articles
+  * cultural notes
+
+The software that renders it is separately licensed under MIT. See LICENSE.
+
+
+WHAT YOU MAY DO
+
+  * Share it — copy and redistribute in any medium or format
+  * Adapt it — remix, transform, and build upon it
+
+Under these terms:
+
+  * Attribution — credit the source, link to the license, and say if you
+    made changes.
+  * NonCommercial — not for commercial purposes.
+  * ShareAlike — if you remix or build on it, distribute your contribution
+    under this same license.
+
+
+WHAT THIS DOES NOT COVER
+
+  * THE AUDIO. audio/ and audio-manifest.js are absent from this repository
+    by design. They are generated from Google Translate's text-to-speech
+    endpoint, which is undocumented and not licensed for redistribution.
+    They are a local build artifact, are not distributed here, and are not
+    licensed by this file or any other. Regenerate them yourself with
+    tools/fetch_audio.py, and read docs/AUDIO.md first — including the note
+    on what a redistributable alternative would cost.
+
+  * QUOTED OFFICIAL TEXTS, which were never mine to license. The
+    Constitution of Romania (Article 1, in the citizenship track), the oath
+    of allegiance, and the national anthem "Deșteaptă-te, române!" by Andrei
+    Mureșanu (1848) are reproduced as public/official texts. Under Romanian
+    Law 8/1996 art. 9, official texts fall outside copyright.
+
+  * THE EMBEDDED VIDEOS. Six YouTube videos are embedded by reference. They
+    belong to their creators and are subject to YouTube's terms. Nothing is
+    copied or redistributed here.
+
+
+SOURCES AND ATTRIBUTION
+
+The original course content in this repository was independently written.
+External sources informed its design and were used for reference and
+verification as described below:
+  
+  * Institutul Limbii Române publishes sample papers for the B1 attestation.
+    The ILR track is built around the format, question types and marking
+    those papers reveal. The available machine-readable source material is 
+    checked for verbatim reuse by tools/check_reuse.py; the current audit 
+    reports no unwaived matches at its six-word comparison threshold.
+
+  * "Learn Romanian Manual" (Dr. Mona Moldoveanu Pologea, ROLANG) and
+    "Limba Română" (Grigore Brâncuș) were read as background. Their sequencing 
+    and choice of contrasts informed the course, but their prose was not 
+    intentionally reproduced. Note one honest gap: the Brâncuș volume is 
+    a scanned PDF with no text layer, so the automated check could not read it.
+  
+  * Wiktionary was used only as a verification reference by
+    tools/verify_verbs.py. No Wiktionary text is intentionally reproduced in
+    the course content. Wiktionary's own content remains subject to its
+    applicable licenses.
