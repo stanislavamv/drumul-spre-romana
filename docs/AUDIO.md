@@ -1,6 +1,12 @@
 # The audio pipeline
 
-4,703 MP3 clips, ~62 MB, covering every Romanian string a learner can click.
+6,177 MP3 clips, ~92 MB, covering every Romanian string a learner can click.
+
+Neither `audio/` nor the generated `audio-manifest.js` is in the repository —
+both are build artefacts. A fresh clone runs with no audio until the pipeline
+below is run; `index.html` loads the manifest with
+`onerror="window.AUDIO_MANIFEST=null"` so this degrades to silence rather than
+a broken page.
 
 ## Why clips instead of browser TTS
 
@@ -50,8 +56,10 @@ is safe to interrupt and resume. Failures are written to `tools/failed.json` for
 `--retry-failed`, and that file is **deleted** on a clean run — leaving a stale
 one made a finished fetch look broken.
 
-Both scripts rewrite `audio-manifest.js`, which maps `normLoose(text)` to a clip
-path. The manifest is generated; never edit it by hand.
+`fetch_audio.py` rewrites `audio-manifest.js`, which maps `normLoose(text)` to a
+clip path — currently 6,169 entries, 322 KB. It is generated; never edit it by
+hand, and note it is regenerated from **what is on disk**, so a partial fetch
+produces a partial manifest rather than a broken one.
 
 ## Key agreement
 
@@ -68,3 +76,31 @@ redistribution.**
 Fine for personal study. Not fine to publish. See `GITHUB.md` — this is the
 single biggest blocker to making the repository public, and the plan there
 covers the options.
+
+## Two traps this pipeline has already hit
+
+**Glossary values are English — do not fetch them.** `extract_strings.py` used to
+walk every quoted string inside a `glossary:{...}` block. Those blocks map a
+Romanian headword to an English definition, so that rule took both sides and
+sent 349 English phrases ("I do not regret it", "Kind regards", "abroad") to a
+Romanian TTS endpoint. Nothing ever played them — `glossWord` speaks the
+headword, not the definition — but they were a twelfth of the download budget
+against an endpoint this script is deliberately gentle with. The extractor now
+matches `key:value` pairs and keeps only the key.
+
+A related check worth repeating if the extractor changes again: because the
+manifest is keyed by `normLoose()`, which is diacritic-blind, an English string
+can collide with a Romanian one — English *in* and Romanian *în* produce the
+same key. Auditing the 349 leaked strings turned up exactly three collisions
+(`pot`, `specialist`, `delta`), all harmless, because every clip is fetched with
+`tl=ro` and those three are spelled identically in both languages. A collision
+on a word that is *not* spelled identically would be a real defect.
+
+**The manifest is cached, and a stale one looks exactly like missing audio.**
+`audio-manifest.js` is pulled in with a plain `<script src>`. After a
+regeneration the browser will keep serving its cached copy, so the page reports
+words as having no clip while the clip sits on disk — a 74% coverage reading
+that was really 100%. `write_manifest()` now hashes the file and stamps
+`index.html` with `audio-manifest.js?v=<hash>`, so the URL changes if and only
+if the content does. Reruns that change nothing leave the tag alone, so this
+does not churn the diff.

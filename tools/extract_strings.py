@@ -119,12 +119,18 @@ for m in re.finditer(r'\bopts?:\s*\[([^\]]*)\]|\boptions:\s*\[([^\]]*)\]', EX_RE
     for s in re.finditer(STR, block):
         if looks_romanian(s.group(1)):
             add_words(s.group(1))
-# Dialogue lines and glossary keys are clickable too.
+# Glossary keys are clickable and speak; the values are English definitions and
+# must not be fetched. Walking every quoted string in the block took both sides,
+# which sent 349 English phrases ("I do not regret it", "abroad") to a Romanian
+# TTS endpoint. Nothing plays them — glossWord speaks the headword, not the
+# definition — but they were a twelfth of the download budget against an
+# endpoint this script is deliberately gentle with. Match key:value pairs and
+# keep only the key.
 for m in re.finditer(r'glossary:\s*\{([^}]*)\}', data, re.S):
-    for s in re.finditer(STR, m.group(1)):
-        val = s.group(1)
-        if re.match(r"^[0-9A-Za-zĂÂÎȘȚăâîșț\- ]+$", val) and len(val) >= 2:
-            add(val)
+    for pair in re.finditer(STR + r'\s*:\s*' + STR, m.group(1)):
+        key = pair.group(1)
+        if re.match(r"^[0-9A-Za-zĂÂÎȘȚăâîșț\- ]+$", key) and len(key) >= 2:
+            add(key)
 
 # Numerals in reading texts are clickable and speak their Romanian reading
 # (1859 -> "o mie opt sute cincizeci și nouă"), so those readings need clips

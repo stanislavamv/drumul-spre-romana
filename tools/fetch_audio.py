@@ -32,6 +32,7 @@ import io
 import json
 import os
 import random
+import re
 import sys
 import time
 import unicodedata
@@ -204,6 +205,34 @@ def main():
         print("failures saved to %s — re-run with --retry-failed" % FAILLOG)
 
 
+def stamp_manifest_tag():
+    """Point index.html at the manifest by content hash, to defeat caching.
+
+    The manifest is pulled in with a plain <script src>, so a browser that has
+    seen it once will happily keep serving the old copy after a regeneration —
+    silently, and for as long as its heuristic cache holds. That looks exactly
+    like missing audio: the page reports words as having no clip when the clip
+    is sitting on disk. It cost a confused round of debugging once already.
+
+    Hashing the file and putting that in the query string means the URL changes
+    if and only if the content does, so a rebuild always lands and an unchanged
+    manifest still gets cached.
+    """
+    index = os.path.join(ROOT, "index.html")
+    if not os.path.exists(index):
+        return
+    with open(MANIFEST, "rb") as fh:
+        digest = hashlib.sha1(fh.read()).hexdigest()[:10]
+    with io.open(index, encoding="utf-8") as fh:
+        html = fh.read()
+    pattern = re.compile(r'(<script src="audio-manifest\.js)(\?v=[0-9a-f]+)?(")')
+    new_html, n = pattern.subn(lambda m: m.group(1) + "?v=" + digest + m.group(3), html)
+    if n and new_html != html:
+        with io.open(index, "w", encoding="utf-8", newline="") as fh:
+            fh.write(new_html)
+        print("stamped index.html -> audio-manifest.js?v=%s" % digest)
+
+
 def write_manifest():
     """Regenerate audio-manifest.js from whatever is on disk."""
     entries = {}
@@ -219,6 +248,7 @@ def write_manifest():
         json.dump(entries, fh, ensure_ascii=False, indent=0, sort_keys=True)
         fh.write(";\n")
     print("wrote %s (%d clips)" % (os.path.basename(MANIFEST), len(entries)))
+    stamp_manifest_tag()
 
 
 ALL_KNOWN = []

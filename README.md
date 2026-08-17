@@ -159,8 +159,11 @@ are Romanian.
   for the embedded videos, because writing out words nobody here has checked
   against the audio would hand the learner a script to memorise that might be
   wrong.
-- **`index.html` is 1 MB / 11,500 lines.** It loads fast — one request, no
-  framework — but it is past the point of being comfortable to edit. Splitting
-  the content arrays into separate `<script>` files would cost nothing at
-  runtime.
-- **Not under version control.** There is no git history for any of this.
+- **`index.html` is 989 KB / ~11,000 lines.** Extraction into `js/` and `css/`
+  has started — utilities, persistent state, activity tracking and mastery are
+  out — but the content arrays and the page renderers are still inline, and they
+  are the bulk of it. See `docs/ARCHITECTURE.md` for what has moved and what
+  has not.
+- **A fresh clone has no audio.** `audio/` and `audio-manifest.js` are both
+  gitignored, so the app loads silently until the pipeline is run. This is
+  deliberate — see `docs/GITHUB.md`.

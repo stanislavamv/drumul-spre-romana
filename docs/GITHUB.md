@@ -10,12 +10,12 @@ deleting a file.
 
 ### 1. The audio is not redistributable
 
-`audio/` holds 4,703 MP3s (~62 MB) generated from Google Translate's
+`audio/` holds 6,177 MP3s (~92 MB) generated from Google Translate's
 `translate_tts` endpoint. That endpoint is undocumented and not covered by
 Google's API terms for automated use. The output is **not licensed for
 redistribution**.
 
-Using it for personal study is one thing. Committing 62 MB of it to a public
+Using it for personal study is one thing. Committing 92 MB of it to a public
 repository is republication, and it is the kind of thing that attracts a
 takedown rather than a lawsuit — but it also makes the repo unusable by anyone
 who cares about provenance.
@@ -88,7 +88,9 @@ against the extracted manual text if it is still around.
 ```
 drumul-spre-romana/
 ├── index.html
-├── audio-manifest.js          ← generated, but commit it (small, needed to run)
+├── css/app.css
+├── js/core/{utils,state}.js
+├── js/features/{activity,mastery}.js
 ├── README.md
 ├── LICENSE                    ← code
 ├── LICENSE-CONTENT            ← course content, likely different terms
@@ -262,7 +264,7 @@ before pushing, not after.
   which changes the project's nature — a static file becomes a service with
   uptime, data protection duties and a bill. Worth it only if other people
   actually use it.
-- **Audio, properly.** A native speaker recording 4,700 strings is the single
+- **Audio, properly.** A native speaker recording 6,177 strings is the single
   largest quality jump available, and it also removes the licensing blocker.
 - **Splitting the file.** At ~10,000 lines the single file is near its limit.
   Content could move to JSON fetched at load — at the cost of the `file://`
