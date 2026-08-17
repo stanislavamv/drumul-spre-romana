@@ -70,6 +70,12 @@ in document order so the region markers in `check_content.py`, `check_reuse.py`,
 dataset between files, or reordering `DATA_FILES`, silently changes what those
 tools scan — they will keep exiting 0 while looking at the wrong text.
 
+**Extracted JS and CSS are not cache-busted — only `audio-manifest.js` is.** Edit
+`utils.js` or any other `js/`/`css/` file and the browser may keep running the
+old copy, with no error. It looks exactly like the edit doing nothing. Hard
+reload (Ctrl+Shift+R) before concluding a change is broken; this has already
+cost two rounds of debugging. See `docs/TECH_DEBT.md`.
+
 **Python scripts must force UTF-8 stdout.** Windows consoles are cp1252 and
 cannot encode `ș`/`ț`; a script dies reporting the problem it found.
 

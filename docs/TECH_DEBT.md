@@ -88,6 +88,66 @@ since they must call `persist()` themselves to make the swap durable.
 
 ---
 
+## Only the audio manifest is cache-busted; the other 27 assets are not
+
+**Where:** `index.html` (the `<script src>` / `<link>` tags) and
+`tools/fetch_audio.py` (`stamp_manifest_tag`)
+
+Exactly one asset carries a version query:
+
+```html
+<script src="audio-manifest.js?v=89c5da62cf" onerror="window.AUDIO_MANIFEST=null"></script>
+```
+
+The other **27** — `css/app.css`, the eight `js/data/*.js` files and the
+eighteen `js/core` and `js/features` modules — are plain URLs. A browser that
+has loaded `utils.js` once will keep serving its cached copy after the file
+changes, for as long as its heuristic cache holds.
+
+**Cost:** an edit to an extracted module can appear to do nothing. The page
+loads, no error appears, and the old code runs. **This has now cost two rounds
+of confused debugging during testing** — the same failure mode that already
+justified stamping the manifest, which `fetch_audio.py` documents in
+`stamp_manifest_tag`'s docstring as having "cost a confused round of debugging
+once already".
+
+The risk grows with every file extracted. When everything was inline in
+`index.html` the problem could not arise, because the document itself is
+revalidated. Extraction is what created it, and extraction is ongoing.
+
+**Symptom to recognise:** behaviour that contradicts the source you are looking
+at, fixed by a hard reload (Ctrl+Shift+R). If a change "didn't take", suspect
+this before suspecting the change.
+
+**Fix — the same mechanism the manifest already uses, generalised.** A small
+script that hashes each local asset and rewrites its tag, run after edits:
+
+```python
+# tools/stamp_assets.py — sketch
+pattern = re.compile(r'(<(?:script src|link rel="stylesheet" href)="(js/[^"?]+|css/[^"?]+))(\?v=[0-9a-f]+)?(")')
+# for each match: hash that file, substitute ?v=<digest>
+```
+
+Content-hashing rather than a build number matters for the same reason it did
+for the manifest: the URL changes if and only if the file does, so an unchanged
+asset still gets cached.
+
+Two cheaper alternatives, both worse:
+
+- **A single shared version string** on every tag, bumped by hand. Busts all 27
+  whenever any one changes, and relies on remembering.
+- **Cache headers from the dev server.** `python -m http.server` sends none, so
+  this would mean a custom server — which trades the "no dependencies" property
+  for a development-only convenience, and does nothing for anyone opening the
+  file over `file://`.
+
+**Deliberately not folded into the extraction work.** The two are entangled —
+extraction is what makes this bite — but mixing a build-tooling change into a
+refactor makes both harder to review, and the extraction is the thing with a
+plan behind it. Fix this on its own, after.
+
+---
+
 ## Reading texts are short of the B1 target
 
 **Where:** content, not code — `READING_TEXTS` in `index.html`
