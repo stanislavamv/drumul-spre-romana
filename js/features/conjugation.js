@@ -190,3 +190,27 @@ function verbGroupLabel(v){
   var k = verbGroupKey(v);
   return k==="irr" ? "Irregular" : (GROUP_LABEL[k]||k);
 }
+
+/* Verb-data predicates. They belong with the engine rather than with the verb
+   pages that display them: verbIsIrregular is defined in terms of
+   verbGroupKey, and verbHasOddParticiple re-derives the participle from
+   verbParts to compare against the declared one. Neither touches the DOM.
+
+   verbHasOddParticiple currently has no callers anywhere in the codebase.
+   It is moved rather than deleted: removing it is a behaviour decision,
+   not a mechanical extraction. */
+/* "Irregular" means the PRESENT tense does not follow its class — that is the
+   thing a learner has to memorize instead of derive. It is not the same as
+   having an unpredictable participle (a merge → mers) or a spelled-out table in
+   the data. Inferring it from the presence of an `irr` block labeled two
+   thirds of the verb list irregular, including a ajuta and a asculta, which are
+   textbook-regular. Only the explicit flag counts. */
+function verbIsIrregular(x){ return !!(x.irregular || verbGroupKey(x)==="irr"); }
+/* Participle you could not have predicted from the infinitive — worth flagging
+   separately, since it is what breaks the compound past. */
+function verbHasOddParticiple(v){
+  if(!v.irr || !v.irr.participle) return false;
+  var p = verbParts(v.inf);
+  var predicted = {"a":p.stem+"at","ea":p.stem+"ut","e":p.stem+"ut","i":p.stem+"it","î":p.stem+"ât"}[p.ending];
+  return predicted !== v.irr.participle;
+}

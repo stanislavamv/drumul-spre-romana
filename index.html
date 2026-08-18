@@ -73,6 +73,9 @@
      icons.js, lookup.js, session.js, utils.js and the data globals. -->
 <script src="js/features/exercise-render.js"></script>
 <script src="js/core/topbar.js"></script>
+<!-- Shared page chrome. Needs mobileNav() from topbar.js, session.js,
+     utils.js, the course data and the lookup/progress helpers. -->
+<script src="js/core/chrome.js"></script>
 <script>
 (function(){
 "use strict";
@@ -499,36 +502,15 @@ function wordsMastered(){ return Object.keys(state.vocabSrs).filter(function(id)
    js/features/exercise-render.js, loaded above this script. The PAGES
    functions and runSession below still call it. */
 
+/* Page chrome (shell, courseSwitcher, notFound) now lives in
+   js/core/chrome.js. The verb predicates verbIsIrregular and
+   verbHasOddParticiple moved to js/features/conjugation.js, whose
+   verbGroupKey/verbParts they are defined in terms of. Both load above
+   this script. */
+
 /* ===================== PAGES ===================== */
 var PAGES = {};
 
-function shell(sidebarHtml, mainHtml, railHtml, wide){
-  /* Every page gets a sidebar on mobile, even those that have none on desktop,
-     so the navigation is always reachable from the menu button. */
-  var side = mobileNav() + (sidebarHtml || "");
-  return '<div class="shell">'+
-    '<aside class="sidebar'+(session.sidebarOpen?" open":"")+(sidebarHtml?"":" nav-only")+'">'+side+'</aside>'+
-    '<main class="main'+(wide?" main-wide":"")+'"><div class="main-inner">'+mainHtml+'</div></main>'+
-    (railHtml? '<aside class="rightrail">'+railHtml+'</aside>':'')+
-  '</div>';
-}
-
-/* Body-level switcher. Redundant on desktop, where the sidebar carries one —
-   so it is hidden there and shown only on mobile, whose sidebar sits behind
-   the menu button and would otherwise hide the second course entirely. */
-function courseSwitcher(){
-  return '<div class="course-switch-body" style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">'+
-    COURSES.map(function(c){
-      var active = currentCourse()===c.id;
-      var built = UNITS.filter(function(u){
-        var lv = levelById(u.levelId); return lv && (lv.course||"cefr")===c.id && lessonsOfUnit(u.id).length;
-      }).length;
-      return '<button class="chip'+(active?" active":"")+'" data-action="setCourse" data-course="'+c.id+'" '+
-        'style="padding:8px 14px">'+escapeHtml(c.short)+
-        '<span style="opacity:.6;margin-left:6px">'+built+' units</span></button>';
-    }).join("")+
-  '</div>';
-}
 
 /* The whole course map, both tracks, in one continuous list — the citizenship
    levels sit below the CEFR ones under their own heading rather than behind a
@@ -1120,11 +1102,6 @@ PAGES.admin = function(){
   '</div>';
   return shell(null, main, null);
 };
-function notFound(msg){
-  return '<div class="shell"><main class="main"><div class="main-inner">'+
-    '<div class="empty-state"><p style="margin-bottom:14px">'+escapeHtml(msg)+'</p>'+
-    '<button class="btn secondary" data-action="go" data-page="home">Back to Learn</button></div></div></main></div>';
-}
 
 
 /* Two columns of paired sentences, each pair differing in exactly one thing.
@@ -1865,21 +1842,8 @@ PAGES.vocabulary = function(){
 };
 
 /* ---------- VERB TOOL ---------- */
-/* "Irregular" means the PRESENT tense does not follow its class — that is the
-   thing a learner has to memorize instead of derive. It is not the same as
-   having an unpredictable participle (a merge → mers) or a spelled-out table in
-   the data. Inferring it from the presence of an `irr` block labeled two
-   thirds of the verb list irregular, including a ajuta and a asculta, which are
-   textbook-regular. Only the explicit flag counts. */
-function verbIsIrregular(x){ return !!(x.irregular || verbGroupKey(x)==="irr"); }
-/* Participle you could not have predicted from the infinitive — worth flagging
-   separately, since it is what breaks the compound past. */
-function verbHasOddParticiple(v){
-  if(!v.irr || !v.irr.participle) return false;
-  var p = verbParts(v.inf);
-  var predicted = {"a":p.stem+"at","ea":p.stem+"ut","e":p.stem+"ut","i":p.stem+"it","î":p.stem+"ât"}[p.ending];
-  return predicted !== v.irr.participle;
-}
+
+
 function filteredVerbs(){
   var q = session.verbQuery||"", grp = session.verbGroup||"all";
   return VERBS.filter(function(x){
