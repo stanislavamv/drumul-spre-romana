@@ -76,6 +76,9 @@
 <!-- Shared page chrome. Needs mobileNav() from topbar.js, session.js,
      utils.js, the course data and the lookup/progress helpers. -->
 <script src="js/core/chrome.js"></script>
+<!-- Session runner. Needs exercise-render.js (renderExercise,
+     whatYouGotWrong, bySkillBreakdown), session.js and utils.js. -->
+<script src="js/features/session-runner.js"></script>
 <script>
 (function(){
 "use strict";
@@ -507,6 +510,10 @@ function wordsMastered(){ return Object.keys(state.vocabSrs).filter(function(id)
    verbHasOddParticiple moved to js/features/conjugation.js, whose
    verbGroupKey/verbParts they are defined in terms of. Both load above
    this script. */
+
+/* The session runner (runSession) now lives in
+   js/features/session-runner.js, loaded above this script. PAGES.review,
+   PAGES.practice, PAGES.listening and PAGES.drill below still call it. */
 
 /* ===================== PAGES ===================== */
 var PAGES = {};
@@ -2059,38 +2066,6 @@ PAGES.drill = function(){
     '</div>';
   return shell(null, main, null);
 };
-
-/* ---------- SESSION RUNNER (review / practice / exams) ---------- */
-function runSession(title, subtitle, exercises, opts){
-  opts = opts||{};
-  if(!exercises.length) return '<div class="empty-state">'+escapeHtml(opts.emptyMsg||"Nothing to practice right now.")+'</div>';
-  var i = clamp(session.qIndex,0,exercises.length-1);
-  var ex = exercises[i];
-  var answered = exercises.filter(function(e){ return session.feedback[e.id]; }).length;
-  var correct = exercises.filter(function(e){ var f=session.feedback[e.id]; return f&&f.verdict==="correct"; }).length;
-  /* Ungradeable free writing is excluded from the denominator — see finishLesson. */
-  var scorable = exercises.filter(function(e){
-    var f = session.feedback[e.id]; return !f || f.verdict!=="submitted";
-  }).length;
-
-  if(session.sessionDone){
-    var scorePct = pct(correct, scorable);
-    return '<div class="card" style="padding:28px">'+
-      '<div class="section-eyebrow">Session complete</div>'+
-      '<h2 style="font-size:26px;margin-bottom:10px">'+correct+' of '+scorable+' correct · '+scorePct+'%</h2>'+
-      bySkillBreakdown(exercises)+
-      whatYouGotWrong(exercises, {retryAction:"retryWrongOnly"})+
-      '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">'+
-        '<button class="btn" data-action="go" data-page="home">Back to Learn</button>'+
-        '<button class="btn secondary" data-action="restartSession">Run another set</button></div></div>';
-  }
-  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
-      '<div><div class="section-eyebrow">'+escapeHtml(title)+'</div>'+
-      '<p style="color:var(--text-2);font-size:13.5px">'+escapeHtml(subtitle)+'</p></div>'+
-      '<span class="tabular" style="font-size:12.5px;color:var(--text-3)">'+answered+' / '+exercises.length+'</span></div>'+
-    '<div class="progressbar" style="margin-bottom:20px"><span style="width:'+pct(answered,exercises.length)+'%"></span></div>'+
-    renderExercise(ex, {counter:"Question "+(i+1)+" of "+exercises.length});
-}
 
 
 /* ---------- REVIEW ---------- */
