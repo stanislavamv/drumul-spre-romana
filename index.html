@@ -83,6 +83,10 @@
      and the courses/texts/reference data. mediaDetail (inline) calls its
      glossRun, so this must load before the inline script. -->
 <script src="js/features/reading.js"></script>
+<!-- The render loop and router entry point. Needs state.js, router.js,
+     fields.js, scroll.js and topbar.js. Declares the empty PAGES object
+     that the inline script below populates, so it must load first. -->
+<script src="js/core/render.js"></script>
 <script>
 (function(){
 "use strict";
@@ -318,14 +322,10 @@ var Speech = (function(){
 })();
 
 /* ===================== ROUTER ===================== */
-/* parseHash now lives in js/core/router.js, loaded just above this script.
-   navigate() and the hashchange listener stay here: both reach render(),
-   which is IIFE-scoped and not a global. */
-function navigate(page, params){
-  var p = "#/"+page+(params&&params.length? "/"+params.map(encodeURIComponent).join("/") : "");
-  if(location.hash===p){ render(); } else { location.hash=p; }
-  window.scrollTo(0,0);
-}
+/* parseHash now lives in js/core/router.js and navigate() now lives in
+   js/core/render.js, both loaded above this script. The hashchange listener
+   stays here and resolves the now-global render(). */
+
 window.addEventListener("hashchange", render);
 
 /* ===================== DATA (loaded below) ===================== */
@@ -520,7 +520,9 @@ function wordsMastered(){ return Object.keys(state.vocabSrs).filter(function(id)
    glossRun. */
 
 /* ===================== PAGES ===================== */
-var PAGES = {};
+/* `var PAGES = {}` now lives in js/core/render.js, loaded above this script,
+   together with renderApp/render/navigate. The 21 assignments below populate
+   that same global object — it is never reassigned or replaced. */
 
 
 /* The whole course map, both tracks, in one continuous list — the citizenship
@@ -3318,37 +3320,20 @@ function nextLessonCard(l, passed){
 /* The application chrome — renderTopbar and mobileNav — now lives in
    js/core/topbar.js, loaded above this script, along with the icon helpers
    (js/core/icons.js) and navIsActive (js/core/navigation.js) it calls.
-   renderApp below still calls renderTopbar(); shell() still calls
-   mobileNav(). */
+   renderApp — now in js/core/render.js — still calls renderTopbar();
+   shell() still calls mobileNav(). */
 
 
 /* captureField and restoreField now live in js/core/fields.js, loaded just
-   above this script. renderApp below still calls both. */
+   above this script. renderApp — now in js/core/render.js — still calls
+   both across that script boundary. */
 
-function renderApp(){
-  document.body.className = state.settings.reduceMotion? "reduce-motion":"";
-  var snapshot = captureField();
-  var route = parseHash();
-  var page = PAGES[route.page] || PAGES.home;
-  document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]);
-  restoreField(snapshot);
-  updateScrollTop();
-}
+
 /* The back-to-top control (scrollTopBtn, ensureScrollTop, updateScrollTop and
    its three listeners) now lives in js/core/scroll.js, loaded just above this
-   script. renderApp above still calls updateScrollTop(). */
+   script. renderApp — now in js/core/render.js — still calls
+   updateScrollTop() on every paint. */
 
-var frameQueued = false;
-function render(){
-  if(frameQueued) return;          // collapse bursts of state changes into one paint
-  frameQueued = true;
-  /* requestAnimationFrame never fires in a hidden tab, so a course opened in a
-     background tab — or restored on session restart — would sit blank until it
-     was focused. Fall back to a timer whenever the document is hidden. */
-  var run = function(){ frameQueued = false; renderApp(); };
-  if(document.hidden) setTimeout(run, 0);
-  else requestAnimationFrame(run);
-}
 
 /* Actions that must NOT fire on click — they are driven by input/change so the
    field keeps its own value while the learner types. */
