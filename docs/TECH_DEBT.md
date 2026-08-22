@@ -61,6 +61,13 @@ That works — the scope-chain reasoning is documented in the header of
 `state.js` — but it is the other place where the invariant matters, since they
 must call `persist()` themselves to make the swap durable.
 
+Note for whoever writes the guard: those two are exactly why it is not a
+one-liner. `resetProgress()` is *supposed* to shrink the saved state to almost
+nothing, so a size check alone would refuse the one operation that most
+legitimately shrinks it. The guard needs a way for a caller to say "yes, this
+shrink is intended" — the `--force-manifest` shape from the audio pipeline — and
+those two call sites need to pass it.
+
 ---
 
 ## Reading texts are uneven at B1
@@ -95,68 +102,67 @@ than the level's main reading. Content work, not a bug.
 
 ---
 
-## A bad route renders without navigation
 
-**Where:** `notFound()` in `js/core/chrome.js`
 
-`notFound()` builds its own `.shell`/`.main` markup rather than calling
-`shell()`, and so renders with **no sidebar**. Every other page gets one, and
-`shell()` deliberately prepends `mobileNav()` so navigation stays reachable from
-the menu button even on pages with no desktop sidebar.
-
-The result is that the one screen a lost user lands on is the one screen with no
-way out except the single "Back to Learn" button.
-
-**Cost:** small. The button works, so nobody is stranded — it is an
-inconsistency, not a trap.
-
-**Fix:** call `shell(null, <the empty-state markup>, null)`. The asymmetry looks
-deliberate enough in the source that it is worth a moment's thought about
-whether a bare dead end was the intent before changing it.
-
----
-
-## `PAGES.admin` nests two `.main-inner` wrappers
-
-**Where:** `js/features/pages.js`, `PAGES.admin`
-
-It builds `var main = '<div class="main-inner" ...>'` and then hands that to
-`shell()`, which wraps everything in a `.main-inner` of its own. The page ends
-up with two nested, both carrying padding and a `max-width`.
-
-Pre-existing and stable — it renders acceptably, which is why it survived this
-long unnoticed.
-
-**Cost:** cosmetic. The inner `max-width:560px` wins, so the page is narrower
-than its own declaration suggests, and anyone editing the width will change the
-outer one first and see nothing happen.
-
-**Fix:** drop the hand-rolled wrapper and pass the inner content to `shell()`,
-moving the `max-width`/`padding-top` onto the content itself.
-
----
-
-## Sixteen extracted strings can never have a clip
+## Eleven extracted strings can never have a clip
 
 **Where:** `tools/extract_strings.py`
 
-`build_manifest.py` reports "16 still missing" on every run, and always will.
-The sixteen fall into three groups:
+`build_manifest.py` reports "11 still missing" on every run, and always will.
+This was sixteen until the extractor learned to drop two groups that were never
+speech to begin with:
 
 - **Four singing-guide lines carrying the caesura mark**, e.g.
-  `Deșteaptă-te, române, ‖ din somnul cel de moarte,`. These can never match a
-  clip, because `renderSingingGuide()` speaks `l.ro.replace(/‖/g,"")` — the
-  version without the mark, which *is* fetched and mapped. The `‖` variants are
-  extractor output that nothing ever asks for.
-- **Extraction noise**, such as the string `”.`
-- **ILR section titles and their individual words** (`Înțelegerea`,
-  `exprimarea`, `orală`), which have no play button.
+  `Deșteaptă-te, române, ‖ din somnul cel de moarte,`. `renderSingingGuide()`
+  speaks `l.ro.replace(/‖/g,"")`, so the marked version could never match. The
+  extractor now strips `‖` the same way, and the four collapse onto the plain
+  lines that were already fetched.
+- **Punctuation-only noise**, such as the string `”.`, now filtered by
+  requiring at least one letter or digit.
 
-**Cost:** the "still missing" count has a permanent floor of 16, so it cannot be
-used to detect a *real* coverage gap at a glance — which is exactly what that
-number is for. It also means four pointless entries sit in `ro-strings.json` as
-fetch targets that will fail forever.
+The eleven that remain are labels and metadata that the extractor mistakes for
+speech. None of them has a play button anywhere in the app:
 
-**Fix:** strip `‖` in the extractor before emitting singing-guide lines (mirroring
-what the renderer does), and filter strings with no letters. Then "still
-missing" should read 0, and any future non-zero is a genuine gap worth chasing.
+- `Perfect compus`, `Conjunctiv`, `Imperativ` — `leftLabel` / `rightLabel` on
+  contrast blocks in `js/data/lessons.js`. Table headers.
+- `el / ea`, `ei / ele` — `PERSON_LABELS` in `js/data/reference.js`, the pronoun
+  column of a conjugation table.
+- The three ILR paper names (`Comprehensiune de lectură și competență
+  gramaticală` and friends) plus the individual words `Înțelegerea`,
+  `exprimarea`, `orală` — Romanian embedded in the English `explain` text of an
+  exercise, and a unit title.
+
+**Cost:** the "still missing" count has a permanent floor of 11, so it cannot be
+read at a glance as "coverage is complete". Smaller than it was, and no longer
+carries entries that are actively wrong, but still not zero.
+
+**Fix:** narrow the rules that reach label fields — `leftLabel`/`rightLabel`,
+`PERSON_LABELS`, and Romanian inside `explain`. This needs care rather than
+effort: those same rules pull in strings that genuinely are spoken, so each one
+wants checking against the rendered page before it is tightened. Fetching the
+eleven instead would zero the number, but it would buy clips nothing plays.
+
+---
+
+## Playback cannot be paused or stopped
+
+**Where:** `js/features/actions.js` (`playAudio`), `js/core/speech.js`
+
+The original specification asked for play, pause, replay and speed control.
+Speed control exists. Pause does not, and neither does stop.
+
+Clicking a playing button calls `Speech.speak()` again, which stops the current
+clip and restarts it from the beginning — sensible as "replay", but there is no
+way to simply make it stop. `Speech.stop()` exists and works; the only caller is
+the shadowing feature, and no button anywhere exposes it. An `iconPause()` was
+written and never called; it was deleted rather than left sitting uncalled, and
+is recoverable from git history if pause is ever built.
+
+**Cost:** low for a single word, higher for `speakSequence()` over a long
+reading, which can run for minutes. A route change now stops playback, so the
+worst case — audio following you onto an unrelated page — is gone. What remains
+is that you cannot stop it *without* leaving the page.
+
+**Fix:** track the playing element in `playAudio` and swap the button to a stop
+control while it plays, calling `Speech.stop()`. The `.audio-btn.playing` class
+is already applied and styled, so the state is there to hang it on.
