@@ -352,6 +352,10 @@ var Actions = {
     var id = el.getAttribute("data-ex");
     delete session.feedback[id]; delete session.answers[id];
     delete session.built[id]; delete session.matched[id];
+    /* Match exercises cache their pair order under a sibling key. Missing it
+       left the pairs in the same positions on every retry while every other
+       exercise type reshuffled. */
+    delete session.matched[id+"_shuffled"];
     delete session.gaps[id];
     delete session.optOrder[id];      // reshuffle options on a second attempt
     render();
