@@ -27,6 +27,10 @@
 
 /* ===================== SPACED REPETITION (vocab) ===================== */
 var SRS_LEVELS = ["New","Learning","Familiar","Strong","Mastered"];
+/* Six intervals for five levels, deliberately. Index 0 is the "never reviewed"
+   state that getVocabState() writes, so the five levels map to indices 1..5 and
+   Mastered means 35 days. Reading it as a straight level->interval table gave
+   Mastered 16 days and made the 35 unreachable. */
 var SRS_INTERVALS = [0,1,3,7,16,35];
 function getVocabState(vid){
   if(!state.vocabSrs[vid]) state.vocabSrs[vid] = {status:"New", interval:0, due:todayStr(), correctStreak:0, seen:0, correct:0};
@@ -44,7 +48,7 @@ function reviewVocab(vid, correct){
     levelIdx = clamp(levelIdx-1, 0, SRS_LEVELS.length-1);
   }
   v.status = SRS_LEVELS[levelIdx];
-  v.interval = SRS_INTERVALS[levelIdx];
+  v.interval = SRS_INTERVALS[levelIdx+1];
   v.due = addDays(todayStr(), Math.max(v.interval,correct?1:0));
   persist();
 }
