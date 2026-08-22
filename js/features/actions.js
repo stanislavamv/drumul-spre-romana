@@ -601,7 +601,7 @@ var Actions = {
   },
   resetProgress: function(){
     if(!window.confirm("This permanently deletes all your progress, vocabulary history and saved mistakes in this browser. Continue?")) return;
-    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    clearState();
     state = defaultState();
     session = defaultSession();
     navigate("home");

@@ -69,9 +69,38 @@ function loadState(){
 }
 
 var saveTimer=null;
+/* What writeState() last put in storage. Used only to notice that something
+   else has been writing, which is the one thing this module cannot otherwise
+   detect. */
+var lastWritten=null;
 function writeState(){
   clearTimeout(saveTimer); saveTimer=null;
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  var next;
+  try{ next = JSON.stringify(state); }catch(e){ return; }
+  try{
+    /* The rule is: mutate `state`, then call persist(). Anything that edits
+       localStorage directly — a console one-liner, a migration, a test fixture
+       — is racing the 80ms debounce, and loses. That used to happen in
+       silence: the edit appeared to work, survived a moment, then vanished on
+       the next state change. It is still discarded, because `state` is the
+       source of truth, but it no longer goes unremarked. */
+    var current = localStorage.getItem(STORAGE_KEY);
+    if(lastWritten!==null && current!==null && current!==lastWritten && current!==next){
+      console.warn("state.js: a direct localStorage edit is being overwritten. "+
+                   "Mutate `state` and call persist() instead.");
+    }
+    localStorage.setItem(STORAGE_KEY, next);
+    lastWritten = next;
+  }catch(e){}
+}
+/* The supported way to erase the saved course. Goes through this module so the
+   pending debounce is cancelled and lastWritten is cleared; calling
+   localStorage.removeItem() directly leaves a queued writeState() free to put
+   the old state straight back. */
+function clearState(){
+  clearTimeout(saveTimer); saveTimer=null;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  lastWritten = null;
 }
 function persist(){
   clearTimeout(saveTimer);
