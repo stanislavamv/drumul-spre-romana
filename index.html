@@ -51,14 +51,14 @@
 <script src="js/features/mastery.js?v=c3758c00c9"></script>
 <!-- Vocabulary review scheduling. Needs `state`/persist() from state.js
      and the date helpers from utils.js; independent of the two above. -->
-<script src="js/features/srs.js?v=07f17eb603"></script>
+<script src="js/features/srs.js?v=129bd2ce2d"></script>
 <!-- Mistake notebook. Needs uid()/todayStr() from utils.js and
      `state`/persist() from state.js. -->
 <script src="js/features/mistakes.js?v=e80e0b5304"></script>
 <!-- Progress and unlocking. Needs lookup.js, state.js, session.js, utils.js. -->
 <script src="js/features/progress.js?v=0244bc84a4"></script>
 <!-- Conjugation engine. Needs only the tables in js/data/verbs.js. -->
-<script src="js/features/conjugation.js?v=106ee79872"></script>
+<script src="js/features/conjugation.js?v=528efaea72"></script>
 <!-- Gloss engine. Needs VOCAB/VERBS/CORE_GLOSS/KNOWN_NAMES/ENGLISH_MARKERS
      and normLoose/escapeHtml; independent of the conjugation engine. -->
 <script src="js/features/gloss.js?v=f1fcf0d50c"></script>
@@ -82,11 +82,11 @@
 <!-- Reading rendering. Needs utils.js, session.js, controls.js, gloss.js
      and the courses/texts/reference data. mediaDetail (inline) calls its
      glossRun, so this must load before the inline script. -->
-<script src="js/features/reading.js?v=9083b009f2"></script>
+<script src="js/features/reading.js?v=91006be205"></script>
 <!-- The render loop and router entry point. Needs state.js, router.js,
      fields.js, scroll.js and topbar.js. Declares the empty PAGES object
      that the inline script below populates, so it must load first. -->
-<script src="js/core/render.js?v=82a7a4c7c3"></script>
+<script src="js/core/render.js?v=2634c47c25"></script>
 <!-- Speech and the audio-asset index. Needs utils.js (normLoose,
      unifyRomanian), state.js and render.js (render()). Actions,
      mediaDetail, audioSourcePanel, showGlossPopup and runShadowLine
@@ -115,7 +115,7 @@
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->
-<script src="js/features/actions.js?v=cab4881b6e"></script>
+<script src="js/features/actions.js?v=3b4a0c8693"></script>
 <script>
 (function(){
 "use strict";
