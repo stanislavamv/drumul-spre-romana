@@ -29,6 +29,7 @@ python tools/check_syntax.py        # localises a parse error to a line
 python tools/extract_strings.py     # collect Romanian strings needing audio
 python tools/fetch_audio.py tools/ro-strings.json    # download clips, rebuild manifest (~2h cold)
 python tools/verify_verbs.py        # cross-check conjugations vs Wiktionary (~12 min, 190 requests)
+python tools/stamp_assets.py        # cache-bust js/ and css/ tags — RUN AFTER EVERY JS/CSS EDIT
 ```
 
 ## Documentation
@@ -70,11 +71,13 @@ in document order so the region markers in `check_content.py`, `check_reuse.py`,
 dataset between files, or reordering `DATA_FILES`, silently changes what those
 tools scan — they will keep exiting 0 while looking at the wrong text.
 
-**Extracted JS and CSS are not cache-busted — only `audio-manifest.js` is.** Edit
-`utils.js` or any other `js/`/`css/` file and the browser may keep running the
-old copy, with no error. It looks exactly like the edit doing nothing. Hard
-reload (Ctrl+Shift+R) before concluding a change is broken; this has already
-cost two rounds of debugging. See `docs/TECH_DEBT.md`.
+**Every `js/`/`css/` tag is cache-busted by content hash — run the stamper after
+editing one.** `python tools/stamp_assets.py` rewrites each `<script src>` /
+`<link>` tag's `?v=` query to that file's own sha1, so a browser that cached
+the old copy fetches the new one on a plain reload. Forgetting to run it after
+an edit reproduces the old failure mode exactly: the page loads, no error
+appears, and the old code runs. `audio-manifest.js` is stamped separately by
+`tools/fetch_audio.py`, not by this script.
 
 **Python scripts must force UTF-8 stdout.** Windows consoles are cp1252 and
 cannot encode `ș`/`ț`; a script dies reporting the problem it found.

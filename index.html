@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <title>Drumul spre Română — A1 to B1 Romanian</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="css/app.css" />
+<link rel="stylesheet" href="css/app.css?v=4ab34980d8" />
 </head>
 <body>
 <div id="root"></div>
@@ -16,106 +16,106 @@
      the application script below, which calls them throughout. -->
 <!-- Course data. Pure literals, no dependencies. Must load before the
      application script, and must keep this order (see js/data/courses.js). -->
-<script src="js/data/courses.js"></script>
-<script src="js/data/verbs.js"></script>
-<script src="js/data/grammar.js"></script>
-<script src="js/data/vocab.js"></script>
-<script src="js/data/texts.js"></script>
-<script src="js/data/exercises.js"></script>
-<script src="js/data/lessons.js"></script>
-<script src="js/data/reference.js"></script>
-<script src="js/core/utils.js"></script>
+<script src="js/data/courses.js?v=9ea12bfcb9"></script>
+<script src="js/data/verbs.js?v=0fea4374f9"></script>
+<script src="js/data/grammar.js?v=7e01012d87"></script>
+<script src="js/data/vocab.js?v=fbe13d9828"></script>
+<script src="js/data/texts.js?v=f9a9f097d3"></script>
+<script src="js/data/exercises.js?v=7ff7daaeb8"></script>
+<script src="js/data/lessons.js?v=079b6a8dea"></script>
+<script src="js/data/reference.js?v=3c0eb222db"></script>
+<script src="js/core/utils.js?v=e30efb5322"></script>
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
-<script src="js/core/state.js"></script>
+<script src="js/core/state.js?v=1f02aa14c9"></script>
 <!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
-<script src="js/core/session.js"></script>
+<script src="js/core/session.js?v=d02cf7e0f8"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
-<script src="js/core/router.js"></script>
+<script src="js/core/router.js?v=2db0c26d19"></script>
 <!-- Focused-field snapshot/restore across a redraw. DOM-only, no deps. -->
-<script src="js/core/fields.js"></script>
+<script src="js/core/fields.js?v=be65857395"></script>
 <!-- Back-to-top button. Needs state.settings.reduceMotion from state.js;
      registers its own scroll listeners, so it must load as a unit. -->
-<script src="js/core/scroll.js"></script>
+<script src="js/core/scroll.js?v=f59cbb941a"></script>
 <!-- Id lookups over the datasets above. Data-only, no state. -->
-<script src="js/core/lookup.js"></script>
+<script src="js/core/lookup.js?v=4b9bd693c3"></script>
 <!-- Inline SVG icons. Pure string returns, no dependencies. -->
-<script src="js/core/icons.js"></script>
+<script src="js/core/icons.js?v=d49e92fbf0"></script>
 <!-- Which nav tab is active for a route. Pure, used by topbar and mobile nav. -->
-<script src="js/core/navigation.js"></script>
+<script src="js/core/navigation.js?v=f90d555bbf"></script>
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
      from state.js, so it loads after both. -->
-<script src="js/features/activity.js"></script>
+<script src="js/features/activity.js?v=7778866a89"></script>
 <!-- Skill and grammar accuracy tracking. Needs `state`/persist() from
      state.js and clamp()/pct() from utils.js. -->
-<script src="js/features/mastery.js"></script>
+<script src="js/features/mastery.js?v=c3758c00c9"></script>
 <!-- Vocabulary review scheduling. Needs `state`/persist() from state.js
      and the date helpers from utils.js; independent of the two above. -->
-<script src="js/features/srs.js"></script>
+<script src="js/features/srs.js?v=07f17eb603"></script>
 <!-- Mistake notebook. Needs uid()/todayStr() from utils.js and
      `state`/persist() from state.js. -->
-<script src="js/features/mistakes.js"></script>
+<script src="js/features/mistakes.js?v=e80e0b5304"></script>
 <!-- Progress and unlocking. Needs lookup.js, state.js, session.js, utils.js. -->
-<script src="js/features/progress.js"></script>
+<script src="js/features/progress.js?v=0244bc84a4"></script>
 <!-- Conjugation engine. Needs only the tables in js/data/verbs.js. -->
-<script src="js/features/conjugation.js"></script>
+<script src="js/features/conjugation.js?v=106ee79872"></script>
 <!-- Gloss engine. Needs VOCAB/VERBS/CORE_GLOSS/KNOWN_NAMES/ENGLISH_MARKERS
      and normLoose/escapeHtml; independent of the conjugation engine. -->
-<script src="js/features/gloss.js"></script>
+<script src="js/features/gloss.js?v=f1fcf0d50c"></script>
 <!-- Answer checking and grading. Needs utils, state, session, the mastery/
      SRS/mistakes/activity recorders and lookup; no DOM. -->
-<script src="js/features/grading.js"></script>
+<script src="js/features/grading.js?v=74857ccf23"></script>
 <!-- Top bar and mobile nav. Needs the icons, navIsActive, progress and
      activity helpers above, so it loads last of the extracted files. -->
 <!-- Small interactive controls. Need escapeHtml, iconPlay and state. -->
-<script src="js/core/controls.js"></script>
+<script src="js/core/controls.js?v=6760251081"></script>
 <!-- Exercise rendering + feedback. Needs grading.js, gloss.js, controls.js,
      icons.js, lookup.js, session.js, utils.js and the data globals. -->
-<script src="js/features/exercise-render.js"></script>
-<script src="js/core/topbar.js"></script>
+<script src="js/features/exercise-render.js?v=b48c57178f"></script>
+<script src="js/core/topbar.js?v=9f3387d21b"></script>
 <!-- Shared page chrome. Needs mobileNav() from topbar.js, session.js,
      utils.js, the course data and the lookup/progress helpers. -->
-<script src="js/core/chrome.js"></script>
+<script src="js/core/chrome.js?v=ac499bb9e0"></script>
 <!-- Session runner. Needs exercise-render.js (renderExercise,
      whatYouGotWrong, bySkillBreakdown), session.js and utils.js. -->
-<script src="js/features/session-runner.js"></script>
+<script src="js/features/session-runner.js?v=3216680fb4"></script>
 <!-- Reading rendering. Needs utils.js, session.js, controls.js, gloss.js
      and the courses/texts/reference data. mediaDetail (inline) calls its
      glossRun, so this must load before the inline script. -->
-<script src="js/features/reading.js"></script>
+<script src="js/features/reading.js?v=d2d78242eb"></script>
 <!-- The render loop and router entry point. Needs state.js, router.js,
      fields.js, scroll.js and topbar.js. Declares the empty PAGES object
      that the inline script below populates, so it must load first. -->
-<script src="js/core/render.js"></script>
+<script src="js/core/render.js?v=82a7a4c7c3"></script>
 <!-- Speech and the audio-asset index. Needs utils.js (normLoose,
      unifyRomanian), state.js and render.js (render()). Actions,
      mediaDetail, audioSourcePanel, showGlossPopup and runShadowLine
      below still call Speech.*. -->
-<script src="js/core/speech.js"></script>
+<script src="js/core/speech.js?v=87aa9b0f58"></script>
 <!-- Media / shadowing detail view. Needs state.js, session.js, utils.js,
      controls.js (audioButton), icons.js (iconPlay), reading.js (glossRun)
      and speech.js (Speech, assetCount). -->
-<script src="js/features/media.js"></script>
+<script src="js/features/media.js?v=7e047fa6fe"></script>
 <!-- The PAGES helper layer. Needs utils.js, state.js, session.js,
      lookup.js, icons.js, progress.js, conjugation.js, gloss.js,
      controls.js, media.js (mediaTranscript), exercise-render.js
      (whatYouGotWrong) and the courses/verbs/exercises/lessons/
      reference data. This is the last dependency PAGES.* needs. -->
-<script src="js/features/pages-helpers.js"></script>
+<script src="js/features/pages-helpers.js?v=240a16c817"></script>
 <!-- All 21 PAGES.* page renderers. Needs every extracted core/data/
      feature module loaded above -- this is the last consumer of all
      of them -- and pages-helpers.js specifically. -->
-<script src="js/features/pages.js"></script>
+<script src="js/features/pages.js?v=04d2f88789"></script>
 <!-- Actions-adjacent runtime helpers -- everything Actions calls that
      is not itself an Actions handler. Needs state.js, session.js,
      utils.js, lookup.js, render.js (render()), speech.js (Speech),
      conjugation.js, and the courses/verbs/exercises/reference data.
      Actions below still calls into all of it. -->
-<script src="js/features/action-helpers.js"></script>
+<script src="js/features/action-helpers.js?v=6760b01042"></script>
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->
-<script src="js/features/actions.js"></script>
+<script src="js/features/actions.js?v=cab4881b6e"></script>
 <script>
 (function(){
 "use strict";
