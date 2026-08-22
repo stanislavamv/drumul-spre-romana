@@ -9,10 +9,9 @@
  * sidebar, so navigation stays reachable from the menu button on pages that
  * have no desktop sidebar at all.
  *
- * notFound() deliberately does NOT call shell(): it writes its own
- * .shell/.main markup and omits the sidebar entirely, so a bad route renders a
- * dead end with no navigation chrome around it. That asymmetry is pre-existing
- * and is preserved here unchanged.
+ * notFound() renders the same chrome as every other page. It used to write
+ * its own .shell/.main markup and omit the sidebar, which cost mobile users
+ * the menu button on exactly the screen where they most needed a way out.
  *
  * No DOM access — all three return HTML strings for a caller to insert.
  *
@@ -51,7 +50,13 @@ function courseSwitcher(){
 }
 
 function notFound(msg){
-  return '<div class="shell"><main class="main"><div class="main-inner">'+
+  /* Routed through shell() like every other page. On desktop this looks the
+     same either way — .sidebar.nav-only is display:none above 980px — but on
+     mobile it is what puts the menu button within reach, so a stale or
+     mistyped URL is no longer a dead end whose only exit is the one button
+     below. */
+  return shell(null,
     '<div class="empty-state"><p style="margin-bottom:14px">'+escapeHtml(msg)+'</p>'+
-    '<button class="btn secondary" data-action="go" data-page="home">Back to Learn</button></div></div></main></div>';
+    '<button class="btn secondary" data-action="go" data-page="home">Back to Learn</button></div>',
+    null);
 }
