@@ -123,12 +123,32 @@ var Actions = {
     state.settings.showProfanity = !state.settings.showProfanity; persist(); render();
   },
   playAudio: function(el){
+    /* This button is the only playback affordance on the page, so a second
+       click has to be what stops it. Without that, a speakSequence() over a
+       long reading can only be stopped by navigating away. */
+    var swap = function(node, stopping){
+      var svg = node.querySelector("svg");
+      if(svg) svg.outerHTML = stopping ? iconStop() : iconPlay();
+      if(node.__playAria===undefined) node.__playAria = node.getAttribute("aria-label");
+      node.setAttribute("aria-label", stopping ? "Stop audio" : node.__playAria);
+    };
+    if(el.classList.contains("playing")){
+      Speech.stop();
+      el.classList.remove("playing"); swap(el, false);
+      return;
+    }
+    /* Speech.speak() stops whatever was playing before it starts, so any other
+       button still showing as playing is about to be lying. */
+    Array.prototype.forEach.call(document.querySelectorAll(".audio-btn.playing"), function(other){
+      other.classList.remove("playing"); swap(other, false);
+    });
+
     var seq = el.getAttribute("data-seq");
     var lines = seq ? JSON.parse(seq) : null;
     var text = lines ? lines.join(" ") : el.getAttribute("data-text");
     el.classList.remove("audio-failed");
-    el.classList.add("playing");
-    var clear = function(){ el.classList.remove("playing"); };
+    el.classList.add("playing"); swap(el, true);
+    var clear = function(){ el.classList.remove("playing"); swap(el, false); };
     var fail = function(){
       clear(); el.classList.add("audio-failed");
       el.title = "No Romanian pronunciation for this — see Listening → Pronunciation source";

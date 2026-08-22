@@ -18,5 +18,9 @@
 function iconMenu(){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>'; }
 function iconFlame(){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2s-6 6-6 11a6 6 0 0012 0c0-2-1-3-1-3s-1 2-3 2c-2 0-2-2-1-4 0 0-1 0-1-6z"/></svg>'; }
 function iconPlay(){ return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; }
+/* A square, not pause bars: Speech.stop() resets playback rather than holding
+   its position, and offering a pause glyph would promise a resume that does
+   not exist. */
+function iconStop(){ return '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>'; }
 function iconCheck(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>'; }
 function iconLock(){ return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'; }
