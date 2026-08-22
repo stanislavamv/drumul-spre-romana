@@ -405,6 +405,45 @@ function newPlacementRun(){
   };
 }
 
+/* Unit order across the whole course: grouped by LEVELS (which already spans
+   every track — CEFR, citizenship, ILR, register — in course order), then by
+   each unit's own `order` within its level. Mirrors readingSequence(). */
+function unitSequence(){
+  var out = [];
+  LEVELS.forEach(function(lv){
+    UNITS.filter(function(u){ return u.levelId===lv.id; })
+      .sort(function(a,b){ return a.order-b.order; })
+      .forEach(function(u){ out.push(u); });
+  });
+  /* Anything whose level is not in LEVELS would otherwise vanish from the
+     sequence and become unreachable by arrow. */
+  UNITS.forEach(function(u){ if(out.indexOf(u)===-1) out.push(u); });
+  return out;
+}
+
+function unitNeighbours(u){
+  var seq = unitSequence();
+  var i = seq.findIndex(function(x){ return x.id===u.id; });
+  return {prev: i>0? seq[i-1] : null, next: (i>-1 && i<seq.length-1)? seq[i+1] : null,
+          index: i+1, total: seq.length};
+}
+
+/* Disabled rather than hidden at the ends, so the control does not reflow
+   between units. Mirrors readingNav(). */
+function unitNav(u){
+  var n = unitNeighbours(u);
+  var btn = function(t, glyph, label){
+    if(!t) return '<button class="unit-arrow" disabled aria-label="'+label+'">'+glyph+'</button>';
+    return '<button class="unit-arrow" data-action="go" data-page="unit" data-p1="'+t.id+'" '+
+      'title="'+escapeHtml(t.title)+'" aria-label="'+label+': '+escapeHtml(t.title)+'">'+glyph+'</button>';
+  };
+  return '<div class="unit-nav">'+
+    btn(n.prev, "←", "Previous unit")+
+    '<span class="unit-count tabular">'+n.index+' / '+n.total+'</span>'+
+    btn(n.next, "→", "Next unit")+
+  '</div>';
+}
+
 function courseMapLevel(lv, activeUnitId){
   return [lv].map(function(lv){
     var units = UNITS.filter(function(u){ return u.levelId===lv.id; }).sort(function(a,b){return a.order-b.order;});

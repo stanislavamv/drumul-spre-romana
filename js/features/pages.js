@@ -129,10 +129,13 @@ PAGES.unit = function(params){
   var ls = lessonsOfUnit(u.id);
   var lv = levelById(u.levelId);
 
-  var main = '<div class="section-eyebrow">'+lv.code+' · Unit '+u.order+'</div>'+
-    '<h1 style="font-size:29px;margin-bottom:4px">'+escapeHtml(u.title)+'</h1>'+
-    '<p style="color:var(--text-2);font-size:15px;margin-bottom:6px">'+escapeHtml(u.titleEn)+'</p>'+
-    '<p style="color:var(--text-2);max-width:62ch;margin-bottom:24px">'+escapeHtml(u.blurb)+'</p>';
+  var main = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">'+
+      '<div><div class="section-eyebrow">'+lv.code+' · Unit '+u.order+'</div>'+
+      '<h1 style="font-size:29px;margin-bottom:4px">'+escapeHtml(u.title)+'</h1>'+
+      '<p style="color:var(--text-2);font-size:15px;margin-bottom:0">'+escapeHtml(u.titleEn)+'</p></div>'+
+      unitNav(u)+
+    '</div>'+
+    '<p style="color:var(--text-2);max-width:62ch;margin:8px 0 24px">'+escapeHtml(u.blurb)+'</p>';
 
   /* A unit can point at a purpose-built assessment instead of the generic
      checkpoint builder — the I.L.R. mock is structured as three papers and
