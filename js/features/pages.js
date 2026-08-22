@@ -329,7 +329,9 @@ PAGES.ilrmock = function(){
    Real authorisation needs a server, and can arrive with accounts. */
 PAGES.admin = function(){
   var on = state.settings.unlockAll;
-  var main = '<div class="main-inner" style="max-width:560px;padding-top:30px">'+
+  /* Plain div, not .main-inner: shell() supplies that wrapper, and having
+     both nested one inside the other applied its padding and max-width twice. */
+  var main = '<div style="max-width:560px;padding-top:30px">'+
     '<div class="section-eyebrow">Author mode</div>'+
     '<h1 style="font-size:28px;margin-bottom:10px">Open every unit</h1>'+
     '<div class="card" style="padding:22px 24px;margin-bottom:16px">'+
