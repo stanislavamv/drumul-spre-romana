@@ -162,6 +162,15 @@
    js/core/render.js, both loaded above this script. The hashchange listener
    stays here and resolves the now-global render(). */
 
+/* A route change stops whatever is playing. Audio lives in Speech, not in the
+   DOM, so it survives the re-render that replaces the page — and with it the
+   button that could have stopped it. A single word clip outliving its page is
+   harmless; a speakSequence() started on a long reading runs for minutes on an
+   unrelated page with no way to stop it short of reloading.
+
+   Deliberately on hashchange rather than in render(): answering an exercise or
+   changing a setting calls render() directly, and must not cut playback off. */
+window.addEventListener("hashchange", function(){ Speech.stop(); });
 window.addEventListener("hashchange", render);
 
 /* ===================== DATA (loaded below) ===================== */
