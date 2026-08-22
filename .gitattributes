@@ -1,0 +1,26 @@
+# Every file in this repository is authored and read as LF. Force that on
+# checkout and commit regardless of the checking-out machine's core.autocrlf
+# setting, instead of relying on each contributor's local git config.
+#
+# Without this, a Windows client with autocrlf=true (the common default)
+# warns "LF will be replaced by CRLF" on every `git add`, and a future
+# `git checkout` of these paths would actually rewrite them to CRLF in the
+# working tree. That would break the LF assumption the extraction tooling
+# under tools/ relies on (every script writes files with `newline="\n"`
+# explicitly) and would show as a spurious whole-file diff.
+* text=auto eol=lf
+
+# Anything genuinely binary should never be normalized or diffed as text,
+# in case one of these is ever added later (none are tracked today).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp3 binary
+*.wav binary
+*.pdf binary
