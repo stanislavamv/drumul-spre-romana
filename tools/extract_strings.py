@@ -16,6 +16,30 @@ import _sources
 src = _sources.data_source()
 data = src
 
+
+def drop_declaration(text, name):
+    """Cut `var NAME = ...` up to its closing `];` or `};`."""
+    m = re.search(r"var\s+" + name + r"\s*=", text)
+    if not m:
+        return text
+    end = re.search(r"\n\];|\};", text[m.start():])
+    if not end:
+        return text
+    return text[:m.start()] + text[m.start() + end.end():]
+
+
+# `ro:` carries two different meanings in the datasets: Romanian a learner can
+# play, and a Romanian label for a piece of UI. These three are labels only —
+# the I.L.R. paper names, the tense names in the drill picker, and the pronoun
+# column of a conjugation table. None of them has a play button anywhere, so
+# scanning them produced fetch targets that could never be matched and left the
+# "still missing" count permanently non-zero.
+#
+# Rebinding `data` rather than `src`: EX_REGION slices `src` by index below, and
+# would pick up the wrong span if the text it indexes into moved.
+for _label_only in ("ILR_PAPERS", "TENSE_META", "PERSON_LABELS"):
+    data = drop_declaration(data, _label_only)
+
 out, seen = [], set()
 
 
