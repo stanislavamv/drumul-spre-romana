@@ -19,8 +19,9 @@
  *     receive the cached object itself, so identity is observable; it is never
  *     persisted, and there is no invalidation because the verb data is static.
  *
- * verbIsIrregular and verbHasOddParticiple stay in index.html with the verb
- * tool: they consume this engine to label the UI rather than belonging to it.
+ * verbIsIrregular lives at the foot of this file: it is defined in terms of
+ * verbGroupKey, so it belongs with the engine rather than with the verb pages
+ * that display its result.
  */
 "use strict";
 
@@ -191,26 +192,17 @@ function verbGroupLabel(v){
   return k==="irr" ? "Irregular" : (GROUP_LABEL[k]||k);
 }
 
-/* Verb-data predicates. They belong with the engine rather than with the verb
-   pages that display them: verbIsIrregular is defined in terms of
-   verbGroupKey, and verbHasOddParticiple re-derives the participle from
-   verbParts to compare against the declared one. Neither touches the DOM.
+/* Verb-data predicate. It belongs with the engine rather than with the verb
+   pages that display it: verbIsIrregular is defined in terms of verbGroupKey
+   and touches no DOM.
 
-   verbHasOddParticiple currently has no callers anywhere in the codebase.
-   It is moved rather than deleted: removing it is a behaviour decision,
-   not a mechanical extraction. */
-/* "Irregular" means the PRESENT tense does not follow its class — that is the
+   A sibling, verbHasOddParticiple, sat here until it was removed — it never
+   had a caller. It is in git history if the verb tool ever wants it.
+
+   "Irregular" means the PRESENT tense does not follow its class — that is the
    thing a learner has to memorize instead of derive. It is not the same as
-   having an unpredictable participle (a merge → mers) or a spelled-out table in
-   the data. Inferring it from the presence of an `irr` block labeled two
-   thirds of the verb list irregular, including a ajuta and a asculta, which are
-   textbook-regular. Only the explicit flag counts. */
+   having an unpredictable participle (a merge → mers) or a spelled-out table
+   in the data. Inferring it from the presence of an `irr` block labeled two
+   thirds of the verb list irregular, including a ajuta and a asculta, which
+   are textbook-regular. Only the explicit flag counts. */
 function verbIsIrregular(x){ return !!(x.irregular || verbGroupKey(x)==="irr"); }
-/* Participle you could not have predicted from the infinitive — worth flagging
-   separately, since it is what breaks the compound past. */
-function verbHasOddParticiple(v){
-  if(!v.irr || !v.irr.participle) return false;
-  var p = verbParts(v.inf);
-  var predicted = {"a":p.stem+"at","ea":p.stem+"ut","e":p.stem+"ut","i":p.stem+"it","î":p.stem+"ât"}[p.ending];
-  return predicted !== v.irr.participle;
-}

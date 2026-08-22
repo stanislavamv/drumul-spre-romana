@@ -122,8 +122,6 @@ var Actions = {
   toggleProfanity: function(){
     state.settings.showProfanity = !state.settings.showProfanity; persist(); render();
   },
-  playVideo: function(el){ session.videoOpen = el.getAttribute("data-vid"); render(); },
-  closeVideo: function(){ session.videoOpen = null; render(); },
   playAudio: function(el){
     var seq = el.getAttribute("data-seq");
     var lines = seq ? JSON.parse(seq) : null;

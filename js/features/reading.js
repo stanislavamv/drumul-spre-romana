@@ -10,7 +10,8 @@
  *
  * Presentation only — no DOM access, no persistent `state`, and the only
  * `session` reads are session.revealed (translation toggles) and
- * session.videoOpen is no longer read here — the sung version is embedded.
+ * session.revealed only — the sung version is embedded, so nothing here tracks
+ * which video is open any more.
  *
  * Nothing in this file is random. The comprehension questions below a reading
  * are rendered by renderExercise in js/features/exercise-render.js, whose
