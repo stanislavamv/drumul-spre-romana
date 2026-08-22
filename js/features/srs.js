@@ -49,7 +49,14 @@ function reviewVocab(vid, correct){
   }
   v.status = SRS_LEVELS[levelIdx];
   v.interval = SRS_INTERVALS[levelIdx+1];
-  v.due = addDays(todayStr(), Math.max(v.interval,correct?1:0));
+  /* A wrong answer comes back in the same session. That is the promise the
+     Review page makes — "items you get wrong come back sooner" — and it is
+     what the old `correct?1:0` floor achieved back when SRS_INTERVALS[0]
+     was still reachable. Now that every level maps to a non-zero interval,
+     the same-day return has to be stated rather than fall out of the table.
+     v.interval still records the demoted level, which is what the next
+     correct answer builds from. */
+  v.due = addDays(todayStr(), correct ? Math.max(v.interval,1) : 0);
   persist();
 }
 function dueVocabIds(){
