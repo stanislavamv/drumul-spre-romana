@@ -298,26 +298,11 @@ var ANTHEM_SUNG = {
   ]
 };
 
-/* ---------- SUNG PERFORMANCES ----------
-   The bundled clips are instrumental because no freely licensed sung recording
-   exists to ship. Sung versions are on YouTube, and the right way to use them
-   is to embed rather than to rip the audio: the upload stays with whoever
-   holds the rights, and they keep the view.
-
-   These are community uploads, not official channels, so they are labeled as
-   such and may disappear — the page has to survive that, which is why nothing
-   here is load-bearing for the lesson. The iframe is only injected when the
-   learner asks for it (youtube-nocookie, and no network request at all until
-   the click), so the course does not quietly reach out to Google on open. */
+/* One sung version, embedded directly on the reading. The on-screen lyrics
+   are the whole point of picking this recording: they show how the
+   syllables line up against the melody. */
 var ANTHEM_VIDEOS = [
-  {id:"3WIqeSiUbNc", title:"Deșteaptă-te, române — with on-screen lyrics", by:"JR videos",
-   note:"Words appear as they are sung, which is the fastest way to see how the syllables line up against the melody. Start here."},
-  {id:"zTwgwEHiWm0", title:"Romanian National Anthem (Romanian + English)", by:"BlueMarbleNations",
-   note:"Romanian with a running English translation, useful once you can follow the sound and want the sense at the same time."},
-  {id:"3-iDi3M7llE", title:"National Anthem: Romania", by:"Ian Berwick",
-   note:"A straightforward vocal performance without on-screen text — try following the printed stanza above instead."},
-  {id:"lustEXmjGWs", title:"Deșteaptă-te, române!", by:"Romanian Aquila",
-   note:"Another sung version, worth hearing for a second interpretation of the tempo."}
+  {id:"3WIqeSiUbNc", title:"Deșteaptă-te, române — with on-screen lyrics", by:"JR videos"}
 ];
 
 /* ---------- CONJUGATION DRILLS ----------

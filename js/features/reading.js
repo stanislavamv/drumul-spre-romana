@@ -10,7 +10,7 @@
  *
  * Presentation only — no DOM access, no persistent `state`, and the only
  * `session` reads are session.revealed (translation toggles) and
- * session.videoOpen (which anthem video is expanded).
+ * session.videoOpen is no longer read here — the sung version is embedded.
  *
  * Nothing in this file is random. The comprehension questions below a reading
  * are rendered by renderExercise in js/features/exercise-render.js, whose
@@ -154,32 +154,21 @@ function renderSingingGuide(){
 }
 
 function renderAnthemVideos(){
+  var v = ANTHEM_VIDEOS[0];
+  if(!v) return "";
+  /* Embedded rather than click-to-load: there is only one recording now, and it
+     is the one worth watching, so making the learner press a button first only
+     put a step in front of it. It still comes from YouTube, so this section
+     needs a connection and can break if the upload disappears. */
   return '<div class="card" style="padding:20px 22px;margin-bottom:16px">'+
-    '<div class="section-eyebrow" style="margin-bottom:6px">Sung versions</div>'+
-    '<h3 style="font-size:18px;margin-bottom:8px">Hearing it with the words</h3>'+
-    '<p style="font-size:13.5px;color:var(--text-2);line-height:1.6;max-width:64ch;margin-bottom:14px">'+
-      'Nothing is loaded until you press play — these sit on YouTube rather than in the course, because the '+
-      'performances belong to the people who recorded them. That also means you need to be online for this section, '+
-      'and that a video can disappear without warning. The first one shows the words as they are sung.</p>'+
-    ANTHEM_VIDEOS.map(function(v){
-      var open = session.videoOpen===v.id;
-      return '<div style="padding:12px 0;border-top:1px solid var(--line)">'+
-        '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px">'+
-          '<b style="font-family:var(--font-display);font-size:15px">'+escapeHtml(v.title)+'</b>'+
-          '<span style="font-size:12px;color:var(--text-3)">uploaded by '+escapeHtml(v.by)+'</span>'+
-        '</div>'+
-        '<p style="font-size:12.8px;color:var(--text-3);line-height:1.55;margin-bottom:8px;max-width:62ch">'+escapeHtml(v.note)+'</p>'+
-        (open
-          ? '<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/'+v.id+'?rel=0" '+
-            'title="'+escapeHtml(v.title)+'" frameborder="0" allowfullscreen '+
-            'allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>'+
-            '<button class="btn ghost sm" style="margin-top:8px" data-action="closeVideo">Close video</button>'
-          : '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-            '<button class="btn secondary sm" data-action="playVideo" data-vid="'+v.id+'">Play here</button>'+
-            '<a class="btn ghost sm" href="https://www.youtube.com/watch?v='+v.id+'" target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a>'+
-            '</div>')+
-      '</div>';
-    }).join("")+
+    '<div class="section-eyebrow" style="margin-bottom:6px">Sung version</div>'+
+    '<h3 style="font-size:18px;margin-bottom:12px">Hearing it with the words</h3>'+
+    '<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/'+v.id+'?rel=0" '+
+      'title="'+escapeHtml(v.title)+'" frameborder="0" allowfullscreen loading="lazy" '+
+      'allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>'+
+    '<p style="font-size:12.5px;color:var(--text-3);margin-top:10px">'+
+      escapeHtml(v.by)+' · <a href="https://www.youtube.com/watch?v='+v.id+'" '+
+      'target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></p>'+
   '</div>';
 }
 

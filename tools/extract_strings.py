@@ -80,6 +80,24 @@ for m in re.finditer(r'\bro:\s*"((?:[^"\\]|\\.)*)"', data):
             if len(sent) > 1:
                 add(sent)
 
+# Verse readings play LINE by line through renderVerse(), not sentence by
+# sentence, so every line needs its own clip. The sentence block above does not
+# cover them: the anthem's lines mostly end in commas, so sentence splitting
+# joins them in pairs and no single line is ever emitted. Prose readings are
+# unaffected — they play through sentencesOf(), already handled above.
+VERSE_MARKER = re.compile(r'format:"(?:anthem|verse)"|\blineEn:')
+for _rec in re.finditer(r'\{id:"[^"]+".*?(?=\n\s*\{id:"|\Z)', data, re.S):
+    _body = _rec.group(0)
+    if not VERSE_MARKER.search(_body):
+        continue
+    _ro = re.search(r'\bro:\s*' + STR, _body)
+    if not _ro:
+        continue
+    for _line in _ro.group(1).replace("\\n", "\n").split("\n"):
+        _line = _line.strip()
+        if len(_line) > 1:
+            add(_line)
+
 # Click-to-gloss speaks a SINGLE word, so every word a reader can click needs
 # its own clip — otherwise the popup opens in silence, which is the most common
 # moment a learner actually wants to hear the pronunciation.
