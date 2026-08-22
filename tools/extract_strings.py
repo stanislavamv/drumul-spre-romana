@@ -19,9 +19,20 @@ data = src
 out, seen = [], set()
 
 
+LETTER = re.compile(r"[0-9A-Za-zĂÂÎȘȚăâîșțşţ]")
+
+
 def add(s):
     s = (s or "").strip()
+    # The singing guide prints a caesura mark, but renderSingingGuide() speaks
+    # l.ro.replace(/‖/g,"") — the unmarked line. Emitting the marked version asks
+    # for a clip nothing will ever look up, so mirror the renderer here.
+    if "‖" in s:
+        s = " ".join(s.replace("‖", " ").split())
     if not s or s == "—":
+        return
+    # Punctuation-only fragments such as '”.' are extraction noise, not speech.
+    if not LETTER.search(s):
         return
     if s not in seen:
         seen.add(s)
