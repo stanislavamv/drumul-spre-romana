@@ -39,7 +39,11 @@ function renderApp(){
   document.body.className = state.settings.reduceMotion? "reduce-motion":"";
   var snapshot = captureField();
   var route = parseHash();
-  var page = PAGES[route.page] || PAGES.home;
+  /* hasOwnProperty, not a truthiness test: "#/__proto__" reaches
+     Object.prototype, which is truthy but not callable, so the || fallback
+     never fires and renderApp throws instead of showing home. */
+  var page = Object.prototype.hasOwnProperty.call(PAGES, route.page)
+    ? PAGES[route.page] : PAGES.home;
   document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]);
   restoreField(snapshot);
   updateScrollTop();
