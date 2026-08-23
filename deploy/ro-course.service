@@ -1,0 +1,35 @@
+# systemd unit for self-hosting the course. See docs/SELF_HOSTING.md for the
+# full setup — this file alone is not enough to run it.
+#
+# Copy to /etc/systemd/system/ro-course.service on the box that will serve
+# it, then adjust the two placeholders below (WorkingDirectory, User/Group)
+# to match how you actually laid the repo out there.
+#
+# No HOST or PORT here on purpose: serve.py's defaults (127.0.0.1:8777) are
+# exactly right when something else — Tailscale Serve, in the documented
+# setup — is what actually faces the network. The service binds loopback
+# only; the proxy in front of it is what decides who can reach it.
+
+[Unit]
+Description=Drumul spre Romana course server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=roc
+Group=roc
+WorkingDirectory=/opt/ro-course
+ExecStart=/usr/bin/python3 tools/serve.py
+Restart=on-failure
+RestartSec=2
+
+# Defence in depth: this process only ever reads its own directory tree and
+# opens one listening socket — it never writes anything, so the whole
+# filesystem can stay read-only to it. Harmless if your systemd is too old
+# for these to take effect, but worth having if it isn't.
+NoNewPrivileges=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

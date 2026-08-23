@@ -37,7 +37,8 @@ python tools/stamp_assets.py        # cache-bust js/ and css/ tags — RUN AFTER
 
 `docs/ARCHITECTURE.md` for the data model and engine. `docs/CONTENT.md` for
 curriculum status. `docs/AUDIO.md` for the pipeline. `docs/GITHUB.md` before any
-thought of publishing.
+thought of publishing. `docs/SELF_HOSTING.md` for running it on a server you
+control.
 
 ## Traps that have already caused bugs
 

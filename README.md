@@ -96,6 +96,7 @@ This has already caught real errors — see *Design commitments* below.
 | [`docs/CONTENT.md`](docs/CONTENT.md) | Curriculum inventory, what's built, what isn't |
 | [`docs/AUDIO.md`](docs/AUDIO.md) | The audio pipeline and why it works the way it does |
 | [`docs/GITHUB.md`](docs/GITHUB.md) | Publication plan — **read before making this public** |
+| [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md) | Running it on your own server, reachable from your own devices |
 | [`docs/TECH_DEBT.md`](docs/TECH_DEBT.md) | Known defects parked for later, with what fixing each involves |
 | [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants on this codebase |
 
