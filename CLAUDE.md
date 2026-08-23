@@ -23,7 +23,7 @@ position; nothing warns you if the order is wrong.
 ## Commands
 
 ```bash
-python tools/serve.py               # serve on $PORT, else 8777 — then open /index.html
+python tools/serve.py               # serve on $HOST:$PORT, else 127.0.0.1:8777 — then open /index.html
 python -m http.server 8777          # equivalent, but the port is fixed
 python tools/check_content.py       # dangling ids, missing explanations — RUN AFTER EVERY CONTENT EDIT
 python tools/check_syntax.py        # localises a parse error to a line

@@ -13,6 +13,12 @@ WHY THIS EXISTS
 USAGE
     python tools/serve.py            # PORT env var, else 8777
     python tools/serve.py 9000       # explicit override
+
+    Binds 127.0.0.1 unless HOST is set. That default is deliberate — this
+    serves the whole project directory, tools/ and docs/ included, so opening
+    it to a network should be a choice, not what happens when a shell
+    happens to have PORT set. Set HOST=0.0.0.0 (or a specific interface) to
+    self-host, e.g. behind a private overlay network such as Tailscale.
 """
 
 import http.server
@@ -32,6 +38,12 @@ def chosen_port():
     return int(env) if env else 8777
 
 
+def chosen_host():
+    """PORT's sibling. Defaults to loopback so a bare invocation stays a
+    single-machine dev server; self-hosting is opt-in via HOST."""
+    return os.environ.get("HOST", "").strip() or "127.0.0.1"
+
+
 class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
     # Threading is not an optimisation here, it is required. A plain TCPServer
     # handles one connection at a time, and HTTP/1.1 keep-alive means the
@@ -48,21 +60,20 @@ class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
     # during development is most restarts.
     allow_reuse_address = True
 
-    # Serving on ANY host would expose the whole directory tree to the network.
-    # This is a development server for one machine.
     address_family = socket.AF_INET
 
 
 def main():
     os.chdir(ROOT)
+    host = chosen_host()
     port = chosen_port()
     handler = http.server.SimpleHTTPRequestHandler
     # TCPServer is its own context manager and closes the socket on exit.
     # contextlib.closing() looks equivalent but calls .close(), which
     # socketserver does not define — it is server_close() — so wrapping it
     # turned every Ctrl+C into an AttributeError traceback after "stopped".
-    with Server(("127.0.0.1", port), handler) as httpd:
-        print("serving %s on http://127.0.0.1:%d/index.html" % (ROOT, port))
+    with Server((host, port), handler) as httpd:
+        print("serving %s on http://%s:%d/index.html" % (ROOT, host, port))
         sys.stdout.flush()
         try:
             httpd.serve_forever()
