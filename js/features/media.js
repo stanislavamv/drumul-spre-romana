@@ -91,7 +91,7 @@ function mediaDetail(m){
               var canPlay = Speech.statusFor(l)!=="unavailable";
               return '<div class="verse-line" style="display:flex;gap:10px;align-items:flex-start">'+
                 '<span class="tabular" style="flex:0 0 26px;color:var(--text-3);font-size:12px;padding-top:5px">'+(i+1)+'</span>'+
-                '<div class="verse-ro" style="flex:1">'+glossRun(escapeHtml(l), null)+'</div>'+
+                '<div class="verse-ro" style="flex:1">'+glossRun(l, null)+'</div>'+
                 (canPlay
                   ? audioButton(l,{small:true,label:false})
                   : '<span class="audio-btn small audio-none" title="No clip for this line — click a word instead, or play the video" aria-hidden="true">'+iconPlay()+'</span>')+
