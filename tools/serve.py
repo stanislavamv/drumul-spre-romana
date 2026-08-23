@@ -33,7 +33,18 @@ def chosen_port():
     return int(env) if env else 8777
 
 
-class Server(socketserver.TCPServer):
+class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    # Threading is not an optimisation here, it is required. A plain TCPServer
+    # handles one connection at a time, and HTTP/1.1 keep-alive means the
+    # browser holds that connection open waiting to reuse it. index.html pulls
+    # in forty-odd scripts over about six parallel connections, so the first
+    # one parks on the server and every other request queues behind it: the
+    # page stops loading after the first <script src>, and even curl cannot
+    # connect. `python -m http.server` does not have this problem because its
+    # command line has used ThreadingHTTPServer since Python 3.7 — this class
+    # has to match it.
+    daemon_threads = True
+
     # Without this a restart within the TIME_WAIT window fails to bind, which
     # during development is most restarts.
     allow_reuse_address = True
