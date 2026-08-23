@@ -143,3 +143,66 @@ document.addEventListener("visibilitychange", function(){
   if(document.visibilityState==="hidden" && saveTimer) writeState();
 });
 window.addEventListener("pagehide", function(){ if(saveTimer) writeState(); });
+
+/* Self-test for mergeStateShape() — the boundary between untrusted JSON (a
+   stored value, an imported transfer code or file) and `state`. Pure: only
+   calls mergeStateShape() on throwaway input and never touches `state` or
+   localStorage, so it is safe to run at any time without disturbing real
+   progress. Runs automatically when the page is opened with ?selftest=1;
+   otherwise call selfTestMergeStateShape() from devtools. Collects every
+   failing case and throws once at the end, so "no output" is not a passing
+   result — check the console. */
+function selfTestMergeStateShape(){
+  var cases = [
+    {
+      name: "wrong container type is dropped, not trusted",
+      input: {mistakes:{evil:"not an array"}, exercisesCompleted:42},
+      check: function(r){
+        return Array.isArray(r.mistakes) && r.mistakes.length===0
+            && r.exercisesCompleted===42;
+      }
+    },
+    {
+      name: "__proto__ inside a nested object never becomes an own property",
+      input: JSON.parse('{"settings":{"__proto__":{"polluted":"yes"},"audioSpeed":1.5}}'),
+      check: function(r){
+        return r.settings.audioSpeed===1.5
+            && !Object.prototype.hasOwnProperty.call(r.settings, "polluted")
+            && ({}).polluted===undefined;
+      }
+    },
+    {
+      name: "old-build export missing newer keys still merges",
+      input: {displayName:"Test", progress:{lessons:{l_a1u1:{status:"done"}}}},
+      check: function(r){
+        return r.displayName==="Test"
+            && r.progress.lessons.l_a1u1.status==="done"
+            && r.settings.audioSpeed===1; // untouched key keeps its default
+      }
+    },
+    {
+      name: "top-level non-object input returns a clean default",
+      input: "not an object",
+      check: function(r){ return Array.isArray(r.mistakes) && r.onboarded===false; }
+    },
+    {
+      name: "array masquerading as the whole payload returns a clean default",
+      input: ["nope"],
+      check: function(r){ return Array.isArray(r.mistakes) && r.onboarded===false; }
+    }
+  ];
+  var failed = [];
+  cases.forEach(function(c){
+    var ok;
+    try{ ok = c.check(mergeStateShape(c.input)); }catch(e){ ok = false; }
+    console[ok?"log":"error"]((ok?"PASS: ":"FAIL: ")+c.name);
+    if(!ok) failed.push(c.name);
+  });
+  if(failed.length){
+    throw new Error("selfTestMergeStateShape: "+failed.length+" failing case(s): "+failed.join("; "));
+  }
+  console.log("selfTestMergeStateShape: all "+cases.length+" cases passed.");
+}
+if(/[?&]selftest=1(&|$)/.test(location.search)){
+  try{ selfTestMergeStateShape(); }catch(e){ console.error(e.message); }
+}
