@@ -11,37 +11,50 @@ module system — every file shares one global scope, in load order.
 ## Where things are
 
 The project began as a single 10,000-line `index.html`. That became unpleasant
-to edit, so extraction into `js/` and `css/` has started. It is **partial**, and
-the docs are honest about which half you are in.
+to edit, so extraction into `js/` and `css/` began — and is now essentially
+complete. What's left inline is a thin wiring layer, not a "half."
 
 ```
-index.html          page shell + everything not yet extracted (282 KB)
-js/data/*.js        the content datasets (8 files, ~732 KB)
-css/app.css         design tokens, both themes, all component CSS (414 lines)
-js/core/utils.js    escapeHtml, the four Romanian normalisers, date maths, array helpers
-js/core/state.js    localStorage store, defaults, debounced writer, flush-on-unload
-js/features/activity.js   markActivityToday, currentStreak
-js/features/mastery.js    per-skill and per-grammar-topic mastery tracking
-audio-manifest.js   generated: normalised Romanian text -> clip path (gitignored)
-audio/              6,177 pre-rendered MP3s (gitignored)
-tools/              Python build scripts, not shipped to the browser
-docs/               this documentation
+index.html           script tags, event-delegation wiring, two debug/build
+                      hooks, the boot call (446 lines)
+js/data/*.js          the content datasets (8 files, ~732 KB)
+css/app.css           design tokens, both themes, all component CSS (414 lines)
+js/core/*.js          state, routing, rendering, speech, and the smaller
+                       DOM-facing utilities (14 files)
+js/features/*.js      everything content-facing — pages, actions, grading,
+                       SRS, the gloss index, the conjugation engine (16 files)
+audio-manifest.js    generated: normalised Romanian text -> clip path (gitignored)
+audio/               6,177 pre-rendered MP3s (gitignored)
+tools/               Python build scripts, not shipped to the browser
+docs/                this documentation
 ```
 
-**Still inline in `index.html`:** the render loop, all page functions, the
-`Actions` map, answer checking, the gloss index, the speech module and the
-conjugation engine. The content arrays have moved to `js/data/*.js`.
+**Still inline in `index.html`:** the event-delegation wiring (`INPUT_DRIVEN`
+and the click/input/change/keydown listeners that dispatch to `Actions`), two
+debug/build hooks (`__verbAudit` for checking generated conjugations,
+`__roAudioStrings` for `extract_strings.py`), and the `render()` boot call.
+Everything else named in earlier drafts of this doc — the render loop, page
+functions, the `Actions` map itself, answer checking, the gloss index, speech,
+the conjugation engine — has moved to `js/core`/`js/features`.
 
 ### Load order matters
 
-Scripts are plain `<script src>`, loaded in dependency order and sharing one
-global scope:
+Scripts are plain `<script src>` tags in `index.html`, loaded in dependency
+order and sharing one global scope. Roughly: `audio-manifest.js` → the eight
+`js/data/*.js` files → core primitives (`utils.js`, `state.js`, `session.js`,
+`router.js`, `fields.js`, `scroll.js`, `lookup.js`, `icons.js`,
+`navigation.js`) → features built on those (`activity.js` through
+`grading.js`, then `controls.js`, `exercise-render.js`, `topbar.js`,
+`chrome.js`, `session-runner.js`, `reading.js`) → `render.js` and
+`speech.js` → the last consumers (`media.js`, `pages-helpers.js`,
+`pages.js`, `action-helpers.js`, `actions.js`) → the inline wiring script.
 
-```
-audio-manifest.js  →  utils.js  →  state.js  →  activity.js  →  mastery.js  →  inline
-```
+**`index.html`'s own tags are the source of truth for this, not this
+document.** Each one carries a comment explaining what it needs and why it
+sits where it does — that comment trail stayed accurate while this section
+of this file quietly went stale. Read them top to bottom before adding a new
+one, rather than trusting a summary here to still match reality.
 
-`state.js` calls helpers from `utils.js` at load time, so utils must come first.
 The manifest is loaded with `onerror="window.AUDIO_MANIFEST=null"` so a clone
 without audio degrades to silence rather than a hard failure.
 
@@ -49,15 +62,13 @@ There is no bundler and no module system, so a new file means a new
 `<script src>` tag in the right position. Nothing will warn you if you get the
 order wrong — you get an undefined-function error at load.
 
-### Inside `index.html`, in order
+### Inside `index.html` now
 
 | Region | Contents |
 |---|---|
-| `<head>` | One `<link>` to `css/app.css`, five `<script src>` tags |
-| Data | `LEVELS`, `COURSES`, `UNITS`, `LESSONS`, `EXERCISES`, `VOCAB`, `VERBS`, `DIALOGUES`, `READING_TEXTS`, `GRAMMAR_TOPICS`, `CORE_GLOSS`, `PLACEMENT_BANDS` |
-| Engine | State, persistence, SRS, answer checking, gloss index, speech |
-| Pages | One function per route in the `PAGES` map |
-| Actions | One function per `data-action`, dispatched by delegation |
+| `<head>` | One `<link>` to `css/app.css` |
+| `<body>` | `#root`, then every `<script src>` tag — data, core, features |
+| Inline script | Event delegation, `__verbAudit`, `__roAudioStrings`, `render()` |
 
 The boundary between data and engine matters: the Python tools parse the data
 **textually**, not by executing it. The content datasets now live in

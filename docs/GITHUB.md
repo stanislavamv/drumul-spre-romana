@@ -89,8 +89,10 @@ against the extracted manual text if it is still around.
 drumul-spre-romana/
 ├── index.html
 ├── css/app.css
-├── js/core/{utils,state}.js
-├── js/features/{activity,mastery}.js
+├── js/core/*.js                (14 files)
+├── js/features/*.js            (16 files)
+├── js/data/*.js                 (8 files)
+├── deploy/ro-course.service
 ├── README.md
 ├── LICENSE                    ← code
 ├── LICENSE-CONTENT            ← course content, likely different terms
@@ -98,14 +100,24 @@ drumul-spre-romana/
 ├── .gitignore
 ├── docs/
 │   ├── ARCHITECTURE.md
-│   ├── CONTENT.md
 │   ├── AUDIO.md
-│   └── GITHUB.md
+│   ├── AUDIT.md
+│   ├── CONTENT.md
+│   ├── GITHUB.md
+│   ├── SELF_HOSTING.md
+│   └── TECH_DEBT.md
 ├── tools/
+│   ├── _sources.py
+│   ├── build_manifest.py
+│   ├── check_content.py
+│   ├── check_reuse.py
+│   ├── check_syntax.py
 │   ├── extract_strings.py
 │   ├── fetch_audio.py
-│   ├── check_content.py
-│   ├── check_syntax.py
+│   ├── jsscan.py
+│   ├── serve.py
+│   ├── stamp_assets.py
+│   ├── test_jsscan.py
 │   ├── verify_verbs.py
 │   └── ro-strings.json        ← commit: it is the audio build input
 └── .github/workflows/
@@ -271,11 +283,12 @@ before pushing, not after.
   actually use it.
 - **Audio, properly.** A native speaker recording 6,177 strings is the single
   largest quality jump available, and it also removes the licensing blocker.
-- **Finishing the split.** Underway: `css/app.css` and four `js/` modules are
-  out, but `index.html` is still 282 KB with the page renderers and
-  renderer inline. Moving content to JSON fetched at load would cost the
-  `file://` guarantee, which is worth more than it sounds — plain `<script src>`
-  files, as used now, keep it.
+- **The split is essentially done.** `css/app.css` and thirty `js/core`/
+  `js/features` modules hold everything now; `index.html` is down to 446
+  lines of script tags, event-delegation wiring, and two debug/build hooks.
+  Moving content to JSON fetched at load would still cost the `file://`
+  guarantee, which is worth more than it sounds — plain `<script src>` files,
+  as used now, keep it.
 - **Community content.** The data model is clean enough that a contributor could
   add a unit without touching the engine. `check_content.py` becomes the
   contribution gate.

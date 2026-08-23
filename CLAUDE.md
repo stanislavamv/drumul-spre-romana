@@ -11,14 +11,18 @@ and register tracks. Vanilla JS, no build step, no dependencies, no framework.
 toolchain, and running without a build step is the point: the course works
 offline from a file and will still run in ten years. Work with it.
 
-Layout is **part-extracted**. `css/app.css`, eight `js/data/*.js` content
-files and nine `js/core` + `js/features` modules are out; `index.html` is now
-282 KB and holds the page renderers, the `Actions` map, answer checking, the
-gloss index, speech and the conjugation engine. Files load as plain
-`<script src>` in dependency order sharing one global scope — data first, then
-`utils.js` → `state.js` → `session.js` → `router.js` → `fields.js` →
-`scroll.js` → features → inline. A new file means a new tag in the right
-position; nothing warns you if the order is wrong.
+Layout is **fully extracted** except a thin wiring layer. `css/app.css`,
+eight `js/data/*.js` content files, and thirty `js/core` + `js/features`
+modules hold everything — page renderers, the `Actions` map, answer
+checking, the gloss index, speech, the conjugation engine. `index.html` is
+down to 446 lines: the `<script>` tags, one inline script with the
+event-delegation wiring (`INPUT_DRIVEN`, the click/input/change/keydown
+listeners), two debug/build hooks (`__verbAudit`, `__roAudioStrings`), and
+the `render()` boot call. Files load as plain `<script src>` in dependency
+order sharing one global scope — `docs/ARCHITECTURE.md` has the full chain,
+and each tag in `index.html` itself carries a comment on why it sits where
+it does. A new file means a new tag in the right position; nothing warns you
+if the order is wrong.
 
 ## Commands
 

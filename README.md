@@ -161,11 +161,12 @@ are Romanian.
   for the embedded videos, because writing out words nobody here has checked
   against the audio would hand the learner a script to memorise that might be
   wrong.
-- **`index.html` is 282 KB.** Extraction into `js/` and `css/`
-  has started — utilities, persistent state, activity tracking and mastery are
-  out, and the content arrays now live in `js/data/*.js` — but the page renderers are still inline, and they
-  are the bulk of it. See `docs/ARCHITECTURE.md` for what has moved and what
-  has not.
+- **Extraction into `js/` and `css/` is essentially complete.** `index.html` is
+  down to 446 lines — the page renderers, the `Actions` map, answer checking,
+  the gloss index, speech, and the conjugation engine have all moved out. What
+  remains inline is the event-delegation wiring that ties the extracted
+  modules together, plus two debug/build hooks. See `docs/ARCHITECTURE.md`
+  for the full picture.
 - **A fresh clone has no audio.** `audio/` and `audio-manifest.js` are both
   gitignored, so the app loads silently until the pipeline is run. This is
   deliberate — see `docs/GITHUB.md`.
