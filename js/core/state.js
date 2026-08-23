@@ -44,28 +44,59 @@ function defaultState(){
     placement:null
   };
 }
-var state = loadState();
-/* Merge saved state over the defaults one level deep, so adding a key to a
-   nested object (settings, skillStats) does not leave returning learners with
-   undefined where a default is expected. */
-function loadState(){
-  var d = defaultState();
-  var parsed;
-  try{
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return d;
-    parsed = JSON.parse(raw);
-  }catch(e){ return d; }
-  if(!parsed || typeof parsed!=="object") return d;
+/* Keys that would let a merged-in object escape its own shape via the
+   prototype chain. JSON.parse never creates an actual __proto__ *link* — it
+   creates a harmless own property with that name — but copying that
+   property onto a fresh object with `target[k] = v` does invoke the
+   Object.prototype accessor and reassigns target's real prototype. Checked
+   once here rather than at every merge call site. */
+var UNSAFE_MERGE_KEYS = {"__proto__":1, "constructor":1, "prototype":1};
 
+/* Merge `saved` over defaultState(), one level deep. Used both for the
+   localStorage read on startup and for an imported transfer code or file, so
+   a payload from an older build (missing a key) or a malformed one (wrong
+   type for a key) always produces a complete, correctly-shaped state rather
+   than whatever partial thing was on disk or pasted in.
+
+   A field whose saved value is not the same *kind* of container as the
+   default (array vs plain object vs anything else) is dropped in favour of
+   the default instead of trusted. That gap is what let a bad import replace
+   state.mistakes — an Array every render assumes it can .map() over — with
+   an arbitrary object, which then crashed the next page that touched it. */
+function mergeStateShape(saved){
+  var d = defaultState();
+  if(!saved || typeof saved!=="object" || Array.isArray(saved)) return d;
   Object.keys(d).forEach(function(k){
-    var def = d[k], saved = parsed[k];
-    if(saved===undefined || saved===null) return;
-    var nestedObject = def && typeof def==="object" && !Array.isArray(def)
-                    && saved && typeof saved==="object" && !Array.isArray(saved);
-    d[k] = nestedObject ? Object.assign({}, def, saved) : saved;
+    if(UNSAFE_MERGE_KEYS[k]) return;
+    var def = d[k], val = saved[k];
+    if(val===undefined || val===null) return;
+    if(Array.isArray(def)){
+      if(Array.isArray(val)) d[k] = val;
+      return; // shape mismatch: keep the default array
+    }
+    if(def && typeof def==="object"){
+      if(!val || typeof val!=="object" || Array.isArray(val)) return; // keep default
+      var merged = {};
+      Object.keys(def).forEach(function(kk){ merged[kk] = def[kk]; });
+      Object.keys(val).forEach(function(kk){
+        if(UNSAFE_MERGE_KEYS[kk]) return;
+        merged[kk] = val[kk];
+      });
+      d[k] = merged;
+      return;
+    }
+    d[k] = val; // scalar default (string/number/boolean), or null (placement)
   });
   return d;
+}
+
+var state = loadState();
+function loadState(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    return mergeStateShape(JSON.parse(raw));
+  }catch(e){ return defaultState(); }
 }
 
 var saveTimer=null;

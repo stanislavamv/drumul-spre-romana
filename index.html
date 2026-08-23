@@ -27,7 +27,7 @@
 <script src="js/core/utils.js?v=e30efb5322"></script>
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
-<script src="js/core/state.js?v=d22314f974"></script>
+<script src="js/core/state.js?v=f1d1ded35c"></script>
 <!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
 <script src="js/core/session.js?v=d02cf7e0f8"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
@@ -111,7 +111,7 @@
      utils.js, lookup.js, render.js (render()), speech.js (Speech),
      conjugation.js, and the courses/verbs/exercises/reference data.
      Actions below still calls into all of it. -->
-<script src="js/features/action-helpers.js?v=6760b01042"></script>
+<script src="js/features/action-helpers.js?v=51a413b732"></script>
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->

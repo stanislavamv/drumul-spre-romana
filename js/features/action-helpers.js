@@ -173,25 +173,25 @@ function codeToState(code){
   return rehydrateMistakes(wrapper.state);
 }
 
-/* Merge an imported save over the default shape, so a file written by an older
-   build still loads: any key the export predates keeps its default rather than
-   arriving undefined and breaking a page halfway through a render. */
+/* Restore an imported save. The shape check happens in mergeStateShape() —
+   shared with the startup load, so a transfer code or file gets the same
+   protection against a malformed field as a hand-edited localStorage value.
+
+   writeState() runs last, after building the confirmation message and after
+   render(), rather than immediately on reassigning `state`. Both of those
+   read the newly-imported state and could throw on something the shape
+   check didn't catch; keeping writeState() last means that if they do, the
+   bad import was never persisted and the previous save is still there on
+   reload — instead of the old failure mode, where a bad import overwrote
+   localStorage before anything had a chance to notice it was bad. */
 function applyImportedState(incoming, source){
-  var d = defaultState();
-  Object.keys(d).forEach(function(k){
-    var saved = incoming[k];
-    if(saved===undefined || saved===null) return;
-    var nested = d[k] && typeof d[k]==="object" && !Array.isArray(d[k])
-              && saved && typeof saved==="object" && !Array.isArray(saved);
-    d[k] = nested ? Object.assign({}, d[k], saved) : saved;
-  });
-  state = d;
-  writeState();
+  state = mergeStateShape(incoming);
   session.transferOpen = false;
   session.importCode = "";
   session.transferErr = "";
   session.transferMsg = "Progress restored from "+source+" — "+progressSummaryLine(state)+".";
   render();
+  writeState();
 }
 
 /* Romanian inserts "de" between a numeral and the noun it counts once the
