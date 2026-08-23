@@ -15,7 +15,6 @@ USAGE
     python tools/serve.py 9000       # explicit override
 """
 
-import contextlib
 import http.server
 import os
 import socket
@@ -58,7 +57,11 @@ def main():
     os.chdir(ROOT)
     port = chosen_port()
     handler = http.server.SimpleHTTPRequestHandler
-    with contextlib.closing(Server(("127.0.0.1", port), handler)) as httpd:
+    # TCPServer is its own context manager and closes the socket on exit.
+    # contextlib.closing() looks equivalent but calls .close(), which
+    # socketserver does not define — it is server_close() — so wrapping it
+    # turned every Ctrl+C into an AttributeError traceback after "stopped".
+    with Server(("127.0.0.1", port), handler) as httpd:
         print("serving %s on http://127.0.0.1:%d/index.html" % (ROOT, port))
         sys.stdout.flush()
         try:
