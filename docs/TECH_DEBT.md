@@ -9,9 +9,54 @@ what fixing it would involve.
 
 Format: one heading per item. Delete the entry when it is fixed.
 
-**The list is currently empty.** That is a statement about what has been
-*noticed*, not a claim that the code is clean — the entries below were all found
-while working on something else, and the next one will be too.
+---
+
+## In-progress lesson work is never saved, only a finished lesson is
+
+**Where:** `js/core/session.js`, `js/features/actions.js` (`finishLesson`)
+
+`session` — every answer, every check, everything the learner does while
+working through a lesson — is deliberately never persisted. The header of
+`session.js` explains why: "adding session data to the saved payload would
+make half-finished exercises survive a refresh, which the exercise engine
+does not expect." A reload rebuilds `session` from scratch.
+
+The only thing that ever writes to persisted `state.progress.lessons[id]` is
+`finishLesson`, and it requires `answered.length===ids.length` — every
+exercise in the lesson attempted — before it writes anything at all. Fall
+short of that and nothing is recorded: not "partial," not "attempted,"
+nothing. `lessonProgress()` returns the same default as a lesson never
+opened, and the course map shows "not started."
+
+**Cost:** a learner who works through a lesson across more than one sitting —
+closing the tab, coming back later, an entirely ordinary way to study — can
+lose real, repeated effort with zero trace it happened, no error, and no
+warning it was at risk. Diagnosed directly from a report of exactly this:
+real study sessions that left the course map reading 0% afterward. The save
+pipeline itself was verified intact (state persists correctly across a
+reload once `finishLesson` has run) — this is the gap upstream of it.
+
+**Fix — two options, not mutually exclusive:**
+
+- Record an "attempted" mark on `state.progress.lessons[id]` the moment the
+  learner answers the *first* exercise in a lesson, not only at the end. An
+  abandoned session would then show "in progress" instead of "not started,"
+  even though the individual answers are still lost.
+- Autosave `session.answers`/`session.feedback` into `state` periodically —
+  the same `visibilitychange`/`pagehide` listeners `state.js` already uses to
+  flush `persist()` are the natural hook — and teach the exercise engine to
+  resume a saved session on load instead of always starting fresh. This is
+  the complete fix, but it means revisiting the reasoning in the `session.js`
+  header comment, not just overriding it; that comment exists because the
+  exercise engine actively assumes a fresh session today.
+
+A related, narrower fix already shipped alongside this entry: a "save your
+progress" reminder now nudges the learner to export/copy a save once enough
+work has piled up since the last one (`js/features/progress.js`,
+`shouldShowSaveReminder`). That protects *finished* lessons from being
+stranded in a browser that gets cleared or swapped — it does not address
+in-progress work being silently discardable in the first place, which is
+what this entry is about.
 
 ---
 

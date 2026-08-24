@@ -669,19 +669,41 @@ function shadowPanel(){
   '</div>';
 }
 
+/* Shown at the top of the course map (PAGES.home) once there's enough
+   unsaved work to be worth interrupting for. Deliberately terse and
+   dismissable-by-ignoring rather than a modal -- the goal is to catch the
+   learner before a browser reset costs them a session's work, not to nag
+   after every exercise. See shouldShowSaveReminder in js/features/progress.js. */
+function saveReminderCard(){
+  if(!shouldShowSaveReminder()) return "";
+  var n = exercisesSinceLastSave();
+  return '<div class="card" style="padding:14px 18px;margin-bottom:18px;border:1px solid var(--accent-strong);'+
+      'display:flex;gap:14px;align-items:center;flex-wrap:wrap">'+
+    '<div style="flex:1;min-width:220px">'+
+      '<b style="font-size:14px">Your progress isn\'t backed up</b>'+
+      '<p style="font-size:12.5px;color:var(--text-2);margin-top:3px;line-height:1.5">'+
+        n+' exercise'+(n===1?'':'s')+' completed since your last save. It only lives in this browser — '+
+        'a save takes one click.</p>'+
+    '</div>'+
+    '<button class="btn sm" data-action="exportProgress">Save now</button>'+
+  '</div>';
+}
+
 function transferCard(){
   var open = session.transferOpen;
   return '<div class="card" style="padding:20px 22px;margin-bottom:16px">'+
-    '<h2 style="font-size:17px;margin-bottom:6px">Move your progress to another browser</h2>'+
+    '<h2 style="font-size:17px;margin-bottom:6px">Save your progress</h2>'+
     '<p style="font-size:13.5px;color:var(--text-2);line-height:1.6;max-width:62ch;margin-bottom:12px">'+
-      'Your progress is saved in this browser only — there is no account system, because the course is a single file '+
-      'that runs with no server behind it. To carry it to another browser or computer, export it here and import it there. '+
-      'Nothing is uploaded anywhere.</p>'+
-    '<div style="font-size:12.5px;color:var(--text-3);margin-bottom:12px">Currently saved here: '+escapeHtml(progressSummaryLine(state))+'</div>'+
+      'Progress is written to this browser automatically as you go, but this browser is the only copy — there is no account '+
+      'system, because the course is a single file with no server behind it. If it\'s ever cleared, reset, or you move to a '+
+      'different browser or device, that copy is gone. A downloaded save file or a save code is the one copy that survives '+
+      'that, and it doubles as how you carry progress to another browser. Nothing is uploaded anywhere.</p>'+
+    '<div style="font-size:12.5px;color:var(--text-3);margin-bottom:4px">Currently saved here: '+escapeHtml(progressSummaryLine(state))+'</div>'+
+    '<div style="font-size:12.5px;color:var(--text-3);margin-bottom:12px">'+escapeHtml(lastSavedLine())+'</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:'+(open?'14px':'0')+'">'+
-      '<button class="btn secondary sm" data-action="exportProgress">Download progress file</button>'+
-      '<button class="btn secondary sm" data-action="copyProgressCode">Copy transfer code</button>'+
-      '<button class="btn secondary sm" data-action="toggleImport">'+(open?'Cancel import':'Import progress')+'</button>'+
+      '<button class="btn secondary sm" data-action="exportProgress">Download save file</button>'+
+      '<button class="btn secondary sm" data-action="copyProgressCode">Copy save code</button>'+
+      '<button class="btn secondary sm" data-action="toggleImport">'+(open?'Cancel':'Load a save')+'</button>'+
     '</div>'+
     (session.transferMsg? '<div style="font-size:13px;color:var(--pine);margin-top:8px">'+escapeHtml(session.transferMsg)+'</div>':'')+
     (session.transferErr? '<div style="font-size:13px;color:var(--brick);margin-top:8px">'+escapeHtml(session.transferErr)+'</div>':'')+
@@ -693,14 +715,14 @@ function transferCard(){
       : '')+
     (open
       ? '<div style="border-top:1px solid var(--line);padding-top:14px">'+
-        '<label class="field-label">Paste a transfer code, or choose a downloaded progress file</label>'+
+        '<label class="field-label">Paste a save code, or choose a downloaded save file</label>'+
         '<textarea data-field="importCode" data-action="typeImport" rows="4" placeholder="Paste the code here…" '+
           'style="width:100%;font-family:var(--font-mono);font-size:11.5px;margin-bottom:10px"></textarea>'+
         '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
-          '<button class="btn sm" data-action="importProgress">Replace my progress</button>'+
+          '<button class="btn sm" data-action="importProgress">Load save</button>'+
           '<input type="file" accept="application/json,.json" data-action="importFile" style="font-size:12px" />'+
         '</div>'+
-        '<p style="font-size:12.5px;color:var(--brick);margin-top:10px">Importing replaces everything currently saved in this browser.</p>'+
+        '<p style="font-size:12.5px;color:var(--brick);margin-top:10px">Loading a save replaces everything currently saved in this browser.</p>'+
       '</div>'
       : '')+
   '</div>';

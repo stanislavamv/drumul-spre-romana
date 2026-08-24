@@ -559,16 +559,21 @@ var Actions = {
   setVocabFilter: function(el){ session.vocabFilter = el.getAttribute("data-f"); render(); },
 
   exportProgress: function(){
+    var now = new Date().toISOString();
+    state.lastSaved = {at:now, exercisesCompleted:state.exercisesCompleted};
     writeState();
-    var blob = new Blob([JSON.stringify({v:2, at:new Date().toISOString(), state:state}, null, 1)],
+    var blob = new Blob([JSON.stringify({v:2, at:now, state:state}, null, 1)],
                         {type:"application/json"});
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "drumul-progress-"+new Date().toISOString().slice(0,10)+".json";
+    /* Minute-resolution, not just the date: saving twice in one day is exactly
+       the point of a save file, and same-name downloads either collide or pile
+       up as "(1)", "(2)" with no way to tell them apart afterwards. */
+    a.download = "drumul-progress-"+now.slice(0,16).replace(/[:T]/g,"-")+".json";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-    session.transferMsg = "Progress file downloaded. Open the course in the other browser, go to Progress → Import progress, and choose this file.";
+    session.transferMsg = "Save file downloaded. To load it — in this browser after clearing data, or in another one — go to Progress → Load a save and choose this file.";
     session.transferErr = ""; render();
   },
   /* Show the code as well as trying to copy it. Clipboard access is refused in
@@ -576,14 +581,15 @@ var Actions = {
      locked-down browser — and a button whose only outcome is an error message
      is a dead button. The textarea always works. */
   copyProgressCode: function(){
+    state.lastSaved = {at:new Date().toISOString(), exercisesCompleted:state.exercisesCompleted};
     writeState();
     var code = stateToCode();
     session.transferCode = code;
     session.transferErr = "";
-    session.transferMsg = "Transfer code ready ("+code.length+" characters). Copy all of it, then paste it into Progress → Import progress in the other browser.";
+    session.transferMsg = "Save code ready ("+code.length+" characters). Copy all of it, then paste it into Progress → Load a save.";
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(code).then(function(){
-        session.transferMsg = "Transfer code copied to the clipboard ("+code.length+" characters). Paste it into Progress → Import progress in the other browser.";
+        session.transferMsg = "Save code copied to the clipboard ("+code.length+" characters). Paste it into Progress → Load a save.";
         render();
       }, function(){ /* keep the textarea fallback message */ });
     }
@@ -597,9 +603,9 @@ var Actions = {
   importProgress: function(){
     try{
       var incoming = codeToState(session.importCode||"");
-      applyImportedState(incoming, "transfer code");
+      applyImportedState(incoming, "save code");
     }catch(e){
-      session.transferErr = "That doesn't look like a transfer code from this course. Copy the whole thing, with no line breaks removed.";
+      session.transferErr = "That doesn't look like a save code from this course. Copy the whole thing, with no line breaks removed.";
       session.transferMsg = ""; render();
     }
   },
@@ -613,7 +619,7 @@ var Actions = {
         if(!wrapper || !wrapper.state) throw new Error("bad file");
         applyImportedState(rehydrateMistakes(wrapper.state), f.name);
       }catch(e){
-        session.transferErr = "That file isn't a progress export from this course.";
+        session.transferErr = "That file isn't a save from this course.";
         session.transferMsg = ""; render();
       }
     };

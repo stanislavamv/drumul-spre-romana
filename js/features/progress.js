@@ -117,3 +117,29 @@ function progressSummaryLine(st){
     Object.keys(st.vocabSrs||{}).length+" words tracked · "+
     (st.mistakes||[]).length+" saved mistakes";
 }
+
+/* Exercises done since the learner last got a copy of their progress out of
+   this browser (a downloaded file or a copied code -- see exportProgress and
+   copyProgressCode in actions.js, the only two places that stamp lastSaved).
+   Not "since the last localStorage write": that happens on every answer and
+   would make this always read zero, which defeats the point -- the risk this
+   guards against is losing the browser itself, not a mid-session reload. */
+function exercisesSinceLastSave(){
+  return Math.max(0, state.exercisesCompleted - (state.lastSaved.exercisesCompleted||0));
+}
+
+/* How many exercises before the course map nudges the learner to save. Low
+   enough to catch real work well before a whole session's worth of lessons is
+   at risk, high enough that it doesn't fire after one or two answers. */
+var SAVE_REMINDER_THRESHOLD = 10;
+function shouldShowSaveReminder(){
+  return exercisesSinceLastSave() >= SAVE_REMINDER_THRESHOLD;
+}
+
+function lastSavedLine(){
+  if(!state.lastSaved.at) return "Never saved to a file or code yet.";
+  var days = Math.floor((Date.now() - new Date(state.lastSaved.at).getTime()) / 86400000);
+  var when = days<=0 ? "today" : days===1 ? "yesterday" : days+" days ago";
+  var n = exercisesSinceLastSave();
+  return "Last saved "+when+" · "+n+" exercise"+(n===1?"":"s")+" completed since.";
+}

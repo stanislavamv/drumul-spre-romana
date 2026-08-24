@@ -27,7 +27,7 @@
 <script src="js/core/utils.js?v=e30efb5322"></script>
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
-<script src="js/core/state.js?v=ddeab065a7"></script>
+<script src="js/core/state.js?v=6e5a87c9df"></script>
 <!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
 <script src="js/core/session.js?v=d02cf7e0f8"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
@@ -56,7 +56,7 @@
      `state`/persist() from state.js. -->
 <script src="js/features/mistakes.js?v=e80e0b5304"></script>
 <!-- Progress and unlocking. Needs lookup.js, state.js, session.js, utils.js. -->
-<script src="js/features/progress.js?v=0244bc84a4"></script>
+<script src="js/features/progress.js?v=77eb03df42"></script>
 <!-- Conjugation engine. Needs only the tables in js/data/verbs.js. -->
 <script src="js/features/conjugation.js?v=528efaea72"></script>
 <!-- Gloss engine. Needs VOCAB/VERBS/CORE_GLOSS/KNOWN_NAMES/ENGLISH_MARKERS
@@ -101,11 +101,11 @@
      controls.js, media.js (mediaTranscript), exercise-render.js
      (whatYouGotWrong) and the courses/verbs/exercises/lessons/
      reference data. This is the last dependency PAGES.* needs. -->
-<script src="js/features/pages-helpers.js?v=142a5541be"></script>
+<script src="js/features/pages-helpers.js?v=b9a8d3ce58"></script>
 <!-- All 21 PAGES.* page renderers. Needs every extracted core/data/
      feature module loaded above -- this is the last consumer of all
      of them -- and pages-helpers.js specifically. -->
-<script src="js/features/pages.js?v=f9347f6689"></script>
+<script src="js/features/pages.js?v=a23c75b52c"></script>
 <!-- Actions-adjacent runtime helpers -- everything Actions calls that
      is not itself an Actions handler. Needs state.js, session.js,
      utils.js, lookup.js, render.js (render()), speech.js (Speech),
@@ -115,7 +115,7 @@
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->
-<script src="js/features/actions.js?v=1dc4ab6b12"></script>
+<script src="js/features/actions.js?v=38e498029d"></script>
 <script>
 (function(){
 "use strict";

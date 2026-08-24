@@ -38,6 +38,12 @@ tools/ilr/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 
+# Private planning notes — roadmap thinking, priority calls, ideas not ready
+# (or not intended) to be public. Not project documentation: docs/ describes
+# what the app actually does and is committed; notes/ is scratch thinking
+# about what it might do next.
+notes/
+
 # OS and editor noise
 Thumbs.db
 desktop.ini

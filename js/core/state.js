@@ -41,7 +41,14 @@ function defaultState(){
     verbsMarked:[],
     unlockedUnits:{}, // unitId -> true (beyond default first unit per level)
     settings:{ audioSpeed:1, reduceMotion:false, openLevels:{}, showProfanity:false, unlockAll:false },
-    placement:null
+    placement:null,
+    /* Watermark for the "save your progress" reminder (js/features/progress.js,
+       exercisesSinceLastSave). Stamped by the two actions that get progress out
+       of this browser -- exportProgress and copyProgressCode in actions.js --
+       so it reflects the last point the learner actually has an external copy,
+       not the last localStorage write, which happens continuously and proves
+       nothing about whether a copy exists anywhere else. */
+    lastSaved:{ at:null, exercisesCompleted:0 }
   };
 }
 /* Keys that would let a merged-in object escape its own shape via the
@@ -177,7 +184,8 @@ function selfTestMergeStateShape(){
       check: function(r){
         return r.displayName==="Test"
             && r.progress.lessons.l_a1u1.status==="done"
-            && r.settings.audioSpeed===1; // untouched key keeps its default
+            && r.settings.audioSpeed===1 // untouched key keeps its default
+            && r.lastSaved.at===null && r.lastSaved.exercisesCompleted===0; // ditto: a save made before this field existed
       }
     },
     {
