@@ -131,6 +131,12 @@ p{margin:0;}
 
 /* ===================== COMPONENTS ===================== */
 .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-m); box-shadow:var(--shadow);}
+/* A .card that is itself a nav target (the reading list rows). Same hover
+   language as .unit-node, so “this whole row is clickable” reads the same
+   way everywhere it appears. */
+.card.row-link{cursor:pointer; transition:background .12s, border-color .12s;}
+.card.row-link:hover{background:var(--hover-surface); border-color:var(--line-strong);}
+.card.row-link:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   font-family:var(--font-body); font-weight:700; font-size:13.5px; letter-spacing:.1px;

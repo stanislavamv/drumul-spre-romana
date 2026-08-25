@@ -1060,10 +1060,21 @@ PAGES.reading = function(params){
     LEVELS.filter(function(l){ return byLevel[l.id]; }).map(function(l){
       return '<h2 style="font-size:16px;margin:20px 0 10px">'+l.code+' · '+escapeHtml(l.name)+'</h2>'+
         byLevel[l.id].map(function(t){
-          return '<div class="card" style="padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:center">'+
+          /* The whole row opens the text — same data-action as the Read button,
+             just on a wider target — so a click anywhere on the title or the
+             blurb works, not only on the button itself. role="button" plus
+             tabindex make it keyboard-reachable and matches how the grammar and
+             verbs list rows already do this (see PAGES.grammar / PAGES.verbs). The
+             Read button stays: it is still the more discoverable target for a
+             mouse, and this only widens what already works rather than replacing
+             it. Clicking the button still resolves to the button's own
+             data-action, since the delegated listener walks up from e.target. */
+          return '<div class="card row-link" style="padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:center" '+
+            'data-action="go" data-page="reading" data-p1="'+t.id+'" role="button" tabindex="0" '+
+            'aria-label="Read '+escapeHtml(t.title)+'">'+
             '<div style="flex:1"><b style="font-family:var(--font-display);font-size:16.5px">'+escapeHtml(t.title)+'</b>'+
             '<div style="font-size:12.5px;color:var(--text-3);margin-top:2px">'+escapeHtml(t.titleEn)+' · '+escapeHtml(t.format)+' · '+t.wordCount+' words</div></div>'+
-            '<button class="btn secondary sm" data-action="go" data-page="reading" data-p1="'+t.id+'">Read</button></div>';
+            '<button class="btn secondary sm" data-action="go" data-page="reading" data-p1="'+t.id+'" tabindex="-1">Read</button></div>';
         }).join("");
     }).join(""), null);
 };
