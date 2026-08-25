@@ -105,6 +105,20 @@ PAGES.home = function(){
 
 /* ---------- FIRST RUN ---------- */
 PAGES.welcome = function(){
+  /* This page is not only the very-first-visit screen — it is a real route
+     (#/welcome), reachable at any time, including by a learner with months of
+     progress: the topbar logo links to #/home, not here, but a bookmark, a
+     shared link, or typing the hash by hand lands on this screen regardless.
+     Without a way back to their actual place in the course, that visit was a
+     dead end unless they knew to edit the URL to #/home themselves.
+
+     state.onboarded is the wrong signal for "has progress to continue": it is
+     set once, on the very first Start/placement click, and never reset except by
+     resetProgress — which wipes exercisesCompleted along with it. So a zero count
+     here means "nothing to resume" exactly when it matters: for a genuinely fresh
+     learner, and for one who just reset. */
+  var hasProgress = state.exercisesCompleted > 0;
+  var next = hasProgress ? recommendedLesson() : null;
   return '<div class="shell"><main class="main"><div class="main-inner" style="max-width:640px;padding-top:40px">'+
     '<div class="section-eyebrow">Bine ai venit</div>'+
     '<h1 style="font-size:38px;line-height:1.15;margin-bottom:14px">Learn Romanian, properly.</h1>'+
@@ -113,7 +127,12 @@ PAGES.welcome = function(){
     '<div class="card" style="padding:20px;margin-bottom:14px">'+
       '<h3 style="font-size:17px;margin-bottom:4px">Start from zero</h3>'+
       '<p style="color:var(--text-2);font-size:14px;margin-bottom:14px">Begin at A1.1 with the alphabet and your first greetings. Recommended if you have never studied Romanian.</p>'+
-      '<button class="btn" data-action="startFresh">Start at A1.1</button>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+        (hasProgress
+          ? '<button class="btn" data-action="go" data-page="lesson" data-p1="'+next.id+'">Continue · '+escapeHtml(next.title)+'</button>'+
+            '<button class="btn secondary" data-action="startFresh">Start at A1.1</button>'
+          : '<button class="btn" data-action="startFresh">Start at A1.1</button>')+
+      '</div>'+
     '</div>'+
     '<div class="card" style="padding:20px">'+
       '<h3 style="font-size:17px;margin-bottom:4px">Take a placement test</h3>'+
