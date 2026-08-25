@@ -119,6 +119,17 @@ PAGES.welcome = function(){
      learner, and for one who just reset. */
   var hasProgress = state.exercisesCompleted > 0;
   var next = hasProgress ? recommendedLesson() : null;
+  /* For a returning learner, "Start at A1.1" has to actually mean A1.1: the
+     literal first lesson of the course, independent of recommendedLesson()
+     (which would send them straight back to wherever they already are — the
+     bug this replaces). Unit order 1 is always unlocked (isUnitUnlocked), so
+     this is always a safe, direct link and touches no progress or unlock
+     state — it is a plain review visit, same as clicking any other lesson. */
+  var firstLesson = hasProgress
+    ? lessonsOfUnit(UNITS.filter(function(u){
+        var lv = levelById(u.levelId); return lv && (lv.course||"cefr")===currentCourse();
+      })[0].id)[0]
+    : null;
   return '<div class="shell"><main class="main"><div class="main-inner" style="max-width:640px;padding-top:40px">'+
     '<div class="section-eyebrow">Bine ai venit</div>'+
     '<h1 style="font-size:38px;line-height:1.15;margin-bottom:14px">Learn Romanian, properly.</h1>'+
@@ -130,7 +141,7 @@ PAGES.welcome = function(){
       '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
         (hasProgress
           ? '<button class="btn" data-action="go" data-page="lesson" data-p1="'+next.id+'">Continue · '+escapeHtml(next.title)+'</button>'+
-            '<button class="btn secondary" data-action="startFresh">Start at A1.1</button>'
+            '<button class="btn secondary" data-action="go" data-page="lesson" data-p1="'+firstLesson.id+'">Start at A1.1</button>'
           : '<button class="btn" data-action="startFresh">Start at A1.1</button>')+
       '</div>'+
     '</div>'+
