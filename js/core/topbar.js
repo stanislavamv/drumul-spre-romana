@@ -1,17 +1,20 @@
 /* Drumul spre Romana — the application chrome.
  *
- * Extracted verbatim from index.html. Two functions that build the navigation
- * surrounding every page: the desktop top bar and the mobile slide-out nav.
+ * The navigation and controls surrounding every page: the desktop top bar,
+ * the mobile slide-out nav, and the light/dark theme toggle. renderTopbar and
+ * mobileNav were extracted verbatim from index.html; effectiveTheme and
+ * themeToggle were added alongside them since they're the same kind of thing
+ * -- chrome rendered once per paint, independent of which page is showing.
  *
- * Both return HTML strings and insert nothing themselves — renderApp
- * concatenates renderTopbar() ahead of the page, and shell() places mobileNav()
- * inside the sidebar.
+ * All four return HTML strings and insert nothing themselves — renderApp
+ * concatenates renderTopbar() and themeToggle() around the page, and shell()
+ * places mobileNav() inside the sidebar.
  *
  * Every dependency is already a global: LEVELS and NAV_TABS from js/data,
  * parseHash from router.js, state from state.js, currentStreak from
- * activity.js, overallCourseLevelId from progress.js, iconMenu/iconFlame from
- * icons.js and navIsActive from navigation.js. That is why this file can load
- * before the application script rather than after it.
+ * activity.js, overallCourseLevelId from progress.js, iconMenu/iconFlame/
+ * iconMoon/iconSun from icons.js and navIsActive from navigation.js. That is
+ * why this file can load before the application script rather than after it.
  *
  * The "use strict" directive is not new — it is the mode these functions
  * already ran in inside the application IIFE, repeated here because a separate
@@ -40,6 +43,25 @@ function renderTopbar(){
       '<span class="streak-chip">'+iconFlame()+' '+currentStreak()+'</span>'+
     '</div>'+
   '</div>';
+}
+
+/* The theme actually showing right now: the explicit override once the
+   learner has clicked the toggle, else whatever the OS is set to. Needed
+   because the button names the theme a click would switch TO -- it has to
+   know which one is current before it can say the opposite. */
+function effectiveTheme(){
+  if(state.settings.theme) return state.settings.theme;
+  return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+}
+
+/* Fixed at the bottom-right corner on every page, like the reduce-motion
+   setting this mirrors in spirit but is common enough to want one click
+   from anywhere rather than a trip to Progress → Settings. */
+function themeToggle(){
+  var target = effectiveTheme()==="dark" ? "light" : "dark";
+  return '<button class="theme-toggle" data-action="toggleTheme" aria-label="Switch to '+target+' theme">'+
+    (target==="dark"? iconMoon() : iconSun())+' '+target+
+  '</button>';
 }
 
 /* On mobile the top bar's nav is hidden, so the slide-out sidebar has to carry

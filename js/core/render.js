@@ -37,6 +37,13 @@ var frameQueued = false;
 
 function renderApp(){
   document.body.className = state.settings.reduceMotion? "reduce-motion":"";
+  /* The CSS carries a full dark palette under both `:root[data-theme="dark"]`
+     and `@media (prefers-color-scheme: dark)`, so this attribute is the only
+     thing standing between "the app follows the OS" and "the learner's own
+     choice wins" -- set it once here, on every paint, rather than duplicating
+     the OS-vs-override logic anywhere styling is decided. */
+  if(state.settings.theme) document.documentElement.setAttribute("data-theme", state.settings.theme);
+  else document.documentElement.removeAttribute("data-theme");
   var snapshot = captureField();
   var route = parseHash();
   /* hasOwnProperty, not a truthiness test: "#/__proto__" reaches
@@ -44,7 +51,7 @@ function renderApp(){
      never fires and renderApp throws instead of showing home. */
   var page = Object.prototype.hasOwnProperty.call(PAGES, route.page)
     ? PAGES[route.page] : PAGES.home;
-  document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]);
+  document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]) + themeToggle();
   restoreField(snapshot);
   updateScrollTop();
 }

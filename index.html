@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <title>Drumul spre Română — A1 to B1 Romanian</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="css/app.css?v=cb77d89e23" />
+<link rel="stylesheet" href="css/app.css?v=23562073f9" />
 </head>
 <body>
 <div id="root"></div>
@@ -27,7 +27,7 @@
 <script src="js/core/utils.js?v=e30efb5322"></script>
 <!-- localStorage-backed progress. Reads storage as soon as it runs, so it
      must load before the application script that consumes `state`. -->
-<script src="js/core/state.js?v=6e5a87c9df"></script>
+<script src="js/core/state.js?v=af1b149ea9"></script>
 <!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
 <script src="js/core/session.js?v=d02cf7e0f8"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
@@ -40,7 +40,7 @@
 <!-- Id lookups over the datasets above. Data-only, no state. -->
 <script src="js/core/lookup.js?v=4b9bd693c3"></script>
 <!-- Inline SVG icons. Pure string returns, no dependencies. -->
-<script src="js/core/icons.js?v=a66594154a"></script>
+<script src="js/core/icons.js?v=ee62593b5c"></script>
 <!-- Which nav tab is active for a route. Pure, used by topbar and mobile nav. -->
 <script src="js/core/navigation.js?v=f90d555bbf"></script>
 <!-- Study-streak bookkeeping. Needs todayStr() from utils and `state`
@@ -72,7 +72,7 @@
 <!-- Exercise rendering + feedback. Needs grading.js, gloss.js, controls.js,
      icons.js, lookup.js, session.js, utils.js and the data globals. -->
 <script src="js/features/exercise-render.js?v=b48c57178f"></script>
-<script src="js/core/topbar.js?v=9f3387d21b"></script>
+<script src="js/core/topbar.js?v=94a5cd4f79"></script>
 <!-- Shared page chrome. Needs mobileNav() from topbar.js, session.js,
      utils.js, the course data and the lookup/progress helpers. -->
 <script src="js/core/chrome.js?v=0e70fe1155"></script>
@@ -86,7 +86,7 @@
 <!-- The render loop and router entry point. Needs state.js, router.js,
      fields.js, scroll.js and topbar.js. Declares the empty PAGES object
      that the inline script below populates, so it must load first. -->
-<script src="js/core/render.js?v=2634c47c25"></script>
+<script src="js/core/render.js?v=d3089f2fba"></script>
 <!-- Speech and the audio-asset index. Needs utils.js (normLoose,
      unifyRomanian), state.js and render.js (render()). Actions,
      mediaDetail, audioSourcePanel, showGlossPopup and runShadowLine
@@ -115,7 +115,7 @@
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->
-<script src="js/features/actions.js?v=38e498029d"></script>
+<script src="js/features/actions.js?v=1dd73a0c3c"></script>
 <script>
 (function(){
 "use strict";

@@ -40,7 +40,8 @@ function defaultState(){
     examResults:[],
     verbsMarked:[],
     unlockedUnits:{}, // unitId -> true (beyond default first unit per level)
-    settings:{ audioSpeed:1, reduceMotion:false, openLevels:{}, showProfanity:false, unlockAll:false },
+    settings:{ audioSpeed:1, reduceMotion:false, openLevels:{}, showProfanity:false, unlockAll:false,
+      theme:null }, // null = follow the OS; "light"/"dark" once the toggle button is used
     placement:null,
     /* Watermark for the "save your progress" reminder (js/features/progress.js,
        exercisesSinceLastSave). Stamped by the two actions that get progress out

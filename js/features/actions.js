@@ -162,6 +162,7 @@ var Actions = {
   setSpeed: function(el){ state.settings.audioSpeed = parseFloat(el.getAttribute("data-speed")); persist(); render(); },
   recheckVoices: function(){ Speech.resetSource(); Speech.refresh(); render(); },
   toggleMotion: function(){ state.settings.reduceMotion = !state.settings.reduceMotion; persist(); render(); },
+  toggleTheme: function(){ state.settings.theme = effectiveTheme()==="dark" ? "light" : "dark"; persist(); render(); },
 
   typeAnswer: function(el){ session.answers[el.getAttribute("data-ex")] = el.value; },
   insertChar: function(el){
