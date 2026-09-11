@@ -47,3 +47,33 @@ VERBS.map(function(v){
 
 Re-capture the same way if `VERBS` in `js/data/verbs.js` changes (a verb
 added, an `irr` override edited, a class retagged).
+
+## gloss_index.json
+
+Also captured from the browser, not parsed in Python, for the same reason
+as `verbs.json`: it's the app's own reverse index, not a re-derivation of
+it. `js/features/gloss.js` builds `GLOSS_INDEX` (inflected form -> dictionary
+entry) to resolve whatever word a learner clicks on in a reading or dialogue.
+`resolve_word()` in `loader.py` uses the exported index for the same job,
+resolving whatever inflected form actually shows up in a learner's free
+writing ("caselor") back to its headword ("casă") or verb infinitive,
+instead of only matching exact dictionary forms.
+
+Captured with `python tools/serve.py` running and this in the browser console:
+
+```js
+buildGlossIndex();
+```
+
+`loader.py`'s `resolve_word()` also mirrors `glossLookup()`'s definite-article
+fallback trims (`orașul` -> `oraș`) for the handful of forms the built index
+alone doesn't cover, using the same normalization as the app
+(`normalize.py` mirrors `normLoose()` from `js/core/utils.js`). It does not
+reimplement `glossLookup()`'s verb-stem fallback, since every verb in this
+course already has a full table and that branch never fires for it either.
+
+Known gap, inherited rather than introduced: `glossLookup()`'s own fallback
+list doesn't cover every plural suffix (genitive/dative plurals like
+"caselor" don't resolve, only cases the app's own click-to-gloss already
+handles do). Re-run the capture the same way if `VOCAB`, `VERBS`, or
+`CORE_GLOSS` change.
