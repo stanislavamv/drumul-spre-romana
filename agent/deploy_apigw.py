@@ -4,7 +4,7 @@ as a fallback path if the Lambda Function URL's public access is blocked
 by an account-level restriction (see agent/README.md) that a different
 AWS resource type might not share.
 
-Run in the same terminal as deploy_lambda.py -- same credentials, nothing
+Run in the same terminal as deploy_lambda.py: same credentials, nothing
 new needed.
 """
 import json
@@ -16,6 +16,27 @@ from botocore.exceptions import ClientError
 FUNCTION_NAME = "corectorul-feedback"
 API_NAME = "corectorul-feedback-api"
 REGION = "us-east-1"
+
+# This endpoint is public, unauthenticated, and calls a paid API per
+# request, so it's kept as narrow as the real callers need, not left at "*".
+# The two origins are the deployed course (GitHub Pages) and local
+# development (tools/serve.py's default port).
+ALLOWED_ORIGINS = [
+    "https://stanislavamv.github.io",
+    "http://127.0.0.1:8777",
+    "http://localhost:8777",
+]
+CORS_CONFIG = {
+    "AllowOrigins": ALLOWED_ORIGINS,
+    "AllowMethods": ["POST"],
+    "AllowHeaders": ["content-type"],
+}
+
+# AWS's own default account-wide throttle (10,000 req/s) exists to protect
+# AWS's infrastructure, not this bill. A limit scoped to this specific
+# route is what actually bounds the worst case here. 5/s sustained with a
+# burst of 10 comfortably covers a person actually using the button.
+THROTTLE_SETTINGS = {"ThrottlingRateLimit": 5.0, "ThrottlingBurstLimit": 10}
 
 
 def get_function_arn(lam):
@@ -40,16 +61,13 @@ def main():
     api = find_existing_api(apigw)
     if api:
         api_id = api["ApiId"]
-        print("Reusing existing API:", api_id)
+        apigw.update_api(ApiId=api_id, CorsConfiguration=CORS_CONFIG)
+        print("Reusing existing API, CORS config refreshed:", api_id)
     else:
         api = apigw.create_api(
             Name=API_NAME,
             ProtocolType="HTTP",
-            CorsConfiguration={
-                "AllowOrigins": ["*"],
-                "AllowMethods": ["POST"],
-                "AllowHeaders": ["content-type"],
-            },
+            CorsConfiguration=CORS_CONFIG,
         )
         api_id = api["ApiId"]
         print("Created API:", api_id)
@@ -73,8 +91,17 @@ def main():
 
     stages = apigw.get_stages(ApiId=api_id)["Items"]
     if not any(s["StageName"] == "$default" for s in stages):
-        apigw.create_stage(ApiId=api_id, StageName="$default", AutoDeploy=True)
-        print("Created default stage")
+        apigw.create_stage(
+            ApiId=api_id, StageName="$default", AutoDeploy=True,
+            DefaultRouteSettings=THROTTLE_SETTINGS,
+        )
+        print("Created default stage with throttling:", THROTTLE_SETTINGS)
+    else:
+        apigw.update_stage(
+            ApiId=api_id, StageName="$default",
+            DefaultRouteSettings=THROTTLE_SETTINGS,
+        )
+        print("Refreshed throttling on existing stage:", THROTTLE_SETTINGS)
 
     source_arn = "arn:aws:execute-api:%s:%s:%s/*/*/feedback" % (REGION, account_id, api_id)
     try:

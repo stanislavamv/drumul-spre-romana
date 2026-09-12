@@ -2,14 +2,14 @@
 """One-shot Lambda deploy for Corectorul.
 
 Run this yourself, in the terminal where AWS_ACCESS_KEY_ID /
-AWS_SECRET_ACCESS_KEY / AWS_REGION and ANTHROPIC_API_KEY are already set --
-it reads the key from your shell's environment, never from this file, so
+AWS_SECRET_ACCESS_KEY / AWS_REGION and ANTHROPIC_API_KEY are already set.
+It reads the key from your shell's environment, never from this file, so
 nothing secret ends up on disk or in a diff.
 
 Creates (or updates, if run again): an IAM execution role, the Lambda
-function itself, and a public Function URL with CORS enabled. No Bedrock
-permissions needed at all -- the function calls Anthropic's API directly
-over HTTPS, so the execution role only needs to write its own logs.
+function itself, and a public Function URL with CORS enabled. The function
+calls Anthropic's API directly over HTTPS, so the execution role needs no
+Bedrock permissions at all, only enough to write its own logs.
 """
 import json
 import os
@@ -62,6 +62,8 @@ def ensure_function(lam, role_arn, api_key):
         zip_bytes = f.read()
 
     env = {"Variables": {"ANTHROPIC_API_KEY": api_key}}
+    # Architecture can only be set at creation -- AWS rejects it on
+    # update_function_configuration, so it's not part of the shared dict.
     common = dict(
         Runtime="python3.13",
         Role=role_arn,
@@ -69,7 +71,6 @@ def ensure_function(lam, role_arn, api_key):
         Timeout=90,
         MemorySize=1024,
         Environment=env,
-        Architectures=["x86_64"],
     )
 
     try:
@@ -95,6 +96,7 @@ def ensure_function(lam, role_arn, api_key):
             lam.create_function(
                 FunctionName=FUNCTION_NAME,
                 Code={"ZipFile": zip_bytes},
+                Architectures=["x86_64"],
                 **common,
             )
             print("Created:", FUNCTION_NAME)
@@ -159,7 +161,7 @@ def main():
     if not api_key:
         sys.exit("ANTHROPIC_API_KEY is not set in this shell. Set it, then re-run.")
     if not os.path.exists(ZIP_PATH):
-        sys.exit("build/deployment_package.zip not found -- build it first.")
+        sys.exit("build/deployment_package.zip not found. Build it first.")
 
     iam = boto3.client("iam")
     lam = boto3.client("lambda", region_name=REGION)
@@ -170,7 +172,7 @@ def main():
 
     print()
     print("Done. This Function URL likely returns Forbidden on this account")
-    print("(see the note in ensure_function_url) -- run deploy_apigw.py for")
+    print("(see the note in ensure_function_url). Run deploy_apigw.py for")
     print("a working public endpoint to the same function.")
     print(url)
 
