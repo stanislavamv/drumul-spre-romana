@@ -148,19 +148,26 @@ does not need to know, because `extract_strings.py` derives the full list from
 
 ### Licensing — WRITTEN
 
-Two licenses, because the code and the course are different things:
+Two licenses, because the code and the course are different things. `LICENSE`
+itself is kept as plain, unmodified MIT text on purpose — GitHub's license
+detector needs a close match to the standard template, and an earlier draft
+that appended a scope section directly to `LICENSE` came back `NOASSERTION`
+in GitHub's own detection instead of `MIT`. The scope lives here instead:
 
-- **`LICENSE`** — MIT, covering `index.html`'s markup/styles/JS, `css/`, `js/`,
-  `tools/`, `.github/`, and the agent code under `agent/` (not its
-  `grounding/*.json` files — see below).
+- **`LICENSE`** — MIT, covering: `index.html`'s markup/styles/JS; `css/`;
+  `js/`; `tools/`; `.github/`; and, under `agent/`, the Python code only
+  (`agent.py`, `main.py`, `tools.py`, `grounding/__init__.py`,
+  `grounding/normalize.py`, `grounding/loader.py`) — not its
+  `grounding/*.json` files, see below.
 - **`LICENSE-CONTENT`** — **CC BY-NC-SA 4.0**, covering the curriculum itself:
   lessons, exercises, vocabulary, readings, dialogues, grammar articles and
   cultural notes, wherever they appear — including inside `index.html`, where
-  most of it lives as JavaScript data, and including the same content
-  re-extracted as JSON under `agent/grounding/` for the feedback agent to
-  read.
+  most of it lives as JavaScript data, and including that same content
+  re-extracted as JSON under `agent/grounding/*.json` for the feedback agent
+  to read.
 
-Both files state that `audio/` is covered by neither and is not distributed.
+Neither file covers `audio/`: it isn't distributed with this repository at
+all, so there's nothing there to license.
 
 **On the NonCommercial term.** It is not compatible with Wiktionary's
 CC BY-SA, which forbids adding restrictions. That creates no conflict here

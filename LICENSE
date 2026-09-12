@@ -20,32 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
-
-SCOPE OF THIS LICENSE
-
-This license covers the SOFTWARE only:
-
-    index.html   — but only its markup, styles and JavaScript
-    css/         — all files
-    js/          — all files
-    tools/       — all files
-    .github/     — all files
-    agent/       — the Python agent code only: agent.py, main.py, tools.py,
-                   grounding/__init__.py, grounding/normalize.py,
-                   grounding/loader.py
-
-It does NOT cover:
-
-  * The COURSE CONTENT — lessons, exercises, vocabulary entries, reading
-    texts, dialogues, grammar articles and their explanations, wherever they
-    appear, including inside index.html. See LICENSE-CONTENT.
-
-  * The AUDIO. The audio/ directory and the generated audio-manifest.js are
-    not distributed with this repository and are not licensed by it. See
-    docs/AUDIO.md.
-
-  * The GROUNDING DATA under agent/grounding/*.json (vocab.json,
-    grammar.json, verbs.json, gloss_index.json). It's the course content
-    above, re-extracted as JSON for the agent to read: same terms as that
-    content, see LICENSE-CONTENT, not this file.
+This license covers the software in this repository only, not the course
+content or the audio. See docs/GITHUB.md for exactly what that means path
+by path, and LICENSE-CONTENT for the course content's own terms.
