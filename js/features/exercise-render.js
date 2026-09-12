@@ -326,18 +326,28 @@ function renderTranscript(ex, typed){
     '</div>';
 }
 
+/* Shared between renderFeedback (the app's own rule-based verdicts, five
+   values including "submitted") and renderAgentFeedback (Corectorul's
+   verdicts, the same four values minus "submitted" — see Verdict in
+   agent/agent.py). One mapping, so the two never drift into describing the
+   same word differently. */
+var VERDICT_TITLE = {
+  correct:"Correct",
+  almost:"Almost — worth a second look",
+  unnatural:"Understandable, but not how it's usually said",
+  incorrect:"Not quite",
+  submitted:"Submitted — now compare it with the model"
+};
+function verdictClass(verdict){
+  return verdict==="correct" ? "correct"
+       : verdict==="incorrect" ? "incorrect"
+       : verdict==="submitted" ? "neutral" : "partial";
+}
+
 function renderFeedback(ex, fb, opts){
   opts = opts||{};
-  var cls = fb.verdict==="correct" ? "correct"
-          : fb.verdict==="incorrect" ? "incorrect"
-          : fb.verdict==="submitted" ? "neutral" : "partial";
-  var title = {
-    correct:"Correct",
-    almost:"Almost — worth a second look",
-    unnatural:"Understandable, but not how it's usually said",
-    incorrect:"Not quite",
-    submitted:"Submitted — now compare it with the model"
-  }[fb.verdict];
+  var cls = verdictClass(fb.verdict);
+  var title = VERDICT_TITLE[fb.verdict];
   var icon = fb.verdict==="correct" ? iconCheck() : "";
 
   var answerBlock = "";
@@ -368,10 +378,52 @@ function renderFeedback(ex, fb, opts){
       '<div class="feedback-explain" style="margin-top:10px">'+ex.explain+'</div>'+
       writing + transcript +
     '</div>'+
+    renderAgentFeedback(ex)+
     '<div style="margin-top:14px;display:flex;gap:10px">'+
       (opts.onContinue!==false? '<button class="btn" data-action="continueExercise" data-ex="'+ex.id+'">Continue</button>':'')+
       '<button class="btn secondary" data-action="retryExercise" data-ex="'+ex.id+'">Try again</button>'+
     '</div>';
+}
+
+/* Corectorul: grounded, agent-based feedback on a free-writing answer,
+   layered on top of writingFeedback()'s heuristic checks above rather than
+   replacing them — that panel runs the checks a machine can make honestly;
+   this one is the real judgment call the course's own README says the
+   heuristic checker cannot make. Reuses VERDICT_TITLE/verdictClass so a
+   "correct" from the agent looks exactly like a "correct" from the app's
+   own rule-based checker, since agent/agent.py's Verdict enum is the same
+   four values. */
+function renderAgentFeedback(ex){
+  if(ex.type!=="produce" || !session.answers[ex.id]) return "";
+  var pending = session.agentFeedbackPending[ex.id];
+  var af = session.agentFeedback[ex.id];
+  var head = '<div style="font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3);margin-bottom:8px">Corectorul</div>';
+
+  if(pending){
+    return '<div style="margin-top:14px">'+head+
+      '<span style="font-size:13px;color:var(--text-3)">'+"Checking your writing against the course's vocabulary, verbs, and grammar…"+'</span></div>';
+  }
+  if(af && af.error){
+    return '<div style="margin-top:14px">'+head+
+      '<div style="font-size:13px;color:var(--brick);margin-bottom:8px">'+"Could not reach the feedback service. Check your connection and try again."+'</div>'+
+      '<button class="btn ghost sm" data-action="getAgentFeedback" data-ex="'+ex.id+'">Try again</button></div>';
+  }
+  if(!af){
+    return '<div style="margin-top:14px">'+head+
+      '<button class="btn secondary sm" data-action="getAgentFeedback" data-ex="'+ex.id+'">Get feedback on your writing</button></div>';
+  }
+  var cls = verdictClass(af.verdict);
+  var title = VERDICT_TITLE[af.verdict] || af.verdict;
+  return '<div style="margin-top:14px">'+head+
+    '<div class="feedback-box '+cls+'" role="status">'+
+      '<div class="feedback-title">'+escapeHtml(title)+'</div>'+
+      '<div class="feedback-explain">'+escapeHtml(af.explanation||"")+'</div>'+
+      (af.corrected_text ? '<div style="margin-top:8px">'+
+        '<div style="font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3)">Corrected</div>'+
+        '<div class="correct-answer-line">'+escapeHtml(af.corrected_text)+'</div></div>' : '')+
+      (af.checked && af.checked.length ? '<div style="margin-top:10px;font-size:11.5px;color:var(--text-3)">Checked: '+
+        af.checked.map(function(w){ return escapeHtml(w); }).join(", ")+'</div>' : '')+
+    '</div></div>';
 }
 
 /* A score alone doesn't teach anything. List every item the learner got wrong,

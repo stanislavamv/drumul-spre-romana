@@ -20,6 +20,17 @@
  */
 "use strict";
 
+/* The one network call in this app. Everything else is `<script src>` and
+ * `localStorage`, deliberately, so the course keeps working from a plain
+ * file:// double-click (see README.md's "Running it" section). Corectorul
+ * (agent/) checks a learner's writing against the course's own verified
+ * data by calling Claude, and that means calling out to it: getFeedback
+ * below is the one place `fetch` appears, and it will not work over
+ * file://. Serving the app (`python tools/serve.py`), which README.md
+ * already recommends as the safer route anyway, is what this needs.
+ */
+var AGENT_FEEDBACK_ENDPOINT = "https://vpo4mic875.execute-api.us-east-1.amazonaws.com/feedback";
+
 var Actions = {
   go: function(el){
     var page = el.getAttribute("data-page");
@@ -367,6 +378,35 @@ var Actions = {
     gradeAndRecord(ex, result);
     render();
   },
+  /* Corectorul: grounded feedback on a free-writing answer, from the agent
+     in agent/, not the heuristic checks in writingFeedback() above. Only
+     meaningful once there is text to check, which is always true here since
+     this button only ever renders inside a produce exercise's feedback
+     panel (see renderAgentFeedback in exercise-render.js). */
+  getAgentFeedback: function(el){
+    var id = el.getAttribute("data-ex");
+    var text = session.answers[id];
+    if(!text) return;
+    session.agentFeedbackPending[id] = true;
+    delete session.agentFeedback[id];
+    render();
+    fetch(AGENT_FEEDBACK_ENDPOINT, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text:text, exerciseId:id})
+    }).then(function(r){
+      if(!r.ok) throw new Error("status "+r.status);
+      return r.json();
+    }).then(function(data){
+      delete session.agentFeedbackPending[id];
+      session.agentFeedback[id] = data;
+      render();
+    }).catch(function(){
+      delete session.agentFeedbackPending[id];
+      session.agentFeedback[id] = {error:true};
+      render();
+    });
+  },
   retryExercise: function(el){
     var id = el.getAttribute("data-ex");
     delete session.feedback[id]; delete session.answers[id];
@@ -377,6 +417,7 @@ var Actions = {
     delete session.matched[id+"_shuffled"];
     delete session.gaps[id];
     delete session.optOrder[id];      // reshuffle options on a second attempt
+    delete session.agentFeedback[id]; delete session.agentFeedbackPending[id];
     render();
   },
   continueExercise: function(){

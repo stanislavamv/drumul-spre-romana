@@ -39,6 +39,7 @@
  */
 function defaultSession(){
   return { answers:{}, feedback:{}, built:{}, matched:{}, revealed:{}, gaps:{}, optOrder:{},
-           queue:null, qIndex:0, gloss:null, shadow:null };
+           queue:null, qIndex:0, gloss:null, shadow:null,
+           agentFeedback:{}, agentFeedbackPending:{} };
 }
 var session = defaultSession();
