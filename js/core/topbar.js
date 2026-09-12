@@ -29,7 +29,9 @@ function renderTopbar(){
   return '' +
   '<div class="topbar">'+
     '<button class="menu-btn" data-action="toggleSidebar" aria-label="Menu">'+iconMenu()+'</button>'+
-    '<div class="brand" data-action="go" data-page="home">Drumul<span class="dot">·</span>Română</div>'+
+    '<div class="brand" data-action="go" data-page="home">'+
+      '<img class="brand-mascot" src="img/mascot-curious-96.png" alt="" aria-hidden="true">'+
+      'Drumul<span class="dot">·</span>Română</div>'+
     '<nav class="topnav">'+ tabs.map(function(t){
       return '<button class="'+(navIsActive(t[0], route.page)?"active":"")+'" data-action="go" data-page="'+t[0]+'">'+t[1]+'</button>';
     }).join("") +'</nav>'+

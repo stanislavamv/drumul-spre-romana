@@ -74,6 +74,37 @@ p{margin:0;}
 }
 .brand{display:flex; align-items:baseline; gap:8px; font-family:var(--font-display); font-size:19px; font-weight:700; letter-spacing:.2px; color:var(--text-1); cursor:pointer; white-space:nowrap;}
 .brand .dot{color:var(--accent);}
+.brand-mascot{width:34px; height:34px; object-fit:contain; align-self:center; flex-shrink:0;}
+/* Below this width the wordmark text alone is already tight against the
+   level pill and streak chip -- see the mobile topbar overlap this fixed
+   during testing. No room left for an icon too. */
+@media (max-width: 460px){ .brand-mascot{display:none;} }
+
+/* The welcome page's corner lynx: peeking in from bottom-right rather than
+   sitting inline with content, so it reads as ambient personality instead
+   of competing with the actual call-to-action cards. Hidden below the
+   breakpoint where .main-inner's column already fills the available width
+   -- there is no corner left for it to lurk in, and it would just cover
+   the placement-test card instead. */
+.welcome-mascot{
+  position:absolute; right:16px; bottom:-18px; width:130px; height:auto;
+  pointer-events:none; z-index:0;
+}
+/* Below this width the card itself is narrow enough that the full-size
+   lynx starts covering the paragraph text above the button rather than
+   just peeking past the corner -- shrink instead of hiding, since even
+   at phone widths a smaller peek reads fine. */
+@media (max-width: 640px){ .welcome-mascot{width:88px; right:10px;} }
+
+/* Corectorul's "checking" state, same corner-peek language as the welcome
+   lynx: the mascot hangs slightly past the box's own edge rather than
+   sitting neatly inside it, which is what makes it read as a character
+   glancing in rather than a decorative icon. */
+.thinking-mascot{
+  position:absolute; right:-4px; bottom:-8px; width:92px; height:auto;
+  pointer-events:none;
+}
+@media (max-width: 380px){ .thinking-mascot{width:64px;} }
 .topnav{display:flex; gap:2px; flex:1; overflow-x:auto; scrollbar-width:none;}
 .topnav::-webkit-scrollbar{display:none;}
 .topnav button{

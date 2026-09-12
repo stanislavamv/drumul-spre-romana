@@ -130,7 +130,8 @@ PAGES.welcome = function(){
         var lv = levelById(u.levelId); return lv && (lv.course||"cefr")===currentCourse();
       })[0].id)[0]
     : null;
-  return '<div class="shell"><main class="main"><div class="main-inner" style="max-width:640px;padding-top:40px">'+
+  return '<div class="shell"><main class="main"><div class="main-inner" style="max-width:640px;padding-top:40px;position:relative">'+
+    '<img class="welcome-mascot" src="img/mascot-curious.png" alt="" aria-hidden="true">'+
     '<div class="section-eyebrow">Bine ai venit</div>'+
     '<h1 style="font-size:38px;line-height:1.15;margin-bottom:14px">Learn Romanian, properly.</h1>'+
     '<p style="color:var(--text-2);font-size:16px;line-height:1.6;margin-bottom:12px;max-width:58ch">A structured A1–B1 course: grammar explained in plain English, vocabulary in context, listening at four speeds, and an answer checker that tells you <i>why</i> — never just a red cross.</p>'+

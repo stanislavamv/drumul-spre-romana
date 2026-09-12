@@ -400,8 +400,11 @@ function renderAgentFeedback(ex){
   var head = '<div style="font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text-3);margin-bottom:8px">Corectorul</div>';
 
   if(pending){
-    return '<div style="margin-top:14px">'+head+
-      '<span style="font-size:13px;color:var(--text-3)">'+"Checking your writing against the course's vocabulary, verbs, and grammar…"+'</span></div>';
+    return '<div style="margin-top:14px;position:relative;padding:14px 96px 14px 16px;background:var(--hover-surface);border-radius:var(--radius-m);border:1px solid var(--line)">'+
+      head+
+      '<img src="img/mascot-thinking.png" alt="" aria-hidden="true" class="thinking-mascot">'+
+      '<span style="font-size:13px;color:var(--text-3)">'+"Checking your writing against the course's vocabulary, verbs, and grammar…"+'</span>'+
+    '</div>';
   }
   if(af && af.error){
     return '<div style="margin-top:14px">'+head+
