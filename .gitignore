@@ -28,6 +28,12 @@ tools/*.log
 *.png
 *.jpg
 
+# ...except the mascot art actually used by the app (img/mascot-*.png):
+# those are real assets the shipped pages reference, not throwaway
+# screenshots. Concept sheets and other draft art stay local-only under
+# design/, which the blanket rule above still covers.
+!img/*.png
+
 # Third-party exam papers and books downloaded for reference. Someone else's
 # copyright; keep them local.
 tools/ilr/
