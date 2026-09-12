@@ -2,10 +2,10 @@
 
 Pulls VOCAB and GRAMMAR_TOPICS out of js/data/*.js and writes them as plain
 JSON under agent/grounding/, for lookup_vocab / lookup_grammar / check_register
-to read at runtime. Verb conjugation tables are deliberately not produced
-here. They come from calling the app's own verbTables() engine in a real
-browser (see agent/grounding/README.md), not from re-parsing verbs.js, so a
-class-tagging bug never gets a second, disagreeing implementation.
+to read at runtime. This script leaves verb conjugation tables alone
+entirely: those come from calling the app's own verbTables() engine in a
+real browser (see agent/grounding/README.md), so a class-tagging bug never
+gets a second, disagreeing implementation.
 
 Run after any content edit that touches VOCAB or GRAMMAR_TOPICS, same as
 check_content.py.

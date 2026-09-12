@@ -2,8 +2,8 @@
 """The four grounding tools the agent must call before it grades anything.
 
 Each one answers a narrow question against data extracted from the course
-itself (see agent/grounding/README.md) instead of asking the model to
-recall Romanian grammar from its own training.
+itself (see agent/grounding/README.md), giving the model something
+concrete to check a claim against.
 """
 from strands import tool
 
@@ -61,8 +61,8 @@ def lookup_verb(word: str) -> dict:
     """Look up a Romanian verb by its infinitive or any conjugated form and
     return its full conjugation table: present, past, imperfect, future,
     conditional, subjunctive, imperative, and past participle. The table
-    comes from the course's own conjugation engine, not a guess, so it's
-    safe to check an exact person/tense form against it.
+    comes from the course's own conjugation engine, so it's safe to check
+    an exact person/tense form against it directly.
 
     Args:
         word: an infinitive ("a merge") or any conjugated form ("merg",

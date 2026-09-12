@@ -1,8 +1,8 @@
 # Grounding data
 
 What the agent's tools (`lookup_vocab`, `lookup_verb`, `lookup_grammar`,
-`check_register`) read at runtime instead of trusting the model's own
-memory of Romanian.
+`check_register`) read at runtime, so a verdict is checked against real
+course content, not the model's own memory of Romanian.
 
 ## vocab.json, grammar.json
 
@@ -21,8 +21,9 @@ Re-run after any edit to `VOCAB` or `GRAMMAR_TOPICS`, the same way
 
 ## verbs.json
 
-**Not** produced by parsing `verbs.js` in Python. Deliberately: this project's
-conjugation engine (`verbTables()` in `js/features/conjugation.js`) generates
+This one is captured from the browser on purpose, rather than parsed from
+`verbs.js` in Python: this project's conjugation engine
+(`verbTables()` in `js/features/conjugation.js`) generates
 regular forms from the infinitive and only stores hand-authored tables for
 irregular verbs. Re-deriving those rules a second time in Python risks the
 exact class of bug already recorded in the main CLAUDE.md ("the engine once
@@ -50,14 +51,15 @@ added, an `irr` override edited, a class retagged).
 
 ## gloss_index.json
 
-Also captured from the browser, not parsed in Python, for the same reason
-as `verbs.json`: it's the app's own reverse index, not a re-derivation of
-it. `js/features/gloss.js` builds `GLOSS_INDEX` (inflected form -> dictionary
-entry) to resolve whatever word a learner clicks on in a reading or dialogue.
-`resolve_word()` in `loader.py` uses the exported index for the same job,
-resolving whatever inflected form actually shows up in a learner's free
-writing ("caselor") back to its headword ("casă") or verb infinitive,
-instead of only matching exact dictionary forms.
+Captured from the browser too, for the same reason as `verbs.json`: it's
+the app's own reverse index, and reading it directly is simpler and safer
+than reconstructing the same logic in Python. `js/features/gloss.js`
+builds `GLOSS_INDEX` (inflected form -> dictionary entry) to resolve
+whatever word a learner clicks on in a reading or dialogue. `resolve_word()`
+in `loader.py` uses the exported index for the same job: resolving
+whatever inflected form shows up in a learner's free writing ("caselor")
+back to its headword ("casă") or verb infinitive, the same way the app
+resolves a word a reader clicks.
 
 Captured with `python tools/serve.py` running and this in the browser console:
 
@@ -68,12 +70,12 @@ buildGlossIndex();
 `loader.py`'s `resolve_word()` also mirrors `glossLookup()`'s definite-article
 fallback trims (`orașul` -> `oraș`) for the handful of forms the built index
 alone doesn't cover, using the same normalization as the app
-(`normalize.py` mirrors `normLoose()` from `js/core/utils.js`). It does not
-reimplement `glossLookup()`'s verb-stem fallback, since every verb in this
-course already has a full table and that branch never fires for it either.
+(`normalize.py` mirrors `normLoose()` from `js/core/utils.js`).
+`glossLookup()`'s other fallback, a verb-stem match for verbs missing a
+full table, is left out here: every verb in this course already has a
+full table, so that branch never fires for it either.
 
-Known gap, inherited rather than introduced: `glossLookup()`'s own fallback
-list doesn't cover every plural suffix (genitive/dative plurals like
-"caselor" don't resolve, only cases the app's own click-to-gloss already
-handles do). Re-run the capture the same way if `VOCAB`, `VERBS`, or
-`CORE_GLOSS` change.
+One inherited gap, worth naming: `glossLookup()`'s own fallback list only
+covers the suffixes above, so genitive/dative plurals like "caselor" don't
+resolve here any more than they do in the app's own click-to-gloss. Re-run
+the capture the same way if `VOCAB`, `VERBS`, or `CORE_GLOSS` change.

@@ -5,8 +5,8 @@ CLAUDE.md's content rules say free writing is never graded "correct" by the
 app's own static checker, because it's honest about not being able to make
 that call. This agent exists specifically to make that call for real,
 grounded in the course's own verified data through the four tools in
-tools.py. It doesn't replace the static checker: it's what runs when a
-learner clicks "Get Feedback" on a free-writing exercise.
+tools.py. It runs when a learner clicks "Get Feedback" on a free-writing
+exercise; the static checker still handles everything else.
 """
 from enum import Enum
 from typing import Optional

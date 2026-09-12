@@ -2,8 +2,8 @@
 """Loads the extracted grounding data once and indexes it for the tools.
 
 vocab.json, verbs.json, grammar.json and gloss_index.json are all produced
-ahead of time (see README.md in this directory). Nothing here re-derives
-course content; it only looks things up in what was already extracted.
+ahead of time (see README.md in this directory). This module just looks
+things up in what was already extracted.
 """
 import io
 import json
@@ -30,10 +30,10 @@ _VERBS_BY_ID = {v["id"]: v for v in VERBS}
 
 # Mirrors glossLookup()'s definite-article/plural fallback chain in
 # js/features/gloss.js. The index is checked first, and only these suffix
-# trims are retried on a miss. Deliberately does NOT reimplement that
-# function's verb-stem fallback (its last resort for verbs missing a full
-# table): every verb in this course has a full table, so that branch of the
-# real function never fires here either.
+# trims are retried on a miss. glossLookup() also has a verb-stem fallback,
+# its last resort for verbs missing a full table, but that branch never
+# fires for this course either: every verb here has a full table. So it's
+# left out here too.
 _FALLBACK_SUFFIXES = [
     (r"(ul|lui)$", ""),
     (r"(ului)$", ""),

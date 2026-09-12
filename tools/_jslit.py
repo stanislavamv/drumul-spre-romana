@@ -5,16 +5,16 @@ The datasets are plain JS, not JSON: unquoted bareword keys, comments, and
 occasional nesting (VOCAB's `ex:{ro,en}`, GRAMMAR_TOPICS' `formation:[...]`
 arrays full of HTML tags and apostrophes). check_content.py and friends get
 away with line-regex because they only ever pull a handful of flat fields;
-grounding data needs the whole entry, so this is a real recursive-descent
-parser instead of a wider regex.
+grounding data needs the whole entry, which calls for a real
+recursive-descent parser rather than a wider regex.
 
 Only the subset these files actually use is supported: double-quoted strings
 (single quotes never appear as JS string delimiters here: confirmed by grep,
 the few `'` characters that occur are apostrophes inside double-quoted
 prose), //  and /* */ comments, objects, arrays, numbers, true/false/null.
-No trailing commas appear in the data either; if one shows up, parsing fails
-loudly rather than silently guessing, which matches how the rest of this
-project prefers to fail.
+No trailing commas appear in the data either. If one ever does, parsing
+raises immediately and says where, the same loud-failure preference as the
+rest of this project.
 """
 import re
 
