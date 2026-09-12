@@ -58,3 +58,9 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Lambda deployment package for the agent -- a build artifact assembled by
+# deploy_lambda.py (dependencies plus the agent's own code, zipped), the
+# same category as audio/ above: regenerable, and large enough that it has
+# no business in git history.
+agent/build/

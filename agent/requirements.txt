@@ -1,1 +1,1 @@
-strands-agents[anthropic]
+strands-agents[anthropic]==1.55.1
