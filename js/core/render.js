@@ -51,6 +51,17 @@ function renderApp(){
      never fires and renderApp throws instead of showing home. */
   var page = Object.prototype.hasOwnProperty.call(PAGES, route.page)
     ? PAGES[route.page] : PAGES.home;
+  /* PAGES.* is populated by the last of the loaded scripts (pages.js and
+     the modules it depends on). speech.js's speechSynthesis.onvoiceschanged
+     handler is registered earlier, and it's a genuine async browser event —
+     it can fire, and call render(), while those later <script> tags are
+     still being fetched. Real network latency (unlike near-instant local
+     file loads) makes that timing window much easier to hit in practice.
+     Skip this render attempt silently rather than crash: the boot render()
+     call at the bottom of index.html still runs once every script has
+     finished loading, and renderApp() has no side effect worth preserving
+     from a call this early. */
+  if(typeof page !== "function") return;
   document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]) + themeToggle();
   restoreField(snapshot);
   updateScrollTop();
