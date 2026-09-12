@@ -22,8 +22,12 @@ where most of it lives as JavaScript data:
   * reading texts and dialogues
   * grammar articles
   * cultural notes
+  * the same content, re-extracted as JSON for the free-writing feedback
+    agent: agent/grounding/vocab.json, grammar.json, verbs.json, and
+    gloss_index.json
 
-The software that renders it is separately licensed under MIT. See LICENSE.
+The software that renders it, and the software that reads it (including the
+agent code under agent/), is separately licensed under MIT. See LICENSE.
 
 
 WHAT YOU MAY DO

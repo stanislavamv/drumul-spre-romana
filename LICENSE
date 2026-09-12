@@ -31,6 +31,9 @@ This license covers the SOFTWARE only:
     js/          — all files
     tools/       — all files
     .github/     — all files
+    agent/       — the Python agent code only: agent.py, main.py, tools.py,
+                   grounding/__init__.py, grounding/normalize.py,
+                   grounding/loader.py
 
 It does NOT cover:
 
@@ -41,3 +44,8 @@ It does NOT cover:
   * The AUDIO. The audio/ directory and the generated audio-manifest.js are
     not distributed with this repository and are not licensed by it. See
     docs/AUDIO.md.
+
+  * The GROUNDING DATA under agent/grounding/*.json (vocab.json,
+    grammar.json, verbs.json, gloss_index.json). It's the course content
+    above, re-extracted as JSON for the agent to read: same terms as that
+    content, see LICENSE-CONTENT, not this file.
