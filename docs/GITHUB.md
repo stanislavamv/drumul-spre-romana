@@ -92,6 +92,18 @@ drumul-spre-romana/
 ├── js/core/*.js                (14 files)
 ├── js/features/*.js            (16 files)
 ├── js/data/*.js                 (8 files)
+├── agent/                      ← free-writing feedback agent, in progress
+│   ├── README.md
+│   ├── agent.py
+│   ├── main.py
+│   ├── tools.py
+│   ├── requirements.txt
+│   └── grounding/
+│       ├── README.md
+│       ├── __init__.py
+│       ├── normalize.py
+│       ├── loader.py
+│       └── *.json              (extracted, not hand-written — see grounding/README.md)
 ├── deploy/ro-course.service
 ├── README.md
 ├── LICENSE                    ← code
@@ -139,11 +151,14 @@ does not need to know, because `extract_strings.py` derives the full list from
 Two licenses, because the code and the course are different things:
 
 - **`LICENSE`** — MIT, covering `index.html`'s markup/styles/JS, `css/`, `js/`,
-  `tools/` and `.github/`.
+  `tools/`, `.github/`, and the agent code under `agent/` (not its
+  `grounding/*.json` files — see below).
 - **`LICENSE-CONTENT`** — **CC BY-NC-SA 4.0**, covering the curriculum itself:
   lessons, exercises, vocabulary, readings, dialogues, grammar articles and
   cultural notes, wherever they appear — including inside `index.html`, where
-  most of it lives as JavaScript data.
+  most of it lives as JavaScript data, and including the same content
+  re-extracted as JSON under `agent/grounding/` for the feedback agent to
+  read.
 
 Both files state that `audio/` is covered by neither and is not distributed.
 
@@ -226,6 +241,17 @@ Those need human eyes.
    real answer, not a hope.
 
 **Only step 9 is left,** and it is the one that should not be rushed.
+
+**Update, September 2026:** step 9 is happening now because two separate
+pressures landed at once: the "Agents for Humans" hackathon's submission
+requirements need a public repo, and an AWS account-verification issue
+made a public repo URL useful sooner than planned (a URL submitted to
+Anthropic's account verification process pointed at what was, at the time,
+a private repository). Before flipping visibility: the audio/PDF/secrets
+checks above were re-run fresh against the current history, since a lot
+has been committed since the original pass, and the licensing section
+above was updated to cover `agent/` and its `grounding/` data, which
+didn't exist when this document was first written.
 
 ### The verbatim-reuse audit
 

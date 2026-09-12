@@ -11,6 +11,12 @@ and register tracks. Vanilla JS, no build step, no dependencies, no framework.
 toolchain, and running without a build step is the point: the course works
 offline from a file and will still run in ten years. Work with it.
 
+This applies to the course app above (`index.html`, `css/`, `js/`). `agent/`
+is a separate, self-contained Python subproject (a free-writing feedback
+agent, in progress for a hackathon) with its own virtualenv and
+dependencies; see [`agent/README.md`](agent/README.md). It doesn't touch
+the course app's architecture and the course app doesn't depend on it.
+
 Layout is **fully extracted** except a thin wiring layer. `css/app.css`,
 eight `js/data/*.js` content files, and thirty `js/core` + `js/features`
 modules hold everything — page renderers, the `Actions` map, answer

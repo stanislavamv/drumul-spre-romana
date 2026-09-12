@@ -99,6 +99,25 @@ This has already caught real errors — see *Design commitments* below.
 | [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md) | Running it on your own server, reachable from your own devices |
 | [`docs/TECH_DEBT.md`](docs/TECH_DEBT.md) | Known defects parked for later, with what fixing each involves |
 | [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants on this codebase |
+| [`agent/README.md`](agent/README.md) | The free-writing feedback agent — status, architecture, timeline disclosure |
+| [`agent/grounding/README.md`](agent/grounding/README.md) | How each grounding dataset the agent reads was produced |
+
+---
+
+## Corectorul — an AI feedback agent (in progress)
+
+`agent/` holds a separate, in-progress addition: a free-writing feedback
+agent built with the Strands Agents SDK for AWS's "Agents for Humans"
+hackathon. The course's free-writing exercises can currently only be graded
+`submitted` (see *Design commitments* below), because the rule-based
+checker admits it can't evaluate open-ended text. This agent reads what a
+learner wrote and checks it against the course's own verified vocabulary,
+verb, and grammar data through four tools before it commits to a verdict.
+
+It isn't wired into the app yet. [`agent/README.md`](agent/README.md) has
+the current status, the architecture, and a timeline disclosure: the course
+was built before this hackathon existed on my radar, even though both
+happen to fall inside its submission period.
 
 ---
 
