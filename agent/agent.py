@@ -8,6 +8,7 @@ grounded in the course's own verified data through the four tools in
 tools.py. It runs when a learner clicks "Get Feedback" on a free-writing
 exercise; the static checker still handles everything else.
 """
+import os
 from enum import Enum
 from typing import Optional
 
@@ -15,6 +16,21 @@ from pydantic import BaseModel, Field
 from strands import Agent
 
 from tools import lookup_vocab, lookup_verb, lookup_grammar, check_register
+
+# Bedrock access on this account is stuck in AWS's account-verification
+# queue as of September 2026 (see agent/README.md). Rather than block on
+# that, the model provider is picked at runtime: set ANTHROPIC_API_KEY to
+# use Claude directly through Anthropic's own API, or leave it unset to
+# fall back to Strands' Bedrock default. Swapping back once Bedrock clears
+# is just unsetting the env var, no code change.
+ANTHROPIC_MODEL_ID = "claude-sonnet-5"
+
+
+def _build_model():
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        from strands.models.anthropic import AnthropicModel
+        return AnthropicModel(model_id=ANTHROPIC_MODEL_ID, max_tokens=4096)
+    return None
 
 
 class Verdict(str, Enum):
@@ -82,6 +98,7 @@ List every word, form, or topic you actually looked up with a tool in \
 
 def build_agent():
     return Agent(
+        model=_build_model(),
         system_prompt=SYSTEM_PROMPT,
         tools=[lookup_vocab, lookup_verb, lookup_grammar, check_register],
         structured_output_model=WritingFeedback,
