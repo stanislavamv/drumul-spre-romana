@@ -5,6 +5,7 @@ citizenship preparation, I.L.R. exam preparation, and a register/slang track.
 No build step, no server, no framework, no dependencies.
 
 Open `index.html` in a browser. That is the whole install procedure.
+Or try it live: **[stanislavamv.github.io](https://stanislavamv.github.io/)**.
 
 ---
 
@@ -117,20 +118,22 @@ detail, path by path: [`docs/GITHUB.md`](docs/GITHUB.md).
 
 ---
 
-## Corectorul — an AI feedback agent (in progress)
+## Corectorul — an AI feedback agent
 
-`agent/` holds a separate, in-progress addition: a free-writing feedback
-agent built with the Strands Agents SDK for AWS's "Agents for Humans"
-hackathon. The course's free-writing exercises can currently only be graded
-`submitted` (see *Design commitments* below), because the rule-based
-checker admits it can't evaluate open-ended text. This agent reads what a
-learner wrote and checks it against the course's own verified vocabulary,
-verb, and grammar data through four tools before it commits to a verdict.
+`agent/` holds a separate addition: a free-writing feedback agent built
+with the Strands Agents SDK for AWS's "Agents for Humans" hackathon. The
+course's free-writing exercises can otherwise only be graded `submitted`
+(see *Design commitments* below), because the rule-based checker admits it
+can't evaluate open-ended text. This agent reads what a learner wrote and
+checks it against the course's own verified vocabulary, verb, and grammar
+data through four tools before it commits to a verdict.
 
-It isn't wired into the app yet. [`agent/README.md`](agent/README.md) has
-the current status, the architecture, and a timeline disclosure: the course
-was built before this hackathon existed on my radar, even though both
-happen to fall inside its submission period.
+It's live: click "Get feedback on your writing" on any free-writing
+exercise, and the app calls the deployed agent (AWS Lambda behind API
+Gateway) directly from the browser. [`agent/README.md`](agent/README.md)
+has the full architecture and a timeline disclosure: the course was built
+before this hackathon existed on my radar, even though both happen to fall
+inside its submission period.
 
 ---
 
