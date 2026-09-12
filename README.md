@@ -104,6 +104,19 @@ This has already caught real errors — see *Design commitments* below.
 
 ---
 
+## License
+
+Two licenses, because the code and the course are different things.
+[`LICENSE`](LICENSE) (MIT) covers the software: `index.html`'s markup and
+JS, `css/`, `js/`, `tools/`, `.github/`, and the Python code under `agent/`.
+[`LICENSE-CONTENT`](LICENSE-CONTENT) (CC BY-NC-SA 4.0) covers the curriculum
+itself — lessons, exercises, vocabulary, grammar articles, and the same
+content re-extracted as JSON for the agent under `agent/grounding/`. Neither
+covers `audio/`, which isn't distributed with this repository at all. Full
+detail, path by path: [`docs/GITHUB.md`](docs/GITHUB.md).
+
+---
+
 ## Corectorul — an AI feedback agent (in progress)
 
 `agent/` holds a separate, in-progress addition: a free-writing feedback
