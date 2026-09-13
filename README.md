@@ -102,6 +102,7 @@ This has already caught real errors — see *Design commitments* below.
 | [`CLAUDE.md`](CLAUDE.md) | Working notes for AI assistants on this codebase |
 | [`agent/README.md`](agent/README.md) | The free-writing feedback agent — status, architecture, timeline disclosure |
 | [`agent/grounding/README.md`](agent/grounding/README.md) | How each grounding dataset the agent reads was produced |
+| [`feedback/README.md`](feedback/README.md) | The site feedback form — Turnstile + SES setup, deploy steps |
 
 ---
 
@@ -109,7 +110,8 @@ This has already caught real errors — see *Design commitments* below.
 
 Two licenses, because the code and the course are different things.
 [`LICENSE`](LICENSE) (MIT) covers the software: `index.html`'s markup and
-JS, `css/`, `js/`, `tools/`, `.github/`, and the Python code under `agent/`.
+JS, `css/`, `js/`, `tools/`, `.github/`, and the Python code under `agent/`
+and `feedback/`.
 [`LICENSE-CONTENT`](LICENSE-CONTENT) (CC BY-NC-SA 4.0) covers the curriculum
 itself — lessons, exercises, vocabulary, grammar articles, and the same
 content re-extracted as JSON for the agent under `agent/grounding/`. Neither

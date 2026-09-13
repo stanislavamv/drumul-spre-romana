@@ -971,7 +971,70 @@ PAGES.progress = function(){
       '</div>'+
       '<button class="btn secondary sm" data-action="resetProgress">Reset all progress</button>'+
       '<p style="font-size:12.5px;color:var(--text-3);margin-top:8px">This clears everything stored in this browser and cannot be undone.</p>'+
+      '<div style="border-top:1px solid var(--line);margin:14px 0 0;padding-top:14px">'+
+        '<button class="btn secondary sm" data-action="openFeedbackForm">Send feedback</button>'+
+        '<p style="font-size:12.5px;color:var(--text-3);margin-top:8px">Found something broken, confusing, or worth adding? Tell me directly.</p>'+
+      '</div>'+
     '</div>';
+  return shell(null, main, null, true);
+};
+
+/* ---------- SITE FEEDBACK ----------
+   General "something's wrong with the app" feedback, distinct from
+   Corectorul's per-exercise writing feedback above. Posts to a separate
+   Lambda (feedback/) that verifies a Cloudflare Turnstile token before
+   emailing the maintainer, so the address itself never ships to the
+   client — see js/features/actions.js for the fetch call and the
+   Turnstile loader. */
+PAGES.feedback = function(){
+  var f = session.feedbackForm;
+  var pending = session.feedbackFormPending;
+  var result = session.feedbackFormResult;
+
+  var main = '<h1 style="font-size:26px;margin-bottom:6px">Send feedback</h1>'+
+    '<p style="color:var(--text-2);margin-bottom:22px;max-width:60ch">Found something broken, confusing, or worth adding? This goes straight to the person building the course — no account needed, and nothing else about you is collected.</p>';
+
+  if(result && result.ok){
+    return shell(null, main+
+      '<div class="card" style="padding:20px 22px;max-width:520px">'+
+        '<div style="font-weight:700;margin-bottom:6px;color:var(--pine)">Sent — thank you.</div>'+
+        '<p style="color:var(--text-2);font-size:13.5px;margin-bottom:14px">If you left an email, expect a reply there; otherwise this was anonymous.</p>'+
+        '<button class="btn secondary sm" data-action="resetFeedbackForm">Send another</button>'+
+      '</div>', null, true);
+  }
+
+  var categories = [
+    ["bug","Something is broken"],
+    ["confusing","This explanation is confusing"],
+    ["content","Romanian content issue"],
+    ["feature","Feature suggestion"],
+    ["general","General feedback"]
+  ];
+
+  main += '<div class="card" style="padding:20px 22px;max-width:520px">'+
+    '<label class="field-label">What kind of feedback is this?</label>'+
+    '<select data-action="pickFeedbackCategory" style="margin-bottom:16px">'+
+      categories.map(function(c){
+        return '<option value="'+c[0]+'"'+(f.category===c[0]?" selected":"")+'>'+c[1]+'</option>';
+      }).join("")+
+    '</select>'+
+    '<label class="field-label">What\'s going on?</label>'+
+    '<textarea data-action="typeFeedbackMessage" rows="5" placeholder="As specific as you can — which lesson, what you expected, what happened instead." style="margin-bottom:16px">'+escapeHtml(f.message)+'</textarea>'+
+    '<label class="field-label">Your email (optional — only if you want a reply)</label>'+
+    '<input type="text" data-action="typeFeedbackEmail" value="'+escapeHtml(f.email)+'" placeholder="you@example.com" style="margin-bottom:16px">'+
+    '<label class="field-label">Attach a screenshot (optional, max 3 MB)</label>'+
+    (f.attachment
+      ? '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:8px;border:1px solid var(--line);border-radius:var(--radius-s)">'+
+          '<img src="'+f.attachment.dataUrl+'" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0">'+
+          '<span style="font-size:13px;color:var(--text-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(f.attachment.name)+'</span>'+
+          '<button class="btn ghost sm" data-action="removeFeedbackAttachment" type="button">Remove</button>'+
+        '</div>'
+      : '<input type="file" accept="image/*" data-action="attachFeedbackFile" style="margin-bottom:16px">')+
+    '<div id="turnstile-container" style="margin-bottom:16px;min-height:65px"></div>'+
+    (result && !result.ok? '<div style="color:var(--brick);font-size:13px;margin-bottom:12px">'+escapeHtml(result.error||"Something went wrong. Please try again.")+'</div>' : "")+
+    '<button class="btn" data-action="sendSiteFeedback"'+(pending?" disabled":"")+'>'+(pending?"Sending…":"Send feedback")+'</button>'+
+  '</div>';
+
   return shell(null, main, null, true);
 };
 

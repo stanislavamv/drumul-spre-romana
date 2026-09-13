@@ -78,5 +78,9 @@ function mobileNav(){
         'data-action="go" data-page="'+t[0]+'">'+t[1]+'</button>';
     }).join("")+
     '<hr class="rule" style="margin:14px 0">'+
+    /* Not a NAV_TABS entry: those also render in the desktop topnav strip,
+       already at nine items, and this is a low-frequency utility action
+       that belongs one tap away rather than competing for that space. */
+    '<button class="mobile-nav-item'+(route.page==="feedback"?" active":"")+'" data-action="openFeedbackForm">Send feedback</button>'+
   '</nav>';
 }

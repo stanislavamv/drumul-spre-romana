@@ -40,6 +40,8 @@
 function defaultSession(){
   return { answers:{}, feedback:{}, built:{}, matched:{}, revealed:{}, gaps:{}, optOrder:{},
            queue:null, qIndex:0, gloss:null, shadow:null,
-           agentFeedback:{}, agentFeedbackPending:{} };
+           agentFeedback:{}, agentFeedbackPending:{},
+           feedbackForm:{category:"bug", message:"", email:"", token:"", attachment:null},
+           feedbackFormPending:false, feedbackFormResult:null };
 }
 var session = defaultSession();

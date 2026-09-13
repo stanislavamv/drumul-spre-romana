@@ -20,16 +20,61 @@
  */
 "use strict";
 
-/* The one network call in this app. Everything else is `<script src>` and
+/* The two network calls in this app. Everything else is `<script src>` and
  * `localStorage`, deliberately, so the course keeps working from a plain
  * file:// double-click (see README.md's "Running it" section). Corectorul
  * (agent/) checks a learner's writing against the course's own verified
- * data by calling Claude, and that means calling out to it: getFeedback
- * below is the one place `fetch` appears, and it will not work over
- * file://. Serving the app (`python tools/serve.py`), which README.md
- * already recommends as the safer route anyway, is what this needs.
+ * data by calling Claude, and getAgentFeedback below is one of the two
+ * places `fetch` appears; sendSiteFeedback (posting to feedback/) is the
+ * other. Neither works over file://. Serving the app
+ * (`python tools/serve.py`), which README.md already recommends as the
+ * safer route anyway, is what both need.
  */
 var AGENT_FEEDBACK_ENDPOINT = "https://vpo4mic875.execute-api.us-east-1.amazonaws.com/feedback";
+
+/* feedback/ — a separate Lambda from the one above, unrelated to
+   Corectorul: this one takes the "something's wrong with the app itself"
+   form on PAGES.feedback, verifies the Turnstile token server-side, and
+   emails the maintainer. See feedback/README.md for the deploy story and
+   why the address it sends to never appears in this client code. */
+var SITE_FEEDBACK_ENDPOINT = "https://REPLACE-WITH-FEEDBACK-API.execute-api.us-east-1.amazonaws.com/submit";
+var TURNSTILE_SITE_KEY = "REPLACE-WITH-TURNSTILE-SITE-KEY";
+
+/* Base64 inflates a file by roughly a third, and the whole JSON body still
+   has to clear Lambda's 6MB synchronous-invoke payload ceiling alongside
+   it -- 3MB of source image keeps the encoded body comfortably under
+   that with room for the message text. feedback/handler.py enforces the
+   same number server-side, since a client-side check alone is only ever
+   a courtesy. */
+var MAX_FEEDBACK_ATTACHMENT_BYTES = 3 * 1024 * 1024;
+
+/* Turnstile ships as a global script, loaded only when a visitor actually
+   opens the feedback page -- not on every page load, so the rest of the
+   app stays dependency-free and offline-capable. Cloudflare's own script
+   auto-scans for .cf-turnstile elements already in the DOM at load time,
+   but a full re-render can replace that element before the script has
+   finished downloading, so this renders explicitly into a specific
+   element instead of relying on that scan. */
+function ensureTurnstileWidget(){
+  var container = document.getElementById("turnstile-container");
+  if(!container) return; // navigated away before the script/callback landed
+  if(window.turnstile){
+    container.innerHTML = "";
+    window.turnstile.render(container, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: function(token){ session.feedbackForm.token = token; },
+      "expired-callback": function(){ session.feedbackForm.token = ""; }
+    });
+    return;
+  }
+  if(document.getElementById("turnstile-script")) return; // already loading
+  var s = document.createElement("script");
+  s.id = "turnstile-script";
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+  s.async = true; s.defer = true;
+  s.onload = ensureTurnstileWidget;
+  document.head.appendChild(s);
+}
 
 var Actions = {
   go: function(el){
@@ -406,6 +451,101 @@ var Actions = {
       session.agentFeedback[id] = {error:true};
       render();
     });
+  },
+  /* Opens PAGES.feedback and, once that paint has actually happened, loads
+     and renders the Turnstile widget into it. render() itself only
+     schedules the repaint (see js/core/render.js), so this waits two of
+     the browser's own animation frames -- one for that scheduled paint,
+     one to be sure it landed -- before looking for the container div. */
+  openFeedbackForm: function(){
+    /* Every other mobile-nav link goes through Actions.go, which closes
+       the sidebar before navigating (see go() above) -- this one bypassed
+       it to reach navigate() directly for the Turnstile follow-up below,
+       and dropped that line in the process. */
+    session.sidebarOpen = false;
+    navigate("feedback");
+    requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
+  },
+  /* Model-only, like pickMatch above -- no render(), so the Turnstile
+     widget already sitting in the DOM is left alone rather than wiped
+     and reloaded on every field the learner touches. */
+  pickFeedbackCategory: function(el){ session.feedbackForm.category = el.value; },
+  typeFeedbackMessage: function(el){ session.feedbackForm.message = el.value; },
+  typeFeedbackEmail: function(el){ session.feedbackForm.email = el.value; },
+  /* Unlike the fields above, attaching a file has to repaint -- the
+     filename/thumbnail it adds lives in session, same as everything
+     else, so it can only appear via render(). That wipes and reloads
+     the Turnstile widget same as openFeedbackForm's first paint does,
+     so this re-schedules it the same way; solving the captcha again
+     is the cost of a re-render this app doesn't otherwise pay mid-form. */
+  attachFeedbackFile: function(el){
+    var f = el.files && el.files[0];
+    if(!f) return;
+    if(!/^image\//.test(f.type)){
+      session.feedbackFormResult = {ok:false, error:"Only image files can be attached."};
+      el.value = "";
+      render();
+      return;
+    }
+    if(f.size > MAX_FEEDBACK_ATTACHMENT_BYTES){
+      session.feedbackFormResult = {ok:false, error:"That image is too large (max 3 MB) — try a smaller screenshot."};
+      el.value = "";
+      render();
+      return;
+    }
+    var rd = new FileReader();
+    rd.onload = function(){
+      session.feedbackForm.attachment = {name:f.name, type:f.type, dataUrl:rd.result};
+      render();
+      requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
+    };
+    rd.readAsDataURL(f);
+  },
+  removeFeedbackAttachment: function(){
+    session.feedbackForm.attachment = null;
+    render();
+    requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
+  },
+  sendSiteFeedback: function(){
+    var f = session.feedbackForm;
+    if(!f.message.trim()){
+      session.feedbackFormResult = {ok:false, error:"Write something first."};
+      render();
+      return;
+    }
+    if(!f.token){
+      session.feedbackFormResult = {ok:false, error:"Please complete the captcha."};
+      render();
+      return;
+    }
+    session.feedbackFormPending = true;
+    session.feedbackFormResult = null;
+    render();
+    fetch(SITE_FEEDBACK_ENDPOINT, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        category:f.category, message:f.message, email:f.email, token:f.token,
+        attachment: f.attachment ? {name:f.attachment.name, type:f.attachment.type, data:f.attachment.dataUrl.split(",")[1]} : null
+      })
+    }).then(function(r){
+      if(!r.ok) return r.json().then(function(body){ throw new Error(body&&body.error || "status "+r.status); });
+      return r.json();
+    }).then(function(){
+      session.feedbackFormPending = false;
+      session.feedbackFormResult = {ok:true};
+      session.feedbackForm = {category:"bug", message:"", email:"", token:"", attachment:null};
+      render();
+    }).catch(function(err){
+      session.feedbackFormPending = false;
+      session.feedbackFormResult = {ok:false, error:err.message};
+      render();
+    });
+  },
+  resetFeedbackForm: function(){
+    session.feedbackFormResult = null;
+    session.feedbackForm = {category:"bug", message:"", email:"", token:"", attachment:null};
+    render();
   },
   retryExercise: function(el){
     var id = el.getAttribute("data-ex");

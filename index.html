@@ -29,7 +29,7 @@
      must load before the application script that consumes `state`. -->
 <script src="js/core/state.js?v=af1b149ea9"></script>
 <!-- Transient per-view state, the counterpart to state.js. Never persisted. -->
-<script src="js/core/session.js?v=0b643e13be"></script>
+<script src="js/core/session.js?v=17af86e643"></script>
 <!-- Hash parsing. No dependencies beyond browser globals. -->
 <script src="js/core/router.js?v=2db0c26d19"></script>
 <!-- Focused-field snapshot/restore across a redraw. DOM-only, no deps. -->
@@ -72,7 +72,7 @@
 <!-- Exercise rendering + feedback. Needs grading.js, gloss.js, controls.js,
      icons.js, lookup.js, session.js, utils.js and the data globals. -->
 <script src="js/features/exercise-render.js?v=c128456130"></script>
-<script src="js/core/topbar.js?v=31b3d6d544"></script>
+<script src="js/core/topbar.js?v=4ab3fca6f7"></script>
 <!-- Shared page chrome. Needs mobileNav() from topbar.js, session.js,
      utils.js, the course data and the lookup/progress helpers. -->
 <script src="js/core/chrome.js?v=0e70fe1155"></script>
@@ -105,7 +105,7 @@
 <!-- All 21 PAGES.* page renderers. Needs every extracted core/data/
      feature module loaded above -- this is the last consumer of all
      of them -- and pages-helpers.js specifically. -->
-<script src="js/features/pages.js?v=c72756424c"></script>
+<script src="js/features/pages.js?v=d1e5a522d1"></script>
 <!-- Actions-adjacent runtime helpers -- everything Actions calls that
      is not itself an Actions handler. Needs state.js, session.js,
      utils.js, lookup.js, render.js (render()), speech.js (Speech),
@@ -115,7 +115,7 @@
 <!-- Actions: the event-delegation handler table. Needs every
      extracted core/data/feature module loaded above -- this is the
      last and largest consumer of all of them. -->
-<script src="js/features/actions.js?v=211bfc23ce"></script>
+<script src="js/features/actions.js?v=15e5d450a4"></script>
 <script>
 (function(){
 "use strict";
@@ -329,7 +329,8 @@ window.addEventListener("hashchange", render);
    field keeps its own value while the learner types. */
 var INPUT_DRIVEN = {typeAnswer:1, typeGap:1, typePlacement:1, grammarSearch:1, vocabSearch:1,
                     verbSearch:1, pickMatch:1, toggleMotion:1, toggleProfanity:1, typeImport:1, importFile:1,
-                    typeTranscript:1};
+                    typeTranscript:1, typeFeedbackMessage:1, typeFeedbackEmail:1, pickFeedbackCategory:1,
+                    attachFeedbackFile:1};
 
 document.addEventListener("click", function(e){
   /* A glossable word can sit inside a clickable control (an MCQ option, a
@@ -356,7 +357,8 @@ document.addEventListener("input", function(e){
   /* Model-only updates: no re-render, so the caret stays where the learner
      put it. Every typed field must be listed here or its value is silently
      dropped when the answer is checked. */
-  if(name==="typeAnswer" || name==="typeGap" || name==="typePlacement" || name==="typeImport" || name==="typeTranscript"){
+  if(name==="typeAnswer" || name==="typeGap" || name==="typePlacement" || name==="typeImport" || name==="typeTranscript" ||
+     name==="typeFeedbackMessage" || name==="typeFeedbackEmail"){
     Actions[name](el, e);
     return;
   }
@@ -369,7 +371,7 @@ document.addEventListener("change", function(e){
   var el = e.target.closest("[data-action]");
   if(!el) return;
   var name = el.getAttribute("data-action");
-  if(name==="pickMatch" || name==="toggleMotion" || name==="toggleProfanity" || name==="importFile"){ Actions[name](el, e); }
+  if(name==="pickMatch" || name==="toggleMotion" || name==="toggleProfanity" || name==="importFile" || name==="pickFeedbackCategory" || name==="attachFeedbackFile"){ Actions[name](el, e); }
 });
 /* Keyboard activation for the div-based rows that act as buttons. */
 document.addEventListener("keydown", function(e){
