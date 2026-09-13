@@ -1,6 +1,6 @@
 /* Drumul spre Romana — inline SVG icons.
  *
- * Extracted verbatim from index.html. Six helpers that each return one inline SVG string. No arguments, no state,
+ * Extracted verbatim from index.html. Nine helpers that each return one inline SVG string. No arguments, no state,
  * no DOM access, no `this` — the markup is returned, never inserted, and the
  * caller decides where it lands.
  *
@@ -26,3 +26,4 @@ function iconCheck(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fi
 function iconLock(){ return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'; }
 function iconMoon(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>'; }
 function iconSun(){ return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'; }
+function iconFeedback(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16a1 1 0 011 1v9a1 1 0 01-1 1H10l-5 4v-4H4a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>'; }

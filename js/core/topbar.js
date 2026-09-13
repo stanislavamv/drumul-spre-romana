@@ -41,6 +41,10 @@ function renderTopbar(){
       (state.settings.unlockAll
         ? '<button class="teacher-chip" data-action="go" data-page="admin" title="Author mode is on — every unit is unlocked. Click to manage.">AUTHOR</button>'
         : '')+
+      /* Desktop-only: mobile already has "Send feedback" one tap away in
+         the slide-out menu (see mobileNav below), so this would just be
+         a second, more cramped way to reach the exact same place. */
+      '<button class="feedback-icon-btn" data-action="openFeedbackForm" title="Send feedback" aria-label="Send feedback">'+iconFeedback()+'</button>'+
       '<span class="level-pill">'+lvl.code+'</span>'+
       '<span class="streak-chip">'+iconFlame()+' '+currentStreak()+'</span>'+
     '</div>'+

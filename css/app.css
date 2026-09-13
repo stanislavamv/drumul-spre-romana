@@ -126,6 +126,25 @@ p{margin:0;}
 .topnav button:hover{background:var(--hover-surface); color:var(--text-1);}
 .topnav button.active{background:var(--accent-soft); color:var(--accent-strong);}
 .topbar-right{display:flex; align-items:center; gap:10px;}
+/* A quiet, borderless icon rather than a labeled pill like the level/streak
+   chips next to it -- feedback is a low-frequency utility action, not
+   something that needs equal visual weight with actual progress. Shown at
+   every width down to the phone breakpoint below, same as the mascot in
+   .brand: the mobile slide-out menu also carries "Send feedback", but
+   that redundancy is the fallback for when this icon has to give up its
+   spot, not a reason to hide it by default. */
+.feedback-icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  background:transparent; border:none; color:var(--text-3); cursor:pointer;
+}
+.feedback-icon-btn:hover{background:var(--hover-surface); color:var(--text-1);}
+/* Below this width the brand mascot already steps aside (see .brand-mascot
+   above) because the wordmark alone is tight against the level pill and
+   streak chip -- this icon is the next thing to give up its spot rather
+   than force a horizontal scrollbar into the topbar. "Send feedback" in
+   the slide-out menu (mobileNav in topbar.js) is what's left reachable. */
+@media (max-width: 460px){ .feedback-icon-btn{display:none;} }
 .level-pill{
   font-size:12px;font-weight:700;letter-spacing:.4px;background:var(--pine-soft);color:var(--pine);
   padding:4px 10px;border-radius:999px;
