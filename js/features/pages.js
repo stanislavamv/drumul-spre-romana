@@ -130,7 +130,13 @@ PAGES.welcome = function(){
         var lv = levelById(u.levelId); return lv && (lv.course||"cefr")===currentCourse();
       })[0].id)[0]
     : null;
-  return '<div class="shell"><main class="main"><div class="main-inner" style="max-width:640px;padding-top:40px;position:relative">'+
+  /* Routed through shell() like every other page, notFound() included --
+     see that function's own comment for why. This page used to write its
+     own bare .shell/.main/.main-inner markup with no <aside>, which meant
+     no mobileNav() and no sidebar for the topbar's menu button to open:
+     on a phone, tapping it on this specific screen did nothing at all,
+     the exact bug notFound() was already fixed for. */
+  var main = '<div style="max-width:640px;padding-top:40px;position:relative">'+
     '<img class="welcome-mascot" src="img/mascot-curious.png" alt="" aria-hidden="true">'+
     '<div class="section-eyebrow">Bine ai venit</div>'+
     '<h1 style="font-size:38px;line-height:1.15;margin-bottom:14px">Learn Romanian, properly.</h1>'+
@@ -151,7 +157,8 @@ PAGES.welcome = function(){
       '<p style="color:var(--text-2);font-size:14px;margin-bottom:14px">Four questions per level, working upward, and it stops as soon as a level is clearly beyond you. Typed answers as well as multiple choice, so a lucky guess can\'t place you three levels too high. Takes about eight minutes.</p>'+
       '<button class="btn secondary" data-action="go" data-page="placement">Take the placement test</button>'+
     '</div>'+
-  '</div></main></div>';
+  '</div>';
+  return shell(null, main, null);
 };
 
 /* ---------- UNIT OVERVIEW ---------- */
