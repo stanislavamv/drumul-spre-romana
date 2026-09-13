@@ -41,13 +41,16 @@ PAGES.home = function(){
     '<p style="color:var(--text-3);font-size:13px;margin:-8px 0 20px;max-width:62ch">'+escapeHtml(courseObj.blurb)+'</p>'+
     saveReminderCard()+
     (currentCourse()==="ilr"? ilrSourceCard() : '')+
-    '<div class="section-eyebrow">Continue where you left off</div>'+
-    '<h1 style="font-size:30px;margin-bottom:6px">'+escapeHtml(nextUnit.title)+'</h1>'+
-    '<p style="color:var(--text-2);margin-bottom:18px;max-width:60ch">'+escapeHtml(next.objective)+'</p>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">'+
-      '<button class="btn" data-action="go" data-page="lesson" data-p1="'+next.id+'">'+
-        (lessonProgress(next.id).attempts? "Resume":"Start")+' · '+escapeHtml(next.title)+'</button>'+
-      (due? '<button class="btn secondary" data-action="go" data-page="review">'+due+' word'+(due===1?"":"s")+' due for review</button>':'')+
+    '<div style="position:relative">'+
+      '<img class="home-mascot" src="img/mascot-curious-peeking.png" alt="" aria-hidden="true">'+
+      '<div class="section-eyebrow">Continue where you left off</div>'+
+      '<h1 style="font-size:30px;margin-bottom:6px">'+escapeHtml(nextUnit.title)+'</h1>'+
+      '<p style="color:var(--text-2);margin-bottom:18px;max-width:60ch">'+escapeHtml(next.objective)+'</p>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">'+
+        '<button class="btn" data-action="go" data-page="lesson" data-p1="'+next.id+'">'+
+          (lessonProgress(next.id).attempts? "Resume":"Start")+' · '+escapeHtml(next.title)+'</button>'+
+        (due? '<button class="btn secondary" data-action="go" data-page="review">'+due+' word'+(due===1?"":"s")+' due for review</button>':'')+
+      '</div>'+
     '</div>'+
 
     '<div class="grid-3" style="margin-bottom:30px">'+
