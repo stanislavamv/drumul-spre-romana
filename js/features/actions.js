@@ -37,8 +37,8 @@ var AGENT_FEEDBACK_ENDPOINT = "https://vpo4mic875.execute-api.us-east-1.amazonaw
    form on PAGES.feedback, verifies the Turnstile token server-side, and
    emails the maintainer. See feedback/README.md for the deploy story and
    why the address it sends to never appears in this client code. */
-var SITE_FEEDBACK_ENDPOINT = "https://REPLACE-WITH-FEEDBACK-API.execute-api.us-east-1.amazonaws.com/submit";
-var TURNSTILE_SITE_KEY = "REPLACE-WITH-TURNSTILE-SITE-KEY";
+var SITE_FEEDBACK_ENDPOINT = "https://gjzq2j53t2.execute-api.us-east-1.amazonaws.com/submit";
+var TURNSTILE_SITE_KEY = "0x4AAAAAAEyP5LdpdjSoUrNw";
 
 /* Base64 inflates a file by roughly a third, and the whole JSON body still
    has to clear Lambda's 6MB synchronous-invoke payload ceiling alongside
