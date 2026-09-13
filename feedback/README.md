@@ -58,13 +58,26 @@ no need to request production access.
 
 ## Deploying
 
+`deploy_lambda.py` and `deploy_apigw.py` are the deploy *tooling* — they
+run on your machine and need `boto3` there to talk to AWS. That's
+separate from the Lambda's own runtime (which already has `boto3` built
+in and needs nothing installed for `handler.py` itself). `agent/.venv`
+already has it from setting up the agent, so the easiest path is running
+these two scripts with that same interpreter rather than installing
+anything new:
+
 ```bash
 cd feedback
 # TURNSTILE_SECRET from step 1, FEEDBACK_TO from step 2, plus your usual
 # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_REGION.
-python deploy_lambda.py
-python deploy_apigw.py
+../agent/.venv/Scripts/python.exe deploy_lambda.py   # macOS/Linux: ../agent/.venv/bin/python
+../agent/.venv/Scripts/python.exe deploy_apigw.py
 ```
+
+No `agent/.venv` handy, or would rather keep this fully separate from
+the agent? `pip install boto3` in whatever environment you run these
+from, then use plain `python deploy_lambda.py` / `python deploy_apigw.py`
+instead.
 
 `deploy_apigw.py` prints the live endpoint at the end — paste it into
 `js/features/actions.js` as `SITE_FEEDBACK_ENDPOINT`, run
