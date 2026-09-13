@@ -452,19 +452,16 @@ var Actions = {
       render();
     });
   },
-  /* Opens PAGES.feedback and, once that paint has actually happened, loads
-     and renders the Turnstile widget into it. render() itself only
-     schedules the repaint (see js/core/render.js), so this waits two of
-     the browser's own animation frames -- one for that scheduled paint,
-     one to be sure it landed -- before looking for the container div. */
   openFeedbackForm: function(){
     /* Every other mobile-nav link goes through Actions.go, which closes
        the sidebar before navigating (see go() above) -- this one bypassed
-       it to reach navigate() directly for the Turnstile follow-up below,
-       and dropped that line in the process. */
+       it to reach navigate() directly, and dropped that line in the
+       process. Loading Turnstile itself is render()'s job now (see
+       js/core/render.js) -- it runs there on every paint of this route,
+       not just the one this click kicks off, which is what actually
+       fixed a direct link or a refresh landing on an empty widget. */
     session.sidebarOpen = false;
     navigate("feedback");
-    requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
   },
   /* Model-only, like pickMatch above -- no render(), so the Turnstile
      widget already sitting in the DOM is left alone rather than wiped
@@ -474,10 +471,10 @@ var Actions = {
   typeFeedbackEmail: function(el){ session.feedbackForm.email = el.value; },
   /* Unlike the fields above, attaching a file has to repaint -- the
      filename/thumbnail it adds lives in session, same as everything
-     else, so it can only appear via render(). That wipes and reloads
-     the Turnstile widget same as openFeedbackForm's first paint does,
-     so this re-schedules it the same way; solving the captcha again
-     is the cost of a re-render this app doesn't otherwise pay mid-form. */
+     else, so it can only appear via render(). That wipes and reloads the
+     Turnstile widget too (render.js re-runs ensureTurnstileWidget on
+     every paint of this route); solving the captcha again is the cost of
+     a re-render this app doesn't otherwise pay mid-form. */
   attachFeedbackFile: function(el){
     var f = el.files && el.files[0];
     if(!f) return;
@@ -497,14 +494,12 @@ var Actions = {
     rd.onload = function(){
       session.feedbackForm.attachment = {name:f.name, type:f.type, dataUrl:rd.result};
       render();
-      requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
     };
     rd.readAsDataURL(f);
   },
   removeFeedbackAttachment: function(){
     session.feedbackForm.attachment = null;
     render();
-    requestAnimationFrame(function(){ requestAnimationFrame(ensureTurnstileWidget); });
   },
   sendSiteFeedback: function(){
     var f = session.feedbackForm;

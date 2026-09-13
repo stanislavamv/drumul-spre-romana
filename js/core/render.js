@@ -63,6 +63,15 @@ function renderApp(){
      from a call this early. */
   if(typeof page !== "function") return;
   document.getElementById("root").innerHTML = renderTopbar() + page(route.params||[]) + themeToggle();
+  /* Loading Turnstile only from openFeedbackForm's click handler meant a
+     direct visit, a refresh, or the back/forward buttons landed on
+     #/feedback with no widget at all and no way to get one -- render() is
+     the one place every path to this page actually passes through.
+     Calling this on every paint while the route is "feedback" is safe
+     precisely because the innerHTML assignment above already threw away
+     any previous #turnstile-container: there is never a live widget left
+     to duplicate, only ever a fresh, empty div that needs one. */
+  if(route.page==="feedback") ensureTurnstileWidget();
   restoreField(snapshot);
   updateScrollTop();
 }
