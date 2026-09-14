@@ -217,7 +217,7 @@ var ILR_PAPERS = [
 /* ---------- LESSON RUNNER ---------- */
 var STAGE_LABEL = {context:"Context", grammar:"Grammar", vocab:"Vocabulary", culture:"Culture",
   practice:"Guided practice", listening:"Listening", pronunciation:"Pronunciation",
-  reading:"Reading", production:"Production", review:"Review", contrast:"Compare"};
+  reading:"Reading", production:"Written Production", review:"Review", contrast:"Compare"};
 
 /* ---------- READING NUMERALS ALOUD ----------
    Digits in a text were inert: a learner could click every word in "În 1859,
