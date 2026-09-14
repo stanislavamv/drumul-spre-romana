@@ -5,7 +5,7 @@ citizenship preparation, I.L.R. exam preparation, and a register/slang track.
 No build step, no server, no framework, no dependencies.
 
 Open `index.html` in a browser. That is the whole install procedure.
-Or try it live: **[stanislavamv.github.io](https://stanislavamv.github.io/)**.
+Or try it live: **[stanislavamv.github.io/drumul-spre-romana](https://stanislavamv.github.io/drumul-spre-romana/)**.
 
 ---
 
