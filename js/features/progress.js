@@ -30,6 +30,11 @@ function isUnitUnlocked(unit){
   if(state.settings.unlockAll) return true;
   if(state.unlockedUnits[unit.id]) return true;
   if(unit.order===1) return true;
+  /* The first three units of the very first level are open to any visitor,
+     not just returning learners, so someone previewing the course (or testing
+     the free-writing feedback for the hackathon) isn't stuck finishing Unit 1
+     first. Every other unit still unlocks strictly in order. */
+  if(unit.order<=3 && unit.levelId===LEVELS[0].id) return true;
   var siblings = UNITS.filter(function(u){ return u.levelId===unit.levelId; });
   var prev = siblings.find(function(u){ return u.order===unit.order-1; });
   if(!prev) return true;
