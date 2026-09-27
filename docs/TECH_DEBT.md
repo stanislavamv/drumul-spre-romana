@@ -60,11 +60,84 @@ what this entry is about.
 
 ---
 
+## All dialogue speakers share one voice — no gender or per-character TTS
+
+**Where:** `js/core/speech.js` (`Speech`, `scoreVoice`, `speakLocal`,
+`speakOne`), `js/data/texts.js` (`DIALOGUES`, `l.speaker`)
+
+A dialogue line only carries `speaker` as a display name (e.g. `"Diana"`,
+`"Vlad"`) — nothing marks its grammatical or actual gender, and nothing
+downstream would use it if it did. `Speech.speak()`/`speakOne()` take no
+speaker or voice argument at all. Two playback paths exist and both end up
+gender-blind for a different reason:
+
+- **Pre-rendered clips** (`AUDIO_ASSETS`/`audio-manifest.js`, see
+  `docs/AUDIO.md`) are Google Translate `translate_tts` output, which exposes
+  no voice or gender parameter — every clip for a given language is the same
+  voice, so this path cannot distinguish speakers even in principle without
+  switching to a different TTS backend.
+- **The local-voice fallback** (`speakLocal`) picks exactly one voice up
+  front — `refresh()` ranks every installed `ro-*` voice via `scoreVoice` and
+  keeps only the single highest-scoring one in `roVoice` — and every line of
+  every dialogue is spoken with that one voice, regardless of who is
+  speaking. On a machine whose only (or best-ranked) Romanian voice is a
+  single one — Windows/Edge commonly expose just one, such as "Microsoft
+  Andrei" — this reads as "everyone in every dialogue sounds like the same
+  man," which is what was reported: Diana's lines in `d_u2l2` come out in the
+  same voice as Vlad's.
+
+**Cost:** does not break comprehension, but makes it harder to tell, by ear
+alone, which character is speaking mid-playback — a dialogue between two
+people should not sound like one person reading both parts.
+
+**Fix — two independent efforts, since the two playback paths need different
+work:**
+
+- For the local-voice fallback: add a gender (or a specific preferred voice
+  name) to each `DIALOGUES` entry's speaker, or infer it from a small
+  name→gender table, thread it through `audioButton`/`speakSequence`/
+  `speakOne` down to `speakLocal`, and have `refresh()`/`scoreVoice` keep the
+  best-ranked voice *per gender* instead of a single global best — falling
+  back to the one available voice when only one exists, same as today.
+- For pre-rendered clips: `translate_tts` cannot do this at all. A different
+  backend would be needed for gendered clips (e.g. Edge's neural voices,
+  which do come in distinct named voices per language — the same voices
+  `scoreVoice` already ranks for the *live* fallback), which is a bigger
+  change to `tools/fetch_audio.py` and the licensing question in
+  `docs/AUDIO.md`, not a small patch.
+
+---
+
 ## Recently cleared
 
 Kept as a short record so the same ground is not re-examined from scratch. The
 detail is in the commits.
 
+- **A word inside a taught phrase could shadow its own real meaning, and a
+  whole class of verbs had no conjugated forms glossable at all.**
+  `buildGlossIndex` (`js/features/gloss.js`) indexed VOCAB before VERBS, so
+  "pare" split out of the taught phrase "Îmi pare rău" claimed that key before
+  `v_parea`'s own present tense ("to seem") ever got a turn — the phrase-word
+  split now runs last, lowest priority. Separately, verbs declared with the
+  compact `irr:{...}` table (most of them — `a părea` among them) had none of
+  their conjugated forms indexed at all, only the bare infinitive: the tense
+  loop only read `vb[tense]`, never `vb.irr[tense]`, so `pare` had nothing
+  competing with the phrase-word entry in the first place. Both are fixed.
+  While in there: `drăguț` had no gloss entry anywhere (added to `VOCAB`);
+  `ei` was mislabeled "they (f.)" — it is masculine, `ele` is the feminine
+  one; the accusative/dative object clitics (`îl`, `îi`, `le`, `îmi`, `îți`)
+  and the subject pronouns (`eu`, `tu`, `el`, `ea`, `noi`, `voi`, `ele`) were
+  never in `CORE_GLOSS` at all despite opening a large fraction of the
+  course's sentences; and the definite-article fallback stripped `-ul` even
+  from a stem that already ends in a vowel (`noul` → `no`, not `nou`), so it
+  never found the real word — now handled as its own case.
+  A follow-up audit of every dialogue and reading line against `glossLookup`
+  found roughly 1,200 further word-forms with no gloss at all: real
+  vocabulary gaps (`există`, `despre`, `doar`, `mâncare`…), hyphenated
+  contractions the tokenizer doesn't split (`s-a`, `m-am`, `într-un`), and
+  proper nouns (`București`, `Moldova`) that belong in `KNOWN_NAMES` rather
+  than as vocabulary. Not fixed here — each needs a real, reviewed
+  translation rather than a bulk pass, so it's a separate content task.
 - **The 35-day review interval was unreachable.** `SRS_LEVELS` has five entries
   and `SRS_INTERVALS` six, and the lookup clamped to the shorter one, so
   *Mastered* came back after 16 days rather than 35. Fixed by reading
