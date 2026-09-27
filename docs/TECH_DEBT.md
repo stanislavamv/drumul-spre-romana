@@ -155,10 +155,41 @@ detail is in the commits.
   gloss rather than silently picking one.
   Every word-form occurring **2 or more times** anywhere in the course is now
   glossable (down from 1,239 total unglossed forms to ~820, all of them now
-  singletons — a word used exactly once). What's left is the long tail:
-  one-off vocabulary and proper nouns, each worth much less per item to fix.
-  A reasonable stopping point for now rather than a natural end — `git log`
-  has the commit-by-commit detail of what changed at each pass.
+  singletons — a word used exactly once).
+
+  A further pass finished the job: every one of those ~820 singletons is now
+  glossed too, taking the course from 1,239 unglossed word-forms to 4 — three
+  anonymized forum usernames in a reading passage (`anonim_23`, `mihai_b`,
+  `elenap`) and one address-initial fragment, all deliberately left alone
+  since they aren't real words. That pass added roughly 30 more verbs entirely
+  missing from `VERBS` (`a decide`, `a scoate`, `a povesti`, `a se strădui`…),
+  ~350 more `CORE_GLOSS`/`KNOWN_NAMES` entries, and turned up three more real
+  bugs, all in `conjugation.js`'s mechanical imperfect-tense rule:
+  - `a sta`'s imperfect is generated from its bare stem (`st-`) and the
+    engine's default `-a-` link, giving `stam` — real Romanian is `stăteam`.
+    Same failure mode for `a scrie`/`a descrie` (`scriea` instead of `scria`)
+    and for any verb whose infinitive ends in a vowel+`i` diphthong that
+    `verbParts` strips down to the wrong stem (`a altoi`, `a sfătui`,
+    `a plănui`, `a revizui`, `a se strădui` — `altoiam` was coming out as
+    `altoam`, dropping the `oi`). Fixed per verb with an explicit
+    `irr.imperfect`, the same way `irr.present` already overrides the
+    mechanical rule elsewhere. Not audited across the rest of `VERBS` for
+    more instances of the same class — a worthwhile follow-up.
+  - Some verbs are taught in `VOCAB` (with `pos:"verb"` and an example) but
+    were never given a matching `VERBS` conjugation entry (`a tuși`, `a răci`)
+    — the same "conjugated forms unglossable" bug from the first pass, just
+    reached from the VOCAB side. `VOCAB` and `VERBS` are two separate lists
+    with nothing keeping them in sync; whether other such gaps remain wasn't
+    checked exhaustively.
+  - Three whole tenses the course actually uses in its reading passages have
+    no category in the engine at all: the pluperfect (`terminasem` = "I had
+    finished"), the literary simple past (`făcui` = "I did"), and the gerund
+    (`lucrând` = "working"). All patched as one-off `CORE_GLOSS` word-forms
+    rather than taught as a paradigm — giving them proper engine support is
+    real follow-up work, not something to improvise at the end of a long
+    session.
+
+  `git log` has the commit-by-commit detail of what changed at each pass.
 - **The 35-day review interval was unreachable.** `SRS_LEVELS` has five entries
   and `SRS_INTERVALS` six, and the lookup clamped to the shorter one, so
   *Mastered* came back after 16 days rather than 35. Fixed by reading
