@@ -138,16 +138,27 @@ detail is in the commits.
   one; and the definite-article fallback stripped `-ul` even from a stem that
   already ends in a vowel (`noul` → `no`, not `nou`) — now its own case.
   A follow-up audit of every dialogue and reading line against `glossLookup`
-  found nearly 1,200 word-forms with no gloss at all. The pronouns and
-  clitics missing from `CORE_GLOSS` (`eu`, `tu`, `el`, `ea`, `noi`, `voi`,
-  `ele`, `îl`, `îi`, `le`, `îmi`, `îți`) and every word-form occurring 4+
-  times in the corpus (`doar`, `despre`, `există`, `mâncare`, common
-  contractions like `s-a`/`m-am`/`într-un`…) were added — this alone cleared
-  the top of the list entirely (0 word-forms left at 4+ occurrences, down
-  from 1,239 unglossed word-forms total to about 1,050). What's left is the
-  long tail: lower-frequency vocabulary, and proper nouns not yet in
-  `KNOWN_NAMES`. Same shape of work, just diminishing returns per item —
-  a good place to stop for one sitting rather than a natural end point.
+  found nearly 1,240 word-forms with no gloss at all. Worked down the
+  frequency list in two further passes — every word-form occurring 4+ times,
+  then every one occurring 2–3 times — adding the missing pronouns/clitics,
+  ~150 `CORE_GLOSS` entries (`doar`, `despre`, `mâncare`, contractions like
+  `s-a`/`m-am`/`într-un`…), a handful of missing region/country names to
+  `KNOWN_NAMES`, and 13 verbs that turned out to not exist in `VERBS` at all
+  — not just under-conjugated but entirely absent — including `a exista`,
+  `a verifica`, `a percepe`, `a trece`, `a se culca` (full conjugation
+  entries, cross-checked by hand against the engine's own rules and verified
+  live on the Verbs page, not just a single patched form). Two real content
+  bugs turned up in the process and got fixed too: `ei` collapsing multiple
+  senses of "national" (`națională`/`naționale`) into one entry the first
+  time round, and a homograph the diacritic-stripped index can't actually
+  tell apart (`vită`/`viță`, `această`/`aceasta`), now stated honestly in the
+  gloss rather than silently picking one.
+  Every word-form occurring **2 or more times** anywhere in the course is now
+  glossable (down from 1,239 total unglossed forms to ~820, all of them now
+  singletons — a word used exactly once). What's left is the long tail:
+  one-off vocabulary and proper nouns, each worth much less per item to fix.
+  A reasonable stopping point for now rather than a natural end — `git log`
+  has the commit-by-commit detail of what changed at each pass.
 - **The 35-day review interval was unreachable.** `SRS_LEVELS` has five entries
   and `SRS_INTERVALS` six, and the lookup clamped to the shorter one, so
   *Mastered* came back after 16 days rather than 35. Fixed by reading
