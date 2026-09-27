@@ -139,7 +139,58 @@ var CORE_GLOSS = [
  ["nost","our (elided form of nostru)","pron","Written nost' in the anthem — an old shortening of nostru."],
  ["oaste","army, host","noun"],["deviza","the motto","noun"],["preasfânt","most holy","adj"],
  ["mărețe","great, majestic (f. pl.)","adj"],["strigă","shouts, cries","verb"],
- ["croiește","forge, shape (imperative)","verb"],["adânciră","they sank (archaic past)","verb"]
+ ["croiește","forge, shape (imperative)","verb"],["adânciră","they sank (archaic past)","verb"],
+ // Top-frequency gap found by auditing every dialogue/reading line against
+ // glossLookup: these had no entry anywhere and are common enough (4+
+ // occurrences across the course) to fix directly rather than leave for a
+ // future pass. Some pairs are genuinely indistinguishable once normLoose
+ // strips diacritics (această/aceasta both key to "aceasta"; the adjective
+ // române and the noun plural romane both key to "romane") — those entries
+ // say so rather than silently picking one sense.
+ ["doar","only, just","adv"],
+ ["asta","this, that (colloquial)","pron","The everyday spoken form; aceasta/această is the more formal written equivalent."],
+ ["minute","minutes","noun"],["despre","about, concerning","prep"],
+ ["s-a","(reflexive/passive) has — contraction of se + a","part","S-a întâmplat = it happened (lit. 'itself has happened')."],
+ ["ori","times, occurrences; or","conj / noun","De două ori = twice. Ori...ori... = either...or."],
+ ["oameni","people","noun","Irregular plural of om."],["oamenii","the people","noun"],
+ ["prima","the first (f.)","num"],["primul","the first (m.)","num"],
+ ["m-am","(reflexive) have — contraction of mă + am","part","M-am trezit = I woke up (lit. 'myself I-have woken')."],
+ ["ci","but rather, but instead","conj","A stronger contrast than dar — corrects the previous clause instead of just contrasting with it."],
+ ["aceasta","this (f.) — pronoun 'aceasta' or adjective 'această' (before a noun)","pron / adj"],
+ ["într-un","in a, into a (m./n.)","prep"],["dovadă","proof, evidence","noun"],
+ ["însă","however, but","conj"],["acesta","this (m., formal/written)","pron"],
+ ["euro","euro (currency)","noun","Invariable: un euro, doi euro."],
+ ["toate","all (f./pl.)","adj","Form of toată/tot agreeing with a feminine or neuter plural noun."],
+ ["acest","this (m., before a noun)","adj","Acest bărbat = this man — contrast acesta, which stands alone."],
+ ["dintre","from among, of","prep","Unul dintre ei = one of them."],
+ ["numai","only","adv"],["mine","me","pron","Used after a preposition: pentru mine, cu mine."],
+ ["perfect","perfect; also 'Perfect!' = great!","adj"],
+ ["mi","to me","pron","Short elided form of îmi, used before a vowel: mi-e dor = I miss (it/them)."],
+ ["lucrurile","the things","noun"],["mâncare","food","noun"],["spre","toward, to","prep"],
+ ["deloc","not at all","adv","Needs nu on the verb: nu-mi place deloc = I don't like it at all."],
+ ["exact","exact(ly)","adj / adv"],["adresă","address","noun"],
+ ["într-o","in a, into a (f.)","prep"],
+ ["m-a","has ... me — contraction of mă + a","part","M-a văzut = he/she saw me."],
+ ["distanță","distance","noun"],
+ ["lumea","the world; everyone, people","noun","Idiomatic: toată lumea = everyone."],
+ ["unele","some (f./pl.)","adj / pron"],["alt","other, another (m.)","adj"],
+ ["plus","plus; also, in addition","conj"],["națională","national (f.)","adj"],
+ ["mii","thousands","num","Plural of mie."],["kilometri","kilometers","noun"],
+ ["atât","so much, that much","adv / adj"],["mașină","car; machine","noun"],
+ ["model","model","noun"],
+ ["romane","Romanian (f./pl. adjective); also 'novels' (plural of roman)","adj / noun"],
+ ["perioadă","period (of time)","noun"],["același","the same (m.)","adj / pron"],
+ ["imediat","immediately","adv"],["cuvinte","words","noun"],
+ ["orice","any, anything, whatever","pron / adj"],["aceeași","the same (f.)","adj / pron"],
+ ["veți","(future auxiliary) will — used with voi/dumneavoastră","part","Veți vedea = you will see."],
+ ["lucruri","things","noun"],
+ ["uniunii","of the Union — genitive/dative of uniune","noun","Part of Uniunea Europeană / Uniunii Europene, the European Union."],
+ ["europene","European (f./pl.)","adj"],["identitate","identity","noun"],
+ ["își","himself, herself, themselves (dative reflexive)","pron","Different from se: își amintește = he/she remembers (lit. 'reminds to-self')."],
+ ["mi-a","to me + has — perfect-tense contraction","part","Mi-a spus = he/she told me (lit. 'to-me he/she-has said')."],
+ ["niciunul","none, not a single one (m.)","pron","Requires nu on the verb, like nimic/nimeni."],
+ ["nici","neither, not even","conj / adv","Nici...nici... = neither...nor."],
+ ["lumină","light","noun"],["somn","sleep","noun","Somn ușor = sleep well."]
 ];
 
 /* Names are recognized so the gloss can say "proper name" rather than
@@ -147,7 +198,13 @@ var CORE_GLOSS = [
 var KNOWN_NAMES = ["andrei","maria","ioana","elena","ion","radu","bianca","cristina","mihai","ana",
   "sarah","tom","lukas","vlad","sorin","alex","victor","dan","diana","paul","laura","bogdan",
   "cluj","cluj-napoca","bucurești","timișoara","iași","românia","herăstrău","aviatorilor",
-  "ionescu","popescu","victoriei","berlin","londra","new york","america","anglia","franța","bulgaria"];
+  "ionescu","popescu","victoriei","berlin","londra","new york","america","anglia","franța","bulgaria",
+  "moldova","brașov","transilvania"];
+/* new york above never actually matches either word of it: KNOWN_NAMES is
+   checked one whitespace token at a time (see glossLookup), so a two-word
+   entry here can only ever match a single-word click. Pre-existing, not
+   something this pass fixes — flagged so nobody assumes multi-word names
+   work here as a way to add "Uniunea Europeană". */
 
 /* English function words with no Romanian homograph. Deliberately excludes
    a, an, care, e, in, la, nu, sa, si, ma, o — every one of those is also a

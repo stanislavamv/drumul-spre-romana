@@ -38,6 +38,7 @@
 "use strict";
 
 var GLOSS_INDEX = null;
+var KNOWN_NAMES_NORM = null;
 function glossPut(ix, form, entry){
   var k = normLoose(String(form||"").replace(/[!?.]/g,""));
   if(!k || k.indexOf(" ")>-1 && !entry.allowPhrase) { if(!k) return; }
@@ -80,18 +81,19 @@ function buildGlossIndex(){
   var PERSON_LABEL = {eu:"eu", tu:"tu", el:"el/ea", noi:"noi", voi:"voi", ei:"ei/ele"};
   VERBS.forEach(function(vb){
     glossPut(ix, vb.inf, {ro:vb.inf, en:vb.en, pos:"verb · infinitive", verbId:vb.id, allowPhrase:true});
-    /* Two declaration styles coexist in VERBS: high-frequency verbs spell out
-       every tense as a top-level field; most others give only `irr` — a
-       present tense table plus whichever other cells deviate from the
-       regular pattern — and let the conjugation engine (conjugation.js)
-       generate the rest at render time. A tense/imperative/participle
-       declared under `irr` is just as real as one declared at the top level,
-       so it must be indexed the same way, or every verb using this shorter
-       style (a părea among them — see the header comment) has none of its
-       conjugated forms glossable, only its bare infinitive. */
-    var irr = vb.irr || {};
+    /* verbTables() (conjugation.js, loaded before this file) is the single
+       source of truth the rest of the app already uses to display a verb's
+       paradigm: a hand-written table when the data spells one out, an
+       engine-generated one otherwise, `irr` overrides folded in either way.
+       Reading vb[t]/vb.irr[t] directly here used to miss both an `irr`-only
+       verb's non-present cells and, worse, EVERY cell of a fully-regular verb
+       that declares no table at all — only its group/class, which is most of
+       VERBS. Calling the same accessor the Verbs page uses means a form is
+       glossable exactly when it is displayable, no separate bookkeeping to
+       keep in sync. */
+    var tables = verbTables(vb);
     Object.keys(TENSE_LABEL).forEach(function(t){
-      var table = vb[t] || irr[t];
+      var table = tables[t];
       if(!table) return;
       Object.keys(table).forEach(function(p){
         var form = table[p];
@@ -109,16 +111,15 @@ function buildGlossIndex(){
         }
       });
     });
-    var imperative = vb.imperative || irr.imperative;
-    if(imperative){
+    if(tables.imperative){
       ["tu","voi"].forEach(function(p){
-        if(imperative[p] && imperative[p]!=="—")
-          glossPut(ix, imperative[p], {ro:imperative[p], en:vb.en, lemma:vb.inf,
+        var form = tables.imperative[p];
+        if(form && form!=="—")
+          glossPut(ix, form, {ro:form, en:vb.en, lemma:vb.inf,
             pos:"verb · imperative, "+p, verbId:vb.id});
       });
     }
-    var participle = vb.participle || irr.participle;
-    if(participle) glossPut(ix, participle, {ro:participle, en:vb.en, lemma:vb.inf,
+    if(tables.participle) glossPut(ix, tables.participle, {ro:tables.participle, en:vb.en, lemma:vb.inf,
       pos:"verb · past participle", verbId:vb.id});
   });
   /* 3. Core high-frequency words, added before taught vocabulary's own
@@ -139,7 +140,13 @@ function glossLookup(word){
   var k = normLoose(raw.replace(/[!?.]/g,""));
   if(!k) return null;
   if(/^\d+$/.test(k)) return null;                       // bare digits need no gloss
-  if(KNOWN_NAMES.indexOf(k)>-1) return {ro:raw, en:"proper name", pos:"name", isName:true};
+  /* KNOWN_NAMES is written with diacritics (bucurești, românia) for
+     readability, but k has already had its diacritics stripped by normLoose
+     above — a plain indexOf(k) against the accented array never matched any
+     of them, so every accented name silently fell through to "no gloss"
+     instead of "proper name". Compare against a normalized copy instead. */
+  if(!KNOWN_NAMES_NORM) KNOWN_NAMES_NORM = KNOWN_NAMES.map(function(n){ return normLoose(n); });
+  if(KNOWN_NAMES_NORM.indexOf(k)>-1) return {ro:raw, en:"proper name", pos:"name", isName:true};
   if(GLOSS_INDEX[k]) return GLOSS_INDEX[k];
   /* Fall back to stripping a suffixed definite article, which is the single
      most common reason a real word misses: orașul → oraș, casa → casă. */

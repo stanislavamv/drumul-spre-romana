@@ -113,31 +113,41 @@ work:**
 Kept as a short record so the same ground is not re-examined from scratch. The
 detail is in the commits.
 
-- **A word inside a taught phrase could shadow its own real meaning, and a
-  whole class of verbs had no conjugated forms glossable at all.**
-  `buildGlossIndex` (`js/features/gloss.js`) indexed VOCAB before VERBS, so
-  "pare" split out of the taught phrase "Îmi pare rău" claimed that key before
-  `v_parea`'s own present tense ("to seem") ever got a turn — the phrase-word
-  split now runs last, lowest priority. Separately, verbs declared with the
-  compact `irr:{...}` table (most of them — `a părea` among them) had none of
-  their conjugated forms indexed at all, only the bare infinitive: the tense
-  loop only read `vb[tense]`, never `vb.irr[tense]`, so `pare` had nothing
-  competing with the phrase-word entry in the first place. Both are fixed.
+- **A word inside a taught phrase could shadow its own real meaning, most
+  verbs had no conjugated forms glossable at all, and accented proper nouns
+  could never be recognized.** Three separate bugs in `js/features/gloss.js`,
+  all found from one reported case ("pare" in a dialogue showing "I'm sorry"
+  instead of "seems"):
+  - `buildGlossIndex` indexed VOCAB before VERBS, so "pare" split out of the
+    taught phrase "Îmi pare rău" claimed that key before `v_parea`'s own
+    present tense ("to seem") ever got a turn. The phrase-word split now runs
+    last, lowest priority.
+  - The VERBS pass only read a verb's own `present`/`past`/etc. fields (or,
+    briefly, those plus `irr`), which covers hand-written tables but nothing
+    for a verb declared with only its conjugation class — most of VERBS,
+    including `a exista`, `a spera`, `a accepta`. It now calls `verbTables()`
+    (`conjugation.js`, already loaded first), the same accessor the Verbs
+    page itself uses, so a form is glossable exactly when it's displayable.
+  - `KNOWN_NAMES` is written with diacritics (`bucurești`) but was compared
+    against a diacritic-stripped lookup key, so `indexOf` never matched any
+    accented name — every one of them showed as an unknown word instead of
+    "proper name". Fixed by normalizing the comparison; `Moldova`, `Brașov`
+    and `Transilvania` were also missing from the list entirely and got added.
   While in there: `drăguț` had no gloss entry anywhere (added to `VOCAB`);
   `ei` was mislabeled "they (f.)" — it is masculine, `ele` is the feminine
-  one; the accusative/dative object clitics (`îl`, `îi`, `le`, `îmi`, `îți`)
-  and the subject pronouns (`eu`, `tu`, `el`, `ea`, `noi`, `voi`, `ele`) were
-  never in `CORE_GLOSS` at all despite opening a large fraction of the
-  course's sentences; and the definite-article fallback stripped `-ul` even
-  from a stem that already ends in a vowel (`noul` → `no`, not `nou`), so it
-  never found the real word — now handled as its own case.
+  one; and the definite-article fallback stripped `-ul` even from a stem that
+  already ends in a vowel (`noul` → `no`, not `nou`) — now its own case.
   A follow-up audit of every dialogue and reading line against `glossLookup`
-  found roughly 1,200 further word-forms with no gloss at all: real
-  vocabulary gaps (`există`, `despre`, `doar`, `mâncare`…), hyphenated
-  contractions the tokenizer doesn't split (`s-a`, `m-am`, `într-un`), and
-  proper nouns (`București`, `Moldova`) that belong in `KNOWN_NAMES` rather
-  than as vocabulary. Not fixed here — each needs a real, reviewed
-  translation rather than a bulk pass, so it's a separate content task.
+  found nearly 1,200 word-forms with no gloss at all. The pronouns and
+  clitics missing from `CORE_GLOSS` (`eu`, `tu`, `el`, `ea`, `noi`, `voi`,
+  `ele`, `îl`, `îi`, `le`, `îmi`, `îți`) and every word-form occurring 4+
+  times in the corpus (`doar`, `despre`, `există`, `mâncare`, common
+  contractions like `s-a`/`m-am`/`într-un`…) were added — this alone cleared
+  the top of the list entirely (0 word-forms left at 4+ occurrences, down
+  from 1,239 unglossed word-forms total to about 1,050). What's left is the
+  long tail: lower-frequency vocabulary, and proper nouns not yet in
+  `KNOWN_NAMES`. Same shape of work, just diminishing returns per item —
+  a good place to stop for one sitting rather than a natural end point.
 - **The 35-day review interval was unreachable.** `SRS_LEVELS` has five entries
   and `SRS_INTERVALS` six, and the lookup clamped to the shorter one, so
   *Mastered* came back after 16 days rather than 35. Fixed by reading
