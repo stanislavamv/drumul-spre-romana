@@ -8,14 +8,23 @@
  *
  *   GLOSS_INDEX  inflected form -> entry. Built once on the first lookup from
  *                VOCAB (headwords, gender variants, declared plurals and
- *                definites, and the individual words of multi-word entries),
- *                every declared conjugation cell in VERBS, and CORE_GLOSS.
+ *                definites), every declared conjugation cell in VERBS, and
+ *                CORE_GLOSS — then, last and lowest priority, the individual
+ *                words of multi-word VOCAB entries.
  *   VERB_STEMS   a longest-first stem list, used only when the index misses, so
  *                an unlisted conjugated form still finds its infinitive.
  *
  * glossPut never overwrites an existing key, so index build order IS lookup
  * priority. Reordering the sections inside buildGlossIndex would silently
  * change which entry a shared form resolves to.
+ *
+ * The multi-word split runs last on purpose: "pare" split out of the taught
+ * phrase "Îmi pare rău" (x_imiparerau, "I'm sorry") used to be indexed before
+ * v_parea's own present-tense conjugation reached the same key ("pare" is
+ * also "el/ea" of "a părea", to seem) — so every "pare" in the course, taught
+ * meaning or not, showed "I'm sorry". A word's own headword or conjugation
+ * must win before it is ever reachable as an incidental word of a different
+ * phrase.
  *
  * looksRomanian gates glossify: English prompts contain words like "a" and
  * "care" that collide with Romanian entries, and underlining those is worse
@@ -36,6 +45,13 @@ function glossPut(ix, form, entry){
 }
 function buildGlossIndex(){
   var ix = {};
+  /* Multi-word VOCAB entries also need their individual words reachable
+     (îmi place, aproape de, drept înainte) — that is how a reader clicks. But
+     a word like "pare" split out of "Îmi pare rău" must not beat "pare" as
+     its own headword or conjugation (v_parea, "to seem") to the same key.
+     So these are collected here and only put into the index at the very end,
+     after every pass that indexes a word under its own, correct meaning. */
+  var phraseWords = [];
   /* 1. Vocabulary: headword, and any slash-separated gender variants, plus the
         plural and definite forms the entry already declares. */
   VOCAB.forEach(function(v){
@@ -43,13 +59,11 @@ function buildGlossIndex(){
     String(v.ro).split("/").forEach(function(part){
       part = part.trim();
       glossPut(ix, part, {ro:part, en:v.en, pos:meta, vocabId:v.id, allowPhrase:true});
-      /* Multi-word entries (îmi place, aproape de, drept înainte) must also be
-         reachable by their individual words — that is how a reader clicks. */
       var words = part.split(/\s+/);
       if(words.length>1){
         words.forEach(function(w){
           if(w.length<2) return;
-          glossPut(ix, w, {ro:w, en:v.en, pos:meta, lemma:part, partOfPhrase:true, vocabId:v.id});
+          phraseWords.push([w, {ro:w, en:v.en, pos:meta, lemma:part, partOfPhrase:true, vocabId:v.id}]);
         });
       }
     });
@@ -66,10 +80,22 @@ function buildGlossIndex(){
   var PERSON_LABEL = {eu:"eu", tu:"tu", el:"el/ea", noi:"noi", voi:"voi", ei:"ei/ele"};
   VERBS.forEach(function(vb){
     glossPut(ix, vb.inf, {ro:vb.inf, en:vb.en, pos:"verb · infinitive", verbId:vb.id, allowPhrase:true});
+    /* Two declaration styles coexist in VERBS: high-frequency verbs spell out
+       every tense as a top-level field; most others give only `irr` — a
+       present tense table plus whichever other cells deviate from the
+       regular pattern — and let the conjugation engine (conjugation.js)
+       generate the rest at render time. A tense/imperative/participle
+       declared under `irr` is just as real as one declared at the top level,
+       so it must be indexed the same way, or every verb using this shorter
+       style (a părea among them — see the header comment) has none of its
+       conjugated forms glossable, only its bare infinitive. */
+    var irr = vb.irr || {};
     Object.keys(TENSE_LABEL).forEach(function(t){
-      if(!vb[t]) return;
-      Object.keys(vb[t]).forEach(function(p){
-        var form = vb[t][p];
+      var table = vb[t] || irr[t];
+      if(!table) return;
+      Object.keys(table).forEach(function(p){
+        var form = table[p];
+        if(!form) return;
         glossPut(ix, form, {ro:form, en:vb.en, lemma:vb.inf,
           pos:"verb · "+TENSE_LABEL[t]+", "+PERSON_LABEL[p], verbId:vb.id, allowPhrase:true});
         /* Reflexive tables store the pronoun with the verb ("se trezește").
@@ -83,20 +109,26 @@ function buildGlossIndex(){
         }
       });
     });
-    if(vb.imperative){
+    var imperative = vb.imperative || irr.imperative;
+    if(imperative){
       ["tu","voi"].forEach(function(p){
-        if(vb.imperative[p] && vb.imperative[p]!=="—")
-          glossPut(ix, vb.imperative[p], {ro:vb.imperative[p], en:vb.en, lemma:vb.inf,
+        if(imperative[p] && imperative[p]!=="—")
+          glossPut(ix, imperative[p], {ro:imperative[p], en:vb.en, lemma:vb.inf,
             pos:"verb · imperative, "+p, verbId:vb.id});
       });
     }
-    if(vb.participle) glossPut(ix, vb.participle, {ro:vb.participle, en:vb.en, lemma:vb.inf,
+    var participle = vb.participle || irr.participle;
+    if(participle) glossPut(ix, participle, {ro:participle, en:vb.en, lemma:vb.inf,
       pos:"verb · past participle", verbId:vb.id});
   });
-  /* 3. Core high-frequency words, added last so taught vocabulary wins. */
+  /* 3. Core high-frequency words, added before taught vocabulary's own
+        phrase-words so those don't lose to a generic core entry either. */
   CORE_GLOSS.forEach(function(row){
     glossPut(ix, row[0], {ro:row[0], en:row[1], pos:row[2], note:row[3], allowPhrase:true});
   });
+  /* 4. Individual words of multi-word VOCAB entries, lowest priority — see
+        the header comment for why this must run last. */
+  phraseWords.forEach(function(pair){ glossPut(ix, pair[0], pair[1]); });
   return ix;
 }
 function glossLookup(word){
@@ -113,6 +145,12 @@ function glossLookup(word){
      most common reason a real word misses: orașul → oraș, casa → casă. */
   var tries = [
     k.replace(/(ul|lui)$/,""), k.replace(/(ului)$/,""),
+    /* A stem that already ends in a vowel takes just -l for the definite
+       article, not -ul (nou → noul, birou → biroul), so the generic "ul"
+       strip above removes one letter too many (noul → "no", not "nou") and
+       the word never resolves. This targets that case specifically instead
+       of widening the plain "l$" strip to every word ending in l. */
+    k.replace(/([aeiouăâ])l$/,"$1"),
     k.replace(/le$/,""), k.replace(/a$/,"ă"), k.replace(/a$/,""),
     k.replace(/i$/,""), k.replace(/ii$/,"")
   ];
