@@ -42,11 +42,28 @@ var CORE_GLOSS = [
  ["ce","what","pron"],["cine","who","pron"],["cât","how much","pron"],["cum","how","adv"],
  ["când","when","adv"],["unde","where","adv"],["de ce","why","adv"],
  ["lui","his; to him (also marks masculine genitive)","pron"],
- ["ei","her; their; they (f.)","pron"],["lor","their","pron"],
+ /* ei was previously glossed as "they (f.)" — wrong: ei is masculine plural
+    (they-m.), ele is feminine plural (they-f.). The genitive/dative "her"
+    sense (cartea ei = her book) is a real, separate use of the same word. */
+ ["ei","her (possessive/dative); their; they (m.)","pron"],["lor","their","pron"],
  ["meu","my (m.)","pron"],["mea","my (f.)","pron"],["tău","your (m.)","pron"],["ta","your (f.)","pron"],
  ["nostru","our (m.)","pron"],["noastră","our (f.)","pron"],
+ /* Subject pronouns — read constantly (they open half the sentences in the
+    course) but never taught as vocabulary items, so they were never glossed
+    at all until now. Declared together in SUBJECT_PRONOUNS further down this
+    file; this is the first place their meanings are actually recorded. */
+ ["eu","I","pron"],["tu","you (singular, informal)","pron"],
+ ["el","he; it (m.)","pron"],["ea","she; it (f.)","pron"],
+ ["noi","we","pron"],["ele","they (f.)","pron"],
+ ["voi","you (plural); also the future-tense auxiliary 'will'","pron / part",
+   "Voi merge = I will go (auxiliary); Voi mergeți = you (pl.) are going (pronoun) — same spelling, context decides."],
+ /* e is the everyday spoken contraction of este (a fi, "to be") — as common
+    in real sentences as the full form, and just as unglossed until now. */
+ ["e","is (informal contraction of este)","verb","E frumos = it's beautiful."],
  ["toată","all, whole (f.)","adj"],["tot","all, everything","adj"],["fiecare","each, every","adj"],
- ["niște","some","art"],["un","a, an (m./n.)","art"],["o","a, an (f.); also 'one'","art"],
+ ["niște","some","art"],["un","a, an (m./n.)","art"],
+ ["o","a, an (f.); also 'one'; also 'her/it' as a direct object pronoun","art / pron",
+   "Îl cunosc = I know him; o cunosc = I know her — same pronoun slot, different gender."],
  ["nu","no, not","adv"],["da","yes","adv"],["nimic","nothing","pron","Requires nu on the verb."],
  ["nimeni","nobody","pron","Requires nu on the verb."],
  ["țară","country; la țară = in the countryside","noun"],
@@ -70,6 +87,14 @@ var CORE_GLOSS = [
  ["se","himself/herself/themselves (reflexive)","pron","Part of a reflexive verb: se trezește = he/she wakes up."],
  ["mă","myself (reflexive); me","pron"],["te","yourself (reflexive); you","pron"],
  ["ne","ourselves; us","pron"],["vă","yourselves; you (formal)","pron"],
+ /* Object pronoun clitics — short, unstressed, and everywhere in real speech,
+    but easy to leave out of a word list because they never stand alone in an
+    English gloss the way a noun does. */
+ ["îl","him, it (m.) — direct object pronoun","pron","Îl cunosc pe Andrei = I know Andrei (lit. 'him')."],
+ ["îi","to him, to her — indirect object pronoun; also 'them' (m., direct object)","pron"],
+ ["le","to them — indirect object pronoun; also 'them' (f., direct object)","pron"],
+ ["îmi","to me — indirect object pronoun","pron","Often fused with the verb in speech: îmi place = I like (lit. 'to me it is pleasing')."],
+ ["îți","to you — indirect object pronoun (informal)","pron"],
  ["să","(subjunctive marker)","part","Introduces the subjunctive after verbs like a vrea, a putea, a trebui."],
  ["că","that","conj","Introduces a reported clause: Cred că e bine."],
  ["ca","as, like","prep","Not to be confused with că. ca să = in order to."],
