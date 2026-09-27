@@ -68,6 +68,7 @@ var VOCAB = [
  {id:"w_batran", ro:"bătrân / bătrână", pos:"adj", en:"old (person)", ex:{ro:"Câinele nostru este bătrân.",en:"Our dog is old."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
  {id:"w_frumos", ro:"frumos / frumoasă", pos:"adj", en:"beautiful / handsome", ex:{ro:"Ea are un zâmbet frumos.",en:"She has a beautiful smile."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
  {id:"w_simpatic", ro:"simpatic / simpatică", pos:"adj", en:"nice, likeable", ex:{ro:"Colegii mei sunt foarte simpatici.",en:"My colleagues are very nice."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
+ {id:"w_dragut", ro:"drăguț / drăguță", pos:"adj", en:"nice, cute, sweet", ex:{ro:"Pare foarte drăguț.",en:"He seems very nice."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
  {id:"w_vesel", ro:"vesel / veselă", pos:"adj", en:"cheerful", ex:{ro:"Copiii sunt veseli azi.",en:"The children are cheerful today."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
  {id:"w_blond", ro:"blond / blondă", pos:"adj", en:"blond(e)", ex:{ro:"Sora mea este blondă.",en:"My sister is blond(e)."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
  {id:"w_ochi", ro:"ochi", pos:"noun", gender:"m", plural:"ochi", definite:"ochii", en:"eye(s)", ex:{ro:"Are ochi verzi.",en:"He/she has green eyes."}, level:"a1_1", unit:"a1_1_u2", tags:["description"]},
